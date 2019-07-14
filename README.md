@@ -6,7 +6,9 @@ common facilities that such games need. This is just one component of many.
 
 ## About this Library ##
 
-This library is a sample Jagati package that can copied to create a new Jagati Package or game project using the Jagati.
+This library provides some simple local filesystem access and query utilities. At the time of this
+writing, not all platforms support std::filesystem cleanly. Even after it is supported on all 
+compilers we care about this library offers some extra utilities std::filesystem doesn't cover.
 
 ## Build Status ##
 
