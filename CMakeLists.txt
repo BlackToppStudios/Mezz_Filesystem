@@ -52,10 +52,10 @@ if(NOT JAGATI_Download)
     option(JAGATI_Download "Should the Jagati be downloaded automatically" ON)
 endif(NOT JAGATI_Download)
 if(JAGATI_Download)
-    set(JAGATI_Checksum "a2043610a5e0d315f0e268b9aa42bdd2819ed6e20a6f1f88cfa\
-ef4ec99ce149e87cff846f2eb7d0558d5d94f4006b963bfbc36ef897013179563335d5ea57767"
+    set(JAGATI_Checksum "15a46cbadeabe66314d91c2347283ed5d1a1d94c48dd67d6351\
+3767b52ec263813acbbb190d3b30aa843fd969f54231f3a23514eb6c1554af51bb696c26269ad"
         CACHE STRING "Check that when the Jagati is downloaded the right one is used (for consistency and security).")
-    set(JAGATI_Url "https://raw.githubusercontent.com/BlackToppStudios/Jagati/0.27.4/Jagati.cmake"
+    set(JAGATI_Url "https://raw.githubusercontent.com/BlackToppStudios/Jagati/0.28.1/Jagati.cmake"
         CACHE STRING "Where to download the Jagati from.")
     file(DOWNLOAD "${JAGATI_Url}" "${JAGATI_File}" EXPECTED_HASH SHA512=${JAGATI_Checksum})
 endif(JAGATI_Download)
@@ -68,18 +68,27 @@ StandardJagatiSetup()
 IncludeJagatiPackage("StaticFoundation")
 IncludeJagatiPackage("Test")
 IncludeJagatiPackage("Foundation")
+IncludeJagatiPackage("IOStreams")
 
 ########################################################################################################################
 # Source files
 message(STATUS "Determining Source Files.")
 
-#AddHeaderFile("SampleHeader.h")
+#AddHeaderFile("DirectoryContents.h")
+#AddHeaderFile("FilesystemManagement.h")
+AddHeaderFile("PathUtilities.h")
+#AddHeaderFile("SpecialDirectoryUtilities.h")
+#AddHeaderFile("SystemPathUtilities.h")
 ShowList("Header Files:" "\t" "${PackageNameFiles}")
 
-#AddSourceFile("SampleSource.cpp")
+#AddSourceFile("DirectoryContents.cpp")
+#AddSourceFile("FilesystemManagement.cpp")
+AddSourceFile("PathUtilities.cpp")
+#AddSourceFile("SpecialDirectoryUtilities.cpp")
+#AddSourceFile("SystemPathUtilities.cpp")
 ShowList("Source Files:" "\t" "${PackageNameSourceFiles}")
 
-#AddJagatiDoxInput("Dox.h")
+AddJagatiDoxInput("Dox.h")
 ShowList("Doxygen Input Files:" "\t" "${PackageNameDoxFiles}")
 
 ########################################################################################################################
@@ -87,7 +96,11 @@ ShowList("Doxygen Input Files:" "\t" "${PackageNameDoxFiles}")
 AddJagatiLibrary()
 CreateCoverageTarget(${FilesystemLib} "${FilesystemSourceFiles}")
 
-#AddTestFile("SampleTest.h")
+#AddTestFile("DirectoryContentsTests.h")
+#AddTestFile("FilesystemManagementTests.h")
+AddTestFile("PathUtilitiesTests.h")
+#AddTestFile("SpecialDirectoryUtilitiesTests.h")
+#AddTestFile("SystemPathUtilitiesTests.h")
 EmitTestCode()
 AddTestTarget()
 
