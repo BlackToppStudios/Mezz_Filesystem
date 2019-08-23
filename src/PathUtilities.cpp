@@ -282,7 +282,7 @@ namespace Filesystem {
         }
         const StringView PathRoot = ToRemove.substr(0,SplitStartPos);
         const StringView FileName = ( FileStartPos != String::npos ? ToRemove.substr(FileStartPos) : String() );
-        return std::move( BuildPath(PathRoot,RetSegments,FileName,UseWindowsSlash) );
+        return BuildPath(PathRoot,RetSegments,FileName,UseWindowsSlash);
     }
 
     String CombinePathAndFileName(const StringView FilePath, const StringView FileName)
