@@ -105,7 +105,7 @@ AUTOMATIC_TEST_GROUP(PathUtilitiesTests,PathUtilities)
         TEST_EQUAL("GetDirectorySeparator_Posix()",'/',Filesystem::GetDirectorySeparator_Posix());
         TEST_EQUAL("GetDirectorySeparator_Windows()",'\\',Filesystem::GetDirectorySeparator_Windows());
         TEST_EQUAL("GetDirectorySeparator_Universal()",'/',Filesystem::GetDirectorySeparator_Universal());
-    #ifdef MEZZ_WINDOWS
+    #ifdef MEZZ_Windows
         TEST_EQUAL("IsDirectorySeparator_Host(const_T)-Pass",true,Filesystem::IsDirectorySeparator_Host('\\'));
         TEST_EQUAL("IsDirectorySeparator_Host(const_T)-Fail",false,Filesystem::IsDirectorySeparator_Host('/'));
         TEST_EQUAL("GetDirectorySeparator_Host()",'\\',Filesystem::GetDirectorySeparator_Host());
@@ -123,7 +123,7 @@ AUTOMATIC_TEST_GROUP(PathUtilitiesTests,PathUtilities)
         TEST_EQUAL("IsPathSeparator_Windows(const_T)-Fail",false,Filesystem::IsPathSeparator_Windows(':'));
         TEST_EQUAL("GetPathSeparator_Posix()",':',Filesystem::GetPathSeparator_Posix());
         TEST_EQUAL("GetPathSeparator_Windows()",';',Filesystem::GetPathSeparator_Windows());
-    #ifdef MEZZ_WINDOWS
+    #ifdef MEZZ_Windows
         TEST_EQUAL("IsPathSeparator_Host(const_T)-Pass",true,Filesystem::IsPathSeparator_Host(';'));
         TEST_EQUAL("IsPathSeparator_Host(const_T)-Fail",false,Filesystem::IsPathSeparator_Host(':'));
         TEST_EQUAL("GetPathSeparator_Host()",';',Filesystem::GetPathSeparator_Host());
@@ -167,7 +167,7 @@ AUTOMATIC_TEST_GROUP(PathUtilitiesTests,PathUtilities)
         TEST_EQUAL("IsPathRelative_Windows(const_StringView)-Fail",
                    false,Filesystem::IsPathRelative_Windows(PosixAbsPath));
 
-    #ifdef MEZZ_WINDOWS
+    #ifdef MEZZ_Windows
         TEST_EQUAL("IsPathAbsolute_Host(const_StringView)-Pass",
                    true,Filesystem::IsPathAbsolute_Host(WinAbsPath));
         TEST_EQUAL("IsPathAbsolute_Host(const_StringView)-Fail",

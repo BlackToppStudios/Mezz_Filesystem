@@ -107,7 +107,7 @@ namespace Filesystem {
 
     Boole IsPathAbsolute_Host(const StringView ToCheck)
     {
-    #ifdef MEZZ_WINDOWS
+    #ifdef MEZZ_Windows
         return IsPathAbsolute_Windows(ToCheck);
     #else
         return IsPathAbsolute_Posix(ToCheck);
@@ -117,7 +117,7 @@ namespace Filesystem {
     Boole IsPathAbsolute_Posix(const StringView ToCheck)
     {
         if( !ToCheck.empty() ) {
-            return ( ToCheck[0] == '/' && ToCheck.find_first_of('\\') == String::npos );
+            return ( ToCheck[0] == '/' );
         }
         return false;
     }
@@ -139,7 +139,7 @@ namespace Filesystem {
 
     Boole IsPathRelative_Host(const StringView ToCheck)
     {
-    #ifdef MEZZ_WINDOWS
+    #ifdef MEZZ_Windows
         return IsPathRelative_Windows(ToCheck);
     #else
         return IsPathRelative_Posix(ToCheck);

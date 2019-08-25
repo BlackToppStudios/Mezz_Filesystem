@@ -49,19 +49,19 @@ namespace Filesystem {
     ///////////////////////////////////////////////////////////////////////////////
     // Dir and Base Name
 
-    /// @brief Get the directory portion of a string.
+    /// @brief Get the directory portion of a String.
     /// @param PathAndFile A complete path and filename.
     /// @return If passed "/a/b/c.txt" or "c:\windirs\crash.exe" this will return "/a/b/" or "c:\windirs\".
     String MEZZ_LIB GetDirName(const char* PathAndFile);
-    /// @brief Get the directory portion of a string.
+    /// @brief Get the directory portion of a String.
     /// @param PathAndFile A complete path and filename.
     /// @return If passed "/a/b/c.txt" or "c:\windirs\crash.exe" this will return "/a/b/" or "c:\windirs\".
     String MEZZ_LIB GetDirName(const StringView PathAndFile);
-    /// @brief Get the filename portion of a string.
+    /// @brief Get the filename portion of a String.
     /// @param PathAndFile A complete path and filename.
     /// @return If passed "/a/b/c.txt" or "c:\windirs\crash.exe" this will return "c.txt" or "crash.exe".
     String MEZZ_LIB GetBaseName(const char* PathAndFile);
-    /// @brief Get the filename portion of a string.
+    /// @brief Get the filename portion of a String.
     /// @param PathAndFile A complete path and filename.
     /// @return If passed "/a/b/c.txt" or "c:\windirs\crash.exe" this will return "c.txt" or "crash.exe".
     String MEZZ_LIB GetBaseName(const StringView PathAndFile);
@@ -69,47 +69,6 @@ namespace Filesystem {
     ///////////////////////////////////////////////////////////////////////////////
     // Separators
 
-    /// @brief Checks to see if a character is used by the host OS to separate directories.
-    /// @param ToCheck The character to check.
-    /// @return Returns true if the character is '\\' on windows, or '/' on linux, false otherwise.
-    template<typename CharType, typename = std::enable_if_t< StringTools::is_char<CharType>::value > >
-    constexpr Boole IsDirectorySeparator_Host(const CharType ToCheck)
-    {
-    #ifdef MEZZ_WINDOWS
-        return ( ToCheck == '\\' );
-    #else
-        return ( ToCheck == '/' );
-    #endif
-    }
-    /// @brief Checks to see if a character is used by posix to separate directories.
-    /// @param ToCheck The character to check.
-    /// @return Returns true if the character specified is '/'.
-    template<typename CharType, typename = std::enable_if_t< StringTools::is_char<CharType>::value > >
-    constexpr Boole IsDirectorySeparator_Posix(const CharType ToCheck)
-        { return ( ToCheck == '/' ); }
-    /// @brief Checks to see if a character is used by windows to separate directories.
-    /// @param ToCheck The character to check.
-    /// @return Returns true if the character specified is '\\'.
-    template<typename CharType, typename = std::enable_if_t< StringTools::is_char<CharType>::value > >
-    constexpr Boole IsDirectorySeparator_Windows(const CharType ToCheck)
-        { return ( ToCheck == '\\' ); }
-    /// @brief Checks to see if a character is used to separate directories.
-    /// @param ToCheck The character to check.
-    /// @return Returns true if the character specified is '\\' or '/', false otherwise.
-    template<typename CharType, typename = std::enable_if_t< StringTools::is_char<CharType>::value > >
-    constexpr Boole IsDirectorySeparator(const CharType ToCheck)
-        { return ( IsDirectorySeparator_Posix(ToCheck) || IsDirectorySeparator_Windows(ToCheck) ); }
-    /// @brief Gets the character used by the client OS to separate directories.
-    /// @return Returns a backslash '\\' on windows and forward slash '/' on other operating systems.
-    template<typename CharType = char, typename = std::enable_if_t< StringTools::is_char<CharType>::value > >
-    constexpr CharType GetDirectorySeparator_Host()
-    {
-    #ifdef MEZZ_WINDOWS
-        return '\\';
-    #else
-        return '/';
-    #endif
-    }
     /// @brief Gets the character used by posix to separate directories.
     /// @return Returns a forward slash '/'.
     template<typename CharType = char, typename = std::enable_if_t< StringTools::is_char<CharType>::value > >
@@ -124,49 +83,50 @@ namespace Filesystem {
     /// @return Returns a forward slash '/'.
     template<typename CharType = char, typename = std::enable_if_t< StringTools::is_char<CharType>::value > >
     constexpr CharType GetDirectorySeparator_Universal()
-        { return '/'; }
-
-    /// @brief Checks to see if a character is used to separate entries in the host system path.
-    /// @param ToCheck The character to check.
-    /// @return Returns true if the character is ';' on windows, or ':' on posix, false otherwise.
-    template<typename CharType, typename = std::enable_if_t< StringTools::is_char<CharType>::value > >
-    constexpr Boole IsPathSeparator_Host(const CharType ToCheck)
-    {
-    #ifdef MEZZ_WINDOWS
-        return ( ToCheck == ';' );
-    #else
-        return ( ToCheck == ':' );
-    #endif
-    }
-    /// @brief Checks to see if a character is used to separate entries in the posix system path.
-    /// @param ToCheck The character to check.
-    /// @return Returns true if the character specified is ':'.
-    template<typename CharType, typename = std::enable_if_t< StringTools::is_char<CharType>::value > >
-    constexpr Boole IsPathSeparator_Posix(const CharType ToCheck)
-        { return ( ToCheck == ':' ); }
-    /// @brief Checks to see if a character is used to separate entries in the windows system path.
-    /// @param ToCheck The character to check.
-    /// @return Returns true if the character specified is ';'.
-    template<typename CharType, typename = std::enable_if_t< StringTools::is_char<CharType>::value > >
-    constexpr Boole IsPathSeparator_Windows(const CharType ToCheck)
-        { return ( ToCheck == ';' ); }
-    /// @brief Checks to see if a character is used to separate entries in the system path.
-    /// @param ToCheck The character to check.
-    /// @return Returns true if the character specified is ';' or ':'.
-    template<typename CharType, typename = std::enable_if_t< StringTools::is_char<CharType>::value > >
-    constexpr Boole IsPathSeparator(const CharType ToCheck)
-        { return ( IsPathSeparator_Posix(ToCheck) || IsPathSeparator_Windows(ToCheck) ); }
-    /// @brief Get the character used to separate entries in the system PATH on the host.
-    /// @return Returns a semicolon ';' on windows and colon ':' on other operating systems.
+        { return GetDirectorySeparator_Posix<CharType>(); }
+    /// @brief Gets the character used by the client OS to separate directories.
+    /// @return Returns a backslash '\\' on windows and forward slash '/' on other operating systems.
     template<typename CharType = char, typename = std::enable_if_t< StringTools::is_char<CharType>::value > >
-    constexpr CharType GetPathSeparator_Host()
+    constexpr CharType GetDirectorySeparator_Host()
     {
-    #ifdef MEZZ_WINDOWS
-        return ';';
+    #ifdef MEZZ_Windows
+        return GetDirectorySeparator_Windows<CharType>();
     #else
-        return ':';
+        return GetDirectorySeparator_Posix<CharType>();
     #endif
     }
+
+    /// @brief Checks to see if a character is used by posix to separate directories.
+    /// @param ToCheck The character to check.
+    /// @return Returns true if the character specified is '/'.
+    template<typename CharType, typename = std::enable_if_t< StringTools::is_char<CharType>::value > >
+    constexpr Boole IsDirectorySeparator_Posix(const CharType ToCheck)
+        { return ( ToCheck == GetDirectorySeparator_Posix<CharType>() ); }
+    /// @brief Checks to see if a character is used by windows to separate directories.
+    /// @param ToCheck The character to check.
+    /// @return Returns true if the character specified is '\\'.
+    template<typename CharType, typename = std::enable_if_t< StringTools::is_char<CharType>::value > >
+    constexpr Boole IsDirectorySeparator_Windows(const CharType ToCheck)
+        { return ( ToCheck == GetDirectorySeparator_Windows<CharType>() ); }
+    /// @brief Checks to see if a character is used to separate directories.
+    /// @param ToCheck The character to check.
+    /// @return Returns true if the character specified is '\\' or '/', false otherwise.
+    template<typename CharType, typename = std::enable_if_t< StringTools::is_char<CharType>::value > >
+    constexpr Boole IsDirectorySeparator(const CharType ToCheck)
+        { return (IsDirectorySeparator_Posix<CharType>(ToCheck) || IsDirectorySeparator_Windows<CharType>(ToCheck)); }
+    /// @brief Checks to see if a character is used by the host OS to separate directories.
+    /// @param ToCheck The character to check.
+    /// @return Returns true if the character is '\\' on windows, or '/' on linux, false otherwise.
+    template<typename CharType, typename = std::enable_if_t< StringTools::is_char<CharType>::value > >
+    constexpr Boole IsDirectorySeparator_Host(const CharType ToCheck)
+    {
+    #ifdef MEZZ_Windows
+        return ( ToCheck == GetDirectorySeparator_Windows<CharType>() );
+    #else
+        return ( ToCheck == GetDirectorySeparator_Posix<CharType>() );
+    #endif
+    }
+
     /// @brief Get the character used to separate entries in the system PATH on Posix.
     /// @return Returns a colon ':'.
     template<typename CharType = char, typename = std::enable_if_t< StringTools::is_char<CharType>::value > >
@@ -177,6 +137,48 @@ namespace Filesystem {
     template<typename CharType = char, typename = std::enable_if_t< StringTools::is_char<CharType>::value > >
     constexpr CharType GetPathSeparator_Windows()
         { return ';'; }
+    /// @brief Get the character used to separate entries in the system PATH on the host.
+    /// @return Returns a semicolon ';' on windows and colon ':' on other operating systems.
+    template<typename CharType = char, typename = std::enable_if_t< StringTools::is_char<CharType>::value > >
+    constexpr CharType GetPathSeparator_Host()
+    {
+    #ifdef MEZZ_Windows
+        return GetPathSeparator_Windows<CharType>();
+    #else
+        return GetPathSeparator_Posix<CharType>();
+    #endif
+    }
+
+    /// @brief Checks to see if a character is used to separate entries in the posix system path.
+    /// @param ToCheck The character to check.
+    /// @return Returns true if the character specified is ':'.
+    template<typename CharType, typename = std::enable_if_t< StringTools::is_char<CharType>::value > >
+    constexpr Boole IsPathSeparator_Posix(const CharType ToCheck)
+        { return ( ToCheck == GetPathSeparator_Posix<CharType>() ); }
+    /// @brief Checks to see if a character is used to separate entries in the windows system path.
+    /// @param ToCheck The character to check.
+    /// @return Returns true if the character specified is ';'.
+    template<typename CharType, typename = std::enable_if_t< StringTools::is_char<CharType>::value > >
+    constexpr Boole IsPathSeparator_Windows(const CharType ToCheck)
+        { return ( ToCheck == GetPathSeparator_Windows<CharType>() ); }
+    /// @brief Checks to see if a character is used to separate entries in the host system path.
+    /// @param ToCheck The character to check.
+    /// @return Returns true if the character is ';' on windows, or ':' on posix, false otherwise.
+    template<typename CharType, typename = std::enable_if_t< StringTools::is_char<CharType>::value > >
+    constexpr Boole IsPathSeparator_Host(const CharType ToCheck)
+    {
+    #ifdef MEZZ_Windows
+        return ( ToCheck == GetPathSeparator_Windows<CharType>() );
+    #else
+        return ( ToCheck == GetPathSeparator_Posix<CharType>() );
+    #endif
+    }
+    /// @brief Checks to see if a character is used to separate entries in the system path.
+    /// @param ToCheck The character to check.
+    /// @return Returns true if the character specified is ';' or ':'.
+    template<typename CharType, typename = std::enable_if_t< StringTools::is_char<CharType>::value > >
+    constexpr Boole IsPathSeparator(const CharType ToCheck)
+        { return ( IsPathSeparator_Posix<CharType>(ToCheck) || IsPathSeparator_Windows<CharType>(ToCheck) ); }
 
     ///////////////////////////////////////////////////////////////////////////////
     // Absolute and Relative Paths
@@ -264,13 +266,13 @@ namespace Filesystem {
 
     /// @brief Builds a String path based on a number of directory/file names in a String vector.
     /// @note This function relies on the PathRoot argument to generate absolute paths.
-    /// @param PathRoot This string will be prepended to the result of the ToBuild parameter.
+    /// @param PathRoot This String will be prepended to the result of the ToBuild parameter.
     /// @param ToBuild A vector of Strings containing the overall path to be built.
     /// @param FileName The file portion of the path to be built.
     /// @param UseWindowsSlash If true, path will be generated with '\\' separators. Otherwise '/' will be used.
     /// @return Returns a String containing the rebuilt path.
     String MEZZ_LIB BuildPath(const StringView PathRoot, const StringVector& ToBuild,
-                              const StringView FileName, const Boole UseWindowsSlash);
+                              const StringView FileName, const Boole UseWindowsSlash = false);
     /// @brief Removes all needless instances of "." or ".." and makes appropriate edits to the path.
     /// @details A dot segment is "." or "..".  They often get in the way of path parsing and this method will
     /// remove any extraneous dot segments that may exist in the provided String.
@@ -281,7 +283,7 @@ namespace Filesystem {
     /// @brief Convenience method to verify the necessary system separator is present when concatenating.
     /// @param FilePath The directory path to the file.
     /// @param FileName The name of the file.
-    /// @return Returns a full string that is the concatenated path and filename.
+    /// @return Returns a full String that is the concatenated path and filename.
     String MEZZ_LIB CombinePathAndFileName(const StringView FilePath, const StringView FileName);
 }//Filesystem
 }//Mezzanine
