@@ -45,7 +45,7 @@ namespace
     using namespace Mezzanine;
 
     /// @brief Gets how many directories deep a path is.
-    /// @param Begin The beginning of the range to check the depth of.
+    /// @param StrIt The beginning of the range to check the depth of.
     /// @param End The end of the range to check the depth of.
     /// @param ExitIfNegative If true, the function to return immediately if the depth count becomes negative.
     /// @param Separator The directory separator for splitting and rebuilding the path.
