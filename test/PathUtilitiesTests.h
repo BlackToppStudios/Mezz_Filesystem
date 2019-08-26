@@ -184,7 +184,7 @@ AUTOMATIC_TEST_GROUP(PathUtilitiesTests,PathUtilities)
         TEST_EQUAL("IsPathRelative_Host(const_StringView)-Pass",
                    true,Filesystem::IsPathRelative_Host(DotRelPath));
         TEST_EQUAL("IsPathRelative_Host(const_StringView)-Fail",
-                   false,Filesystem::IsPathRelative_Host(WinDotRelPath));
+                   false,Filesystem::IsPathRelative_Host(PosixAbsPath));
     #endif
     }// Absolute and Relative Paths
 
