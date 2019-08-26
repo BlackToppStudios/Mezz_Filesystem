@@ -161,7 +161,7 @@ AUTOMATIC_TEST_GROUP(PathUtilitiesTests,PathUtilities)
         TEST_EQUAL("IsPathRelative_Posix(const_StringView)-Pass",
                    true,Filesystem::IsPathRelative_Posix(DotRelPath));
         TEST_EQUAL("IsPathRelative_Posix(const_StringView)-Fail",
-                   false,Filesystem::IsPathRelative_Posix(WinDotRelPath));
+                   false,Filesystem::IsPathRelative_Posix(PosixAbsPath));
         TEST_EQUAL("IsPathRelative_Windows(const_StringView)-Pass",
                    true,Filesystem::IsPathRelative_Windows(WinDotRelPath));
         TEST_EQUAL("IsPathRelative_Windows(const_StringView)-Fail",
@@ -190,80 +190,174 @@ AUTOMATIC_TEST_GROUP(PathUtilitiesTests,PathUtilities)
 
     {// Path Checks
         const String DepthDirOne("C:\\FirstDir\\SecondDir\\ThirdDir\\");
-        const String DepthDirTwo("./FirstDir/../../../");
+        const String DepthDirTwo(".\\FirstDir\\..\\..\\..\\");
         const String DepthDirThree("../../FirstDir/SecondDir/");
         const String DepthDirFour("/user/home/./");
 
-        TEST_EQUAL("GetDirectoryDepth(const_StringView,const_Boole)-First",
-                   3,Filesystem::GetDirectoryDepth(DepthDirOne,false));
-        TEST_EQUAL("GetDirectoryDepth(const_StringView,const_Boole)-Second",
-                   -2,Filesystem::GetDirectoryDepth(DepthDirTwo,false));
-        TEST_EQUAL("GetDirectoryDepth(const_StringView,const_Boole)-Third",
-                   0,Filesystem::GetDirectoryDepth(DepthDirThree,false));
-        TEST_EQUAL("GetDirectoryDepth(const_StringView,const_Boole)-Fourth",
-                   2,Filesystem::GetDirectoryDepth(DepthDirFour,false));
-        TEST_EQUAL("GetDirectoryDepth(const_StringView,const_Boole)-Fifth",
-                   -1,Filesystem::GetDirectoryDepth(DepthDirTwo,true));
-        TEST_EQUAL("GetDirectoryDepth(const_StringView,const_Boole)-Sixth",
-                   -1,Filesystem::GetDirectoryDepth(DepthDirThree,true));
+        TEST_EQUAL("GetDirectoryDepth_Windows(const_StringView,const_Boole)-First",
+                   3,Filesystem::GetDirectoryDepth_Windows(DepthDirOne,true));
+        TEST_EQUAL("GetDirectoryDepth_Windows(const_StringView,const_Boole)-Second",
+                   3,Filesystem::GetDirectoryDepth_Windows(DepthDirOne,false));
+        TEST_EQUAL("GetDirectoryDepth_Windows(const_StringView,const_Boole)-Third",
+                   -1,Filesystem::GetDirectoryDepth_Windows(DepthDirTwo,true));
+        TEST_EQUAL("GetDirectoryDepth_Windows(const_StringView,const_Boole)-Fourth",
+                   -2,Filesystem::GetDirectoryDepth_Windows(DepthDirTwo,false));
+
+        TEST_EQUAL("GetDirectoryDepth_Posix(const_StringView,const_Boole)-First",
+                   -1,Filesystem::GetDirectoryDepth_Posix(DepthDirThree,true));
+        TEST_EQUAL("GetDirectoryDepth_Posix(const_StringView,const_Boole)-Second",
+                   0,Filesystem::GetDirectoryDepth_Posix(DepthDirThree,false));
+        TEST_EQUAL("GetDirectoryDepth_Posix(const_StringView,const_Boole)-Third",
+                   2,Filesystem::GetDirectoryDepth_Posix(DepthDirFour,true));
+        TEST_EQUAL("GetDirectoryDepth_Posix(const_StringView,const_Boole)-Fourth",
+                   2,Filesystem::GetDirectoryDepth_Posix(DepthDirFour,false));
+
+    #ifdef MEZZ_Windows
+        const String DepthDirFive("MyDir\\..\\..\\MyOtherDir\\");
+
+        TEST_EQUAL("GetDirectoryDepth_Host(const_StringView)-First",
+                   -1,Filesystem::GetDirectoryDepth_Host(DepthDirFive,true));
+        TEST_EQUAL("GetDirectoryDepth_Host(const_StringView)-Second",
+                   0,Filesystem::GetDirectoryDepth_Host(DepthDirFive,false));
+    #else
+        const String DepthDirFive("Games/TheGame/../../../NotGames/NotTheGame/");
+
+        TEST_EQUAL("GetDirectoryDepth_Host(const_StringView)-First",
+                   -1,Filesystem::GetDirectoryDepth_Host(DepthDirFive,true));
+        TEST_EQUAL("GetDirectoryDepth_Host(const_StringView)-Second",
+                   1,Filesystem::GetDirectoryDepth_Host(DepthDirFive,false));
+    #endif
 
         const String BaseDirOne("/user/home/");
-        const String BaseDirTwo("C:\\MinGW\\bin\\");
-        const String BaseDirThree("home/");
+        const String BaseDirTwo("home/");
+        const String BaseDirThree("C:\\MinGW\\bin\\");
+        const String BaseDirFour("MyDocs\\Code\\");
 
-        TEST_EQUAL("IsSubPath(const_StringView,const_StringView)-First-Pass",
-                   true,Filesystem::IsSubPath(BaseDirOne,"/user/home/code/"));
-        TEST_EQUAL("IsSubPath(const_StringView,const_StringView)-First-Fail",
-                   false,Filesystem::IsSubPath(BaseDirOne,"/etc/home/"));
-        TEST_EQUAL("IsSubPath(const_StringView,const_StringView)-Second-Pass",
-                   true,Filesystem::IsSubPath(BaseDirTwo,"C:\\MinGW\\bin\\include\\"));
-        TEST_EQUAL("IsSubPath(const_StringView,const_StringView)-Second-Fail",
-                   false,Filesystem::IsSubPath(BaseDirTwo,"C:\\System32\\"));
-        TEST_EQUAL("IsSubPath(const_StringView,const_StringView)-Third-Pass",
-                   true,Filesystem::IsSubPath(BaseDirThree,"home/code/"));
-        TEST_EQUAL("IsSubPath(const_StringView,const_StringView)-Third-Fail",
-                   false,Filesystem::IsSubPath(BaseDirThree,"home/../"));
+        TEST_EQUAL("IsSubPath_Posix(const_StringView,const_StringView)-First-Pass",
+                   true,Filesystem::IsSubPath_Posix(BaseDirOne,"/user/home/code/"));
+        TEST_EQUAL("IsSubPath_Posix(const_StringView,const_StringView)-First-Fail",
+                   false,Filesystem::IsSubPath_Posix(BaseDirOne,"/etc/home/code/"));
+        TEST_EQUAL("IsSubPath_Posix(const_StringView,const_StringView)-Second-Pass",
+                   true,Filesystem::IsSubPath_Posix(BaseDirTwo,"home/code/"));
+        TEST_EQUAL("IsSubPath_Posix(const_StringView,const_StringView)-Second-Fail",
+                   false,Filesystem::IsSubPath_Posix(BaseDirTwo,"home/../"));
 
-        TEST_THROW("IsSubPath(const_StringView,const_StringView)-Absolute/Relative-Throw",
+        TEST_EQUAL("IsSubPath_Windows(const_StringView,const_StringView)-First-Pass",
+                   true,Filesystem::IsSubPath_Windows(BaseDirThree,"C:\\MinGW\\bin\\include\\"));
+        TEST_EQUAL("IsSubPath_Windows(const_StringView,const_StringView)-First-Fail",
+                   false,Filesystem::IsSubPath_Windows(BaseDirThree,"C:\\System32\\"));
+        TEST_EQUAL("IsSubPath_Windows(const_StringView,const_StringView)-Second-Pass",
+                   true,Filesystem::IsSubPath_Windows(BaseDirFour,"MyDocs\\Code\\Project\\"));
+        TEST_EQUAL("IsSubPath_Windows(const_StringView,const_StringView)-Second-Fail",
+                   false,Filesystem::IsSubPath_Windows(BaseDirFour,"MyDocs\\Code\\..\\"));
+
+    #ifdef MEZZ_Windows
+        const String BaseDirFive("C:\\");
+
+        TEST_EQUAL("IsSubPath_Host(const_StringView,const_StringView)-Pass",
+                   true,Filesystem::IsSubPath_Host(BaseDirFive,"C:\\Users\\Me\\"));
+        TEST_EQUAL("IsSubPath_Host(const_StringView,const_StringView)-Fail",
+                   false,Filesystem::IsSubPath_Host(BaseDirFive,"C:\\"));
+    #else
+        const String BaseDirFive("/mnt/Cool Stuff/");
+
+        TEST_EQUAL("IsSubPath_Host(const_StringView,const_StringView)-Pass",
+                   true,Filesystem::IsSubPath_Host(BaseDirFive,"/mnt/Cool Stuff/Neat/"));
+        TEST_EQUAL("IsSubPath_Host(const_StringView,const_StringView)-Fail",
+                   false,Filesystem::IsSubPath_Host(BaseDirFive,"/mnt/Mildly Interesting/"));
+    #endif
+
+        TEST_THROW("IsSubPath_Posix(const_StringView,const_StringView)-Absolute/Relative-Throw",
                    std::runtime_error,
-                   [&](){ Filesystem::IsSubPath(BaseDirOne,BaseDirThree); });
-        TEST_THROW("IsSubPath(const_StringView,const_StringView)-Relative/Absolute-Throw",
+                   [&](){ Filesystem::IsSubPath_Posix(BaseDirOne,"relative/path/"); });
+        TEST_THROW("IsSubPath_Posix(const_StringView,const_StringView)-Relative/Absolute-Throw",
                    std::runtime_error,
-                   [&](){ Filesystem::IsSubPath(BaseDirThree,BaseDirOne); });
+                   [&](){ Filesystem::IsSubPath_Posix(BaseDirTwo,"/absolute/path/"); });
+        TEST_THROW("IsSubPath_Windows(const_StringView,const_StringView)-Absolute/Relative-Throw",
+                   std::runtime_error,
+                   [&](){ Filesystem::IsSubPath_Windows(BaseDirThree,"relative\\path\\"); });
+        TEST_THROW("IsSubPath_Windows(const_StringView,const_StringView)-Relative/Absolute-Throw",
+                   std::runtime_error,
+                   [&](){ Filesystem::IsSubPath_Windows(BaseDirFour,"C:\\absolute\\path\\"); });
     }// Path Checks
 
     {// Path Utilities
-        StringVector PathBuildingOne = { "Users", "Person", "Code", "Project" };
-        StringVector PathBuildingTwo = { "user", "home", "code" };
-        StringVector PathBuildingThree = { "data", "common" };
-        const String PathBuildingOneResult("C:\\Users\\Person\\Code\\Project\\TestFile.txt");
-        const String PathBuildingTwoResult("/user/home/code/");
-        const String PathBuildingThreeResult("data/common/TestJPG.jpg");
+        StringVector PathBuildOne = { "Users", "Person", "Code", "Project" };
+        StringVector PathBuildTwo = { "user", "home", "code" };
+        StringVector PathBuildThree = { "data", "common" };
+        const String PathBuildOneResult("C:\\Users\\Person\\Code\\Project\\TestFile.txt");
+        const String PathBuildTwoResult("/user/home/code/");
+        const String PathBuildThreeResultWin("data\\common\\TestJPG.jpg");
+        const String PathBuildThreeResultPos("data/common/TestJPG.jpg");
 
-        TEST_EQUAL("BuildPath(const_StringView,const_StringVector&,const_StringView,const_Boole)-First",
-                   PathBuildingOneResult,Filesystem::BuildPath("C:\\",PathBuildingOne,"TestFile.txt",true));
-        TEST_EQUAL("BuildPath(const_StringView,const_StringVector&,const_StringView,const_Boole)-Second",
-                   PathBuildingTwoResult,Filesystem::BuildPath("/",PathBuildingTwo,String(),false));
-        TEST_EQUAL("BuildPath(const_StringView,const_StringVector&,const_StringView,const_Boole)-Third",
-                   PathBuildingThreeResult,Filesystem::BuildPath(String(),PathBuildingThree,"TestJPG.jpg",false));
+        TEST_EQUAL("BuildPath_Windows(const_StringView,const_StringVector&,const_StringView,const_Boole)-First",
+                   PathBuildOneResult,Filesystem::BuildPath_Windows("C:\\",PathBuildOne,"TestFile.txt"));
+        TEST_EQUAL("BuildPath_Posix(const_StringView,const_StringVector&,const_StringView,const_Boole)-First",
+                   PathBuildTwoResult,Filesystem::BuildPath_Posix("/",PathBuildTwo,String()));
+        TEST_EQUAL("BuildPath_Windows(const_StringView,const_StringVector&,const_StringView,const_Boole)-Second",
+                   PathBuildThreeResultWin,Filesystem::BuildPath_Windows(String(),PathBuildThree,"TestJPG.jpg"));
+        TEST_EQUAL("BuildPath_Posix(const_StringView,const_StringVector&,const_StringView,const_Boole)-Second",
+                   PathBuildThreeResultPos,Filesystem::BuildPath_Posix(String(),PathBuildThree,"TestJPG.jpg"));
+
+    #ifdef MEZZ_Windows
+        StringVector PathBuildFour = { "User", "Pictures", "Old" };
+        const String PathBuildFourAbsResult("C:\\User\\Pictures\\Old\\Me.jpg");
+        const String PathBuildFourRelResult("User\\Pictures\\Old\\Them.jpg");
+
+        TEST_EQUAL("BuildPath_Host(const_StringView,const_StringVector&,const_StringView)-Pass",
+                   PathBuildFourAbsResult,Filesystem::BuildPath_Host("C:\\",PathBuildFour,"Me.jpg"));
+        TEST_EQUAL("BuildPath_Host(const_StringView,const_StringVector&,const_StringView)-Fail",
+                   PathBuildFourRelResult,Filesystem::BuildPath_Host(String(),PathBuildFour,"Them.jpg"));
+    #else
+        StringVector PathBuildFour = { "mnt", "media", "anime" };
+        const String PathBuildFourAbsResult("/mnt/media/anime/TheBest.mkv");
+        const String PathBuildFourRelResult("mnt/media/anime/TheOk-est.mkv");
+
+        TEST_EQUAL("BuildPath_Host(const_StringView,const_StringVector&,const_StringView)-Pass",
+                   PathBuildFourAbsResult,Filesystem::BuildPath_Host("/",PathBuildFour,"TheBest.mkv"));
+        TEST_EQUAL("BuildPath_Host(const_StringView,const_StringVector&,const_StringView)-Fail",
+                   PathBuildFourRelResult,Filesystem::BuildPath_Host(String(),PathBuildFour,"TheOk-est.mkv"));
+    #endif
 
         const String DotSegPathOne("./data/common/");
         const String DotSegPathOneResult("data/common/");
         const String DotSegPathTwo("OtherData/./common/license/../../");
         const String DotSegPathTwoResult("OtherData/");
-        const String DotSegPathThree("MoreData/.././../");
-        const String DotSegPathThreeResult("../");
+        const String DotSegPathThree("MoreData\\..\\.\\..\\");
+        const String DotSegPathThreeResult("..\\");
         const String DotSegPathFour("C:\\Users\\..\\..\\");
         const String DotSegPathFourResult("C:\\");
 
-        TEST_EQUAL("RemoveDotSegments(const_StringView)-First",
-                   DotSegPathOneResult,Filesystem::RemoveDotSegments(DotSegPathOne));
-        TEST_EQUAL("RemoveDotSegments(const_StringView)-Second",
-                   DotSegPathTwoResult,Filesystem::RemoveDotSegments(DotSegPathTwo));
-        TEST_EQUAL("RemoveDotSegments(const_StringView)-Third",
-                   DotSegPathThreeResult,Filesystem::RemoveDotSegments(DotSegPathThree));
-        TEST_EQUAL("RemoveDotSegments(const_StringView)-Fourth",
-                   DotSegPathFourResult,Filesystem::RemoveDotSegments(DotSegPathFour));
+        TEST_EQUAL("RemoveDotSegments_Posix(const_StringView)-First",
+                   DotSegPathOneResult,Filesystem::RemoveDotSegments_Posix(DotSegPathOne));
+        TEST_EQUAL("RemoveDotSegments_Posix(const_StringView)-Second",
+                   DotSegPathTwoResult,Filesystem::RemoveDotSegments_Posix(DotSegPathTwo));
+        TEST_EQUAL("RemoveDotSegments_Windows(const_StringView)-First",
+                   DotSegPathThreeResult,Filesystem::RemoveDotSegments_Windows(DotSegPathThree));
+        TEST_EQUAL("RemoveDotSegments_Windows(const_StringView)-Second",
+                   DotSegPathFourResult,Filesystem::RemoveDotSegments_Windows(DotSegPathFour));
+
+    #ifdef MEZZ_Windows
+        const String DotSegPathFive("C:\\.\\Folder\\.\\..\\");
+        const String DotSegPathFiveResult("C:\\");
+        const String DotSegPathSix("SubDir\\SubSubDir\\..\\.\\MyDir\\");
+        const String DotSegPathSixResult("SubDir\\MyDir\\");
+
+        TEST_EQUAL("RemoveDotSegments_Host(const_StringView)-First",
+                   DotSegPathFiveResult,Filesystem::RemoveDotSegments_Host(DotSegPathFive));
+        TEST_EQUAL("RemoveDotSegments_Host(const_StringView)-Second",
+                   DotSegPathSixResult,Filesystem::RemoveDotSegments_Host(DotSegPathSix));
+    #else
+        const String DotSegPathFive("/./Folder/./../");
+        const String DotSegPathFiveResult("/");
+        const String DotSegPathSix("SubDir/SubSubDir/.././MyDir/");
+        const String DotSegPathSixResult("SubDir/MyDir/");
+
+        TEST_EQUAL("RemoveDotSegments_Host(const_StringView)-First",
+                   DotSegPathFiveResult,Filesystem::RemoveDotSegments_Host(DotSegPathFive));
+        TEST_EQUAL("RemoveDotSegments_Host(const_StringView)-Second",
+                   DotSegPathSixResult,Filesystem::RemoveDotSegments_Host(DotSegPathSix));
+    #endif
 
         const String CombinePathOne("C:\\Users\\Person\\Desktop\\");
         const String CombinePathTwo("home/");
@@ -271,24 +365,44 @@ AUTOMATIC_TEST_GROUP(PathUtilitiesTests,PathUtilities)
         const String CombineNameOne("TestText.txt");
         const String CombineNameTwo("TestJPG.jpg");
 
-        TEST_EQUAL("CombinePathAndFileName(const_StringView,const_StringView)-First",
+        TEST_EQUAL("CombinePathAndFileName_Windows(const_StringView,const_StringView)-First",
                    String("C:\\Users\\Person\\Desktop\\TestText.txt"),
-                   Filesystem::CombinePathAndFileName(CombinePathOne,CombineNameOne));
-        TEST_EQUAL("CombinePathAndFileName(const_StringView,const_StringView)-Second",
+                   Filesystem::CombinePathAndFileName_Windows(CombinePathOne,CombineNameOne));
+        TEST_EQUAL("CombinePathAndFileName_Windows(const_StringView,const_StringView)-Second",
                    String("C:\\Users\\Person\\Desktop\\TestJPG.jpg"),
-                   Filesystem::CombinePathAndFileName(CombinePathOne,CombineNameTwo));
-        TEST_EQUAL("CombinePathAndFileName(const_StringView,const_StringView)-Third",
+                   Filesystem::CombinePathAndFileName_Windows(CombinePathOne,CombineNameTwo));
+        TEST_EQUAL("CombinePathAndFileName_Posix(const_StringView,const_StringView)-First",
                    String("home/TestText.txt"),
-                   Filesystem::CombinePathAndFileName(CombinePathTwo,CombineNameOne));
-        TEST_EQUAL("CombinePathAndFileName(const_StringView,const_StringView)-Fourth",
+                   Filesystem::CombinePathAndFileName_Posix(CombinePathTwo,CombineNameOne));
+        TEST_EQUAL("CombinePathAndFileName_Posix(const_StringView,const_StringView)-Second",
                    String("home/TestJPG.jpg"),
-                   Filesystem::CombinePathAndFileName(CombinePathTwo,CombineNameTwo));
-        TEST_EQUAL("CombinePathAndFileName(const_StringView,const_StringView)-Fifth",
+                   Filesystem::CombinePathAndFileName_Posix(CombinePathTwo,CombineNameTwo));
+        TEST_EQUAL("CombinePathAndFileName_Posix(const_StringView,const_StringView)-Third",
                    String("/etc/dir/TestText.txt"),
-                   Filesystem::CombinePathAndFileName(CombinePathThree,CombineNameOne));
-        TEST_EQUAL("CombinePathAndFileName(const_StringView,const_StringView)-Sixth",
+                   Filesystem::CombinePathAndFileName_Posix(CombinePathThree,CombineNameOne));
+        TEST_EQUAL("CombinePathAndFileName_Posix(const_StringView,const_StringView)-Fourth",
                    String("/etc/dir/TestJPG.jpg"),
-                   Filesystem::CombinePathAndFileName(CombinePathThree,CombineNameTwo));
+                   Filesystem::CombinePathAndFileName_Posix(CombinePathThree,CombineNameTwo));
+
+    #ifdef MEZZ_Windows
+        const String CombinePathFour("MyDocuments");
+
+        TEST_EQUAL("CombinePathAndFileName_Host(const_StringView,const_StringView)-First",
+                   String("MyDocuments\\TestText.txt"),
+                   Filesystem::CombinePathAndFileName_Host(CombinePathFour,CombineNameOne));
+        TEST_EQUAL("CombinePathAndFileName_Host(const_StringView,const_StringView)-Second",
+                   String("MyDocuments\\TestJPG.jpg"),
+                   Filesystem::CombinePathAndFileName_Host(CombinePathFour,CombineNameTwo));
+    #else
+        const String CombinePathFour("home");
+
+        TEST_EQUAL("CombinePathAndFileName_Host(const_StringView,const_StringView)-First",
+                   String("home/TestText.txt"),
+                   Filesystem::CombinePathAndFileName_Host(CombinePathFour,CombineNameOne));
+        TEST_EQUAL("CombinePathAndFileName_Host(const_StringView,const_StringView)-Second",
+                   String("home/TestJPG.jpg"),
+                   Filesystem::CombinePathAndFileName_Host(CombinePathFour,CombineNameTwo));
+    #endif
     }// Path Utilities
 }
 

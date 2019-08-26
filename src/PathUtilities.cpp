@@ -40,6 +40,117 @@
 
 #include "PathUtilities.h"
 
+namespace
+{
+    using namespace Mezzanine;
+
+    /// @brief Gets how many directories deep a path is.
+    /// @param Begin The beginning of the range to check the depth of.
+    /// @param End The end of the range to check the depth of.
+    /// @param ExitIfNegative If true, the function to return immediately if the depth count becomes negative.
+    /// @param Separator The directory separator for splitting and rebuilding the path.
+    /// @return Returns an Integer representing how many directories down (or up, if negative) the path goes.
+    Integer GetDirectoryDepth_Common(StringView::const_iterator StrIt, StringView::const_iterator End,
+                                     const Boole ExitIfNegative, const Char8 Separator)
+    {
+        Integer Depth = 0;
+        String DirStr;
+
+        while( StrIt != End )
+        {
+            if( (*StrIt) == Separator ) {
+                if( DirStr == ".." ) {
+                    Depth -= 1;
+                }else if( !DirStr.empty() && DirStr != "." ) {
+                    Depth += 1;
+                }
+                DirStr.clear();
+
+                if( ExitIfNegative && Depth < 0 ) {
+                    break;
+                }
+            }else{
+                DirStr.append(1,*StrIt);
+            }
+            ++StrIt;
+        }
+        return Depth;
+    }
+
+    /// @brief Builds a String path based on a number of directory/file names in a String vector.
+    /// @note This function relies on the PathRoot argument to generate absolute paths.
+    /// @param PathRoot This String will be prepended to the result of the ToBuild parameter.
+    /// @param ToBuild A vector of Strings containing the overall path to be built.
+    /// @param FileName The file portion of the path to be built.
+    /// @param Separator The directory separator for splitting and rebuilding the path.
+    /// @return Returns a String containing the rebuilt path.
+    String BuildPath_Common(const StringView PathRoot, const StringVector& ToBuild,
+                            const StringView FileName, const Char8 Separator)
+    {// Char count gets used to reserve space on the return string
+        size_t CharCount = PathRoot.size() + ToBuild.size() + FileName.size();
+        StringVector::const_iterator BuildIt = ToBuild.begin();
+        std::for_each(BuildIt,ToBuild.cend(),[&CharCount](const String& CurrStr) {
+            CharCount += CurrStr.length();
+        });
+        String Ret;
+        Ret.reserve(CharCount);
+        Ret.append(PathRoot);
+        // Build the path
+        while( BuildIt != ToBuild.end() )
+        {
+            Ret.append( *BuildIt );
+            Ret.append( 1, Separator );
+            ++BuildIt;
+        }
+        Ret.append(FileName);
+        return Ret;
+    }
+
+    /// @brief Removes all needless instances of "." or ".." and makes appropriate edits to the provided path.
+    /// @param ToRemove The path to remove dot segments from.
+    /// @param Separator The directory separator for splitting and rebuilding the path.
+    /// @param IsAbsolute Whether or not the provided path is absolute.
+    /// @return Returns a vector that is the tokenized path with extraneous parts of the path removed.
+    StringVector RemoveDotSegments_Common(const StringView ToRemove, const Char8 Separator, const Boole IsAbsolute)
+    {
+        StringVector RetSegments;
+        String Delims( 1, Separator );
+        StringVector SplitPath = StringTools::Split(ToRemove,Delims);
+        for( StringVector::iterator VecIt = SplitPath.begin() ; VecIt != SplitPath.end() ; ++VecIt )
+        {
+            if( (*VecIt) == ".." ) {
+                if( !RetSegments.empty() ) {
+                    RetSegments.pop_back();
+                }else if( !IsAbsolute ) {
+                    RetSegments.push_back(*VecIt);
+                }
+            }else if( (*VecIt) != "." ) {
+                RetSegments.push_back(*VecIt);
+            }
+        }
+        return RetSegments;
+    }
+
+    /// @brief Convenience method to verify the necessary separator is present when concatenating.
+    /// @param FilePath The directory path to the file.
+    /// @param FileName The name of the file.
+    /// @param Separator The directory separator for splitting and rebuilding the path.
+    /// @return Returns a full String that is the concatenated path and filename.
+    String CombinePathAndFileName_Common(const StringView FilePath, const StringView FileName, const Char8 Separator)
+    {
+        if( FilePath.empty() ) {
+            return String(FileName);
+        }
+
+        String FullPath(FilePath.data(),FilePath.size());
+        if( FilePath.back() != Separator ) {
+            FullPath.append(1,Separator);
+        }
+        FullPath.append(FileName);
+        return FullPath;
+    }
+}
+
 namespace Mezzanine {
 namespace Filesystem {
     ///////////////////////////////////////////////////////////////////////////////
@@ -149,7 +260,7 @@ namespace Filesystem {
     Boole IsPathRelative_Posix(const StringView ToCheck)
     {
         if( !ToCheck.empty() ) {
-            return ( ToCheck[0] != '/' && ToCheck.find_first_of('\\') == String::npos );
+            return ( ToCheck[0] != '/' );
         }
         return false;
     }
@@ -162,49 +273,85 @@ namespace Filesystem {
     ///////////////////////////////////////////////////////////////////////////////
     // Path Checks
 
-    Integer GetDirectoryDepth(const StringView ToCheck, const Boole ExitIfNegative)
+    Integer GetDirectoryDepth_Host(const StringView ToCheck, const Boole ExitIfNegative)
     {
-        Integer Depth = 0;
-        String DirStr;
-        StringView::const_iterator StrIt = ToCheck.begin();
-        if( IsPathAbsolute_Windows(ToCheck) ) {
-            StrIt = std::next(StrIt,2);
-        }
-        while( StrIt != ToCheck.end() )
-        {
-            if( (*StrIt) == '/' || (*StrIt) == '\\' ) {
-                if( DirStr == ".." ) {
-                    Depth -= 1;
-                }else if( !DirStr.empty() && DirStr != "." ) {
-                    Depth += 1;
-                }
-                DirStr.clear();
-
-                if( ExitIfNegative && Depth < 0 ) {
-                    break;
-                }
-            }else{
-                DirStr.append(1,*StrIt);
-            }
-            ++StrIt;
-        }
-        return Depth;
+    #ifdef MEZZ_Windows
+        return GetDirectoryDepth_Windows(ToCheck,ExitIfNegative);
+    #else
+        return GetDirectoryDepth_Posix(ToCheck,ExitIfNegative);
+    #endif
     }
 
-    Boole IsSubPath(const StringView BasePath, const StringView CheckPath)
+    Integer GetDirectoryDepth_Posix(const StringView ToCheck, const Boole ExitIfNegative)
     {
-        Boole BaseIsAbsolute = IsPathAbsolute(BasePath);
-        Boole CheckIsAbsolute = IsPathAbsolute(CheckPath);
+        return GetDirectoryDepth_Common(ToCheck.begin(),ToCheck.end(),ExitIfNegative,GetDirectorySeparator_Posix());
+    }
 
-        if( BaseIsAbsolute && !CheckIsAbsolute ) {
-            throw std::runtime_error("Attempting to compare absolute base path with relative subpath.");
+    Integer GetDirectoryDepth_Windows(const StringView ToCheck, const Boole ExitIfNegative)
+    {
+        StringView::const_iterator BeginIt = ToCheck.begin();
+        if( IsPathAbsolute_Windows(ToCheck) ) {
+            BeginIt = std::next(BeginIt,2);
         }
-        if( !BaseIsAbsolute && CheckIsAbsolute ) {
-            throw std::runtime_error("Attempting to compare relative base path with absolute subpath.");
+        return GetDirectoryDepth_Common(BeginIt,ToCheck.end(),ExitIfNegative,GetDirectorySeparator_Windows());
+    }
+
+    Boole IsSubPath_Host(const StringView BasePath, const StringView CheckPath)
+    {
+    #ifdef MEZZ_Windows
+        return IsSubPath_Windows(BasePath,CheckPath);
+    #else
+        return IsSubPath_Posix(BasePath,CheckPath);
+    #endif
+    }
+
+    Boole IsSubPath_Posix(const StringView BasePath, const StringView CheckPath)
+    {
+        Boole BaseIsPosixAbsolute = IsPathAbsolute_Posix(BasePath);
+        Boole CheckIsPosixAbsolute = IsPathAbsolute_Posix(CheckPath);
+
+        if( BaseIsPosixAbsolute && !CheckIsPosixAbsolute ) {
+            throw std::runtime_error("Attempting to compare absolute base path with relative sub-path.");
+        }
+        if( !BaseIsPosixAbsolute && CheckIsPosixAbsolute ) {
+            throw std::runtime_error("Attempting to compare relative base path with absolute sub-path.");
         }
 
-        String NormBasePath = RemoveDotSegments(BasePath);
-        String NormCheckPath = RemoveDotSegments(CheckPath);
+        String NormBasePath = RemoveDotSegments_Posix(BasePath);
+        String NormCheckPath = RemoveDotSegments_Posix(CheckPath);
+        String::const_iterator BaseIt = NormBasePath.begin();
+        String::const_iterator BaseEnd = NormBasePath.end();
+        String::const_iterator CheckIt = NormCheckPath.begin();
+        String::const_iterator CheckEnd = NormCheckPath.end();
+
+        while( BaseIt != BaseEnd )
+        {
+            if( CheckIt == CheckEnd || (*BaseIt) != (*CheckIt) ) {
+                return false;
+            }
+
+            ++BaseIt;
+            ++CheckIt;
+        }
+
+        String CheckRemains(CheckIt,CheckEnd);
+        return ( GetDirectoryDepth_Posix(CheckRemains,true) > 0 );
+    }
+
+    Boole IsSubPath_Windows(const StringView BasePath, const StringView CheckPath)
+    {
+        Boole BaseIsWindowsAbsolute = IsPathAbsolute_Windows(BasePath);
+        Boole CheckIsWindowsAbsolute = IsPathAbsolute_Windows(CheckPath);
+
+        if( BaseIsWindowsAbsolute && !CheckIsWindowsAbsolute ) {
+            throw std::runtime_error("Attempting to compare absolute base path with relative sub-path.");
+        }
+        if( !BaseIsWindowsAbsolute && CheckIsWindowsAbsolute ) {
+            throw std::runtime_error("Attempting to compare relative base path with absolute sub-path.");
+        }
+
+        String NormBasePath = RemoveDotSegments_Windows(BasePath);
+        String NormCheckPath = RemoveDotSegments_Windows(CheckPath);
         String::const_iterator BaseIt = NormBasePath.begin();
         String::const_iterator BaseEnd = NormBasePath.end();
         String::const_iterator CheckIt = NormCheckPath.begin();
@@ -228,75 +375,85 @@ namespace Filesystem {
         }
 
         String CheckRemains(CheckIt,CheckEnd);
-        return ( GetDirectoryDepth(CheckRemains,true) > 0 );
+        return ( GetDirectoryDepth_Windows(CheckRemains,true) > 0 );
     }
 
     ///////////////////////////////////////////////////////////////////////////////
     // Path Utilities
 
-    String BuildPath(const StringView PathRoot, const StringVector& ToBuild,
-                     const StringView FileName, const Boole UseWindowsSlash)
+    String BuildPath_Host(const StringView PathRoot, const StringVector& ToBuild, const StringView FileName)
     {
-        // Char count gets used to reserve space on the return string
-        size_t CharCount = PathRoot.size() + ToBuild.size() + FileName.size();
-        StringVector::const_iterator BuildIt = ToBuild.begin();
-        std::for_each(BuildIt,ToBuild.cend(),[&CharCount](const String& CurrStr) {
-            CharCount += CurrStr.length();
-        });
-        String Ret;
-        Ret.reserve(CharCount);
-        Ret.append(PathRoot);
-        const Char8 Slash = UseWindowsSlash ? GetDirectorySeparator_Windows() : GetDirectorySeparator_Posix();
-        // Build the path
-        while( BuildIt != ToBuild.end() )
-        {
-            Ret.append( *BuildIt );
-            Ret.append( 1, Slash );
-            ++BuildIt;
-        }
-        Ret.append(FileName);
-        return Ret;
+    #ifdef MEZZ_Windows
+        return BuildPath_Windows(PathRoot,ToBuild,FileName);
+    #else
+        return BuildPath_Posix(PathRoot,ToBuild,FileName);
+    #endif
     }
 
-    String RemoveDotSegments(const StringView ToRemove)
+    String BuildPath_Posix(const StringView PathRoot, const StringVector& ToBuild, const StringView FileName)
     {
-        Boole AbsolutePath = IsPathAbsolute(ToRemove);
-        size_t SplitStartPos = AbsolutePath ? ToRemove.find_first_of("/\\") + 1 : 0;
-        size_t SplitEndPos = ToRemove.find_last_of("/\\");
-        size_t FileStartPos = ( SplitEndPos != String::npos ? SplitEndPos + 1 : SplitEndPos );
-        Boole UseWindowsSlash = ( SplitEndPos != String::npos ? ToRemove[SplitEndPos] == '\\' : false );
-
-        StringVector RetSegments;
-        StringVector SplitPath = StringTools::Split(ToRemove.substr(SplitStartPos,SplitEndPos),"/\\");
-        for( StringVector::iterator VecIt = SplitPath.begin() ; VecIt != SplitPath.end() ; ++VecIt )
-        {
-            if( (*VecIt) == ".." ) {
-                if( !RetSegments.empty() ) {
-                    RetSegments.pop_back();
-                }else if( !AbsolutePath ) {
-                    RetSegments.push_back(*VecIt);
-                }
-            }else if( (*VecIt) != "." ) {
-                RetSegments.push_back(*VecIt);
-            }
-        }
-        const StringView PathRoot = ToRemove.substr(0,SplitStartPos);
-        const StringView FileName = ( FileStartPos != String::npos ? ToRemove.substr(FileStartPos) : String() );
-        return BuildPath(PathRoot,RetSegments,FileName,UseWindowsSlash);
+        return BuildPath_Common(PathRoot,ToBuild,FileName,GetDirectorySeparator_Posix());
     }
 
-    String CombinePathAndFileName(const StringView FilePath, const StringView FileName)
+    String BuildPath_Windows(const StringView PathRoot, const StringVector& ToBuild, const StringView FileName)
     {
-        if( FilePath.empty() ) {
-            return String( FileName );
-        }
+        return BuildPath_Common(PathRoot,ToBuild,FileName,GetDirectorySeparator_Windows());
+    }
 
-        String FullPath(FilePath.data(),FilePath.size());
-        if( !IsDirectorySeparator( FilePath.back() ) ) {
-            FullPath.append(1,GetDirectorySeparator_Universal());
-        }
-        FullPath.append(FileName);
-        return FullPath;
+    String RemoveDotSegments_Host(const StringView ToRemove)
+    {
+    #ifdef MEZZ_Windows
+        return RemoveDotSegments_Windows(ToRemove);
+    #else
+        return RemoveDotSegments_Posix(ToRemove);
+    #endif
+    }
+
+    String RemoveDotSegments_Posix(const StringView ToRemove)
+    {
+        Boole AbsolutePath = IsPathAbsolute_Posix(ToRemove);
+        Char8 Separator = GetDirectorySeparator_Posix();
+        size_t SplitStart = AbsolutePath ? ToRemove.find_first_of(Separator) + 1 : 0;
+        size_t SplitEnd = ToRemove.find_last_of(Separator);
+        size_t FileStart = ( SplitEnd != StringView::npos ? SplitEnd + 1 : SplitEnd );
+
+        StringVector SplitPath = RemoveDotSegments_Common(ToRemove.substr(SplitStart,SplitEnd),Separator,AbsolutePath);
+        const StringView PathRoot = ToRemove.substr(0,SplitStart);
+        const StringView FileName = ( FileStart != StringView::npos ? ToRemove.substr(FileStart) : String() );
+        return BuildPath_Posix(PathRoot,SplitPath,FileName);
+    }
+
+    String RemoveDotSegments_Windows(const StringView ToRemove)
+    {
+        Boole AbsolutePath = IsPathAbsolute_Windows(ToRemove);
+        Char8 Separator = GetDirectorySeparator_Windows();
+        size_t SplitStart = AbsolutePath ? ToRemove.find_first_of(Separator) + 1 : 0;
+        size_t SplitEnd = ToRemove.find_last_of(Separator);
+        size_t FileStart = ( SplitEnd != StringView::npos ? SplitEnd + 1 : SplitEnd );
+
+        StringVector SplitPath = RemoveDotSegments_Common(ToRemove.substr(SplitStart,SplitEnd),Separator,AbsolutePath);
+        const StringView PathRoot = ToRemove.substr(0,SplitStart);
+        const StringView FileName = ( FileStart != StringView::npos ? ToRemove.substr(FileStart) : String() );
+        return BuildPath_Windows(PathRoot,SplitPath,FileName);
+    }
+
+    String CombinePathAndFileName_Host(const StringView FilePath, const StringView FileName)
+    {
+    #ifdef MEZZ_Windows
+        return CombinePathAndFileName_Windows(FilePath,FileName);
+    #else
+        return CombinePathAndFileName_Posix(FilePath,FileName);
+    #endif
+    }
+
+    String CombinePathAndFileName_Posix(const StringView FilePath, const StringView FileName)
+    {
+        return CombinePathAndFileName_Common(FilePath,FileName,GetDirectorySeparator_Posix());
+    }
+
+    String CombinePathAndFileName_Windows(const StringView FilePath, const StringView FileName)
+    {
+        return CombinePathAndFileName_Common(FilePath,FileName,GetDirectorySeparator_Windows());
     }
 }//Filesystem
 }//Mezzanine
