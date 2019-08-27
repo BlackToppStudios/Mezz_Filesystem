@@ -120,13 +120,7 @@ namespace Filesystem {
     /// @return Returns true if the character is '\\' on Windows, or '/' on linux, false otherwise.
     template<typename CharType, typename = std::enable_if_t< StringTools::is_char<CharType>::value > >
     constexpr Boole IsDirectorySeparator_Host(const CharType ToCheck)
-    {
-    #ifdef MEZZ_Windows
-        return ( ToCheck == GetDirectorySeparator_Windows<CharType>() );
-    #else
-        return ( ToCheck == GetDirectorySeparator_Posix<CharType>() );
-    #endif
-    }
+        { return ( ToCheck == GetDirectorySeparator_Host<CharType>() ); }
 
     /// @brief Get the character used to separate entries in the system PATH on Posix.
     /// @return Returns a colon ':'.
