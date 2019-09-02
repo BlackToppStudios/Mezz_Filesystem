@@ -95,6 +95,12 @@ AUTOMATIC_TEST_GROUP(PathUtilitiesTests,PathUtilities)
                    "",Filesystem::GetBaseName(String("/a/b/c/")));
     }// Dir and Base Name
 
+    {// Dot Segment Checks
+        TEST_EQUAL("IsDotSegment(const_StringView)-SingleDot",true,Filesystem::IsDotSegment("."));
+        TEST_EQUAL("IsDotSegment(const_StringView)-DoubleDot",true,Filesystem::IsDotSegment(".."));
+        TEST_EQUAL("IsDotSegment(const_StringView)-NotADot",false,Filesystem::IsDotSegment("Hello"));
+    }// Dot Segment Checks
+
     {// Separators
         TEST_EQUAL("IsDirectorySeparator(const_T)-Pass",true,Filesystem::IsDirectorySeparator('/'));
         TEST_EQUAL("IsDirectorySeparator(const_T)-Fail",false,Filesystem::IsDirectorySeparator('@'));

@@ -207,6 +207,14 @@ namespace Filesystem {
     }
 
     ///////////////////////////////////////////////////////////////////////////////
+    // Dot Segment Checks
+
+    Boole IsDotSegment(const StringView ToCheck)
+    {
+        return ( ToCheck == "." || ToCheck == ".." );
+    }
+
+    ///////////////////////////////////////////////////////////////////////////////
     // Absolute and Relative Paths
 
     Boole IsPathAbsolute(const StringView ToCheck)

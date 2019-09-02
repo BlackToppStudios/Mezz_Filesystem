@@ -67,6 +67,14 @@ namespace Filesystem {
     String MEZZ_LIB GetBaseName(const StringView PathAndFile);
 
     ///////////////////////////////////////////////////////////////////////////////
+    // Dot Segment Checks
+
+    /// @brief Checks to see if the String is a dot segment.
+    /// @param ToCheck The String to be checked.
+    /// @return Returns true if the String to check contains "." or "..", false otherwise.
+    Boole MEZZ_LIB IsDotSegment(const StringView ToCheck);
+
+    ///////////////////////////////////////////////////////////////////////////////
     // Separators
 
     /// @brief Gets the character used by Posix to separate directories.

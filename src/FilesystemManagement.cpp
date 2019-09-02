@@ -266,7 +266,9 @@ namespace Filesystem {
         {
             PathAttempt.append( FolderVec.at(VecIndex) );
             PathAttempt.append( 1, SysSlash );
-            Result = Filesystem::CreateDirectory( PathAttempt );
+            if( !Filesystem::IsDotSegment( FolderVec.at(VecIndex) ) ) {
+                Result = Filesystem::CreateDirectory( PathAttempt );
+            }
         }
         return Result;
     }
