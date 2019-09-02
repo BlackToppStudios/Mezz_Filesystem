@@ -41,7 +41,6 @@
 #define Mezz_Filesystem_PathUtilities_h
 
 #ifndef SWIG
-    #include "RuntimeStatics.h"
     #include "StringTools.h"
 #endif
 

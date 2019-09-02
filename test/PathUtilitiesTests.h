@@ -41,7 +41,7 @@
 #define Mezz_Filesystem_PathUtilitiesTests_h
 
 /// @file
-/// @brief This file tests of some utilities that work with Strings relating to a resource path.
+/// @brief This file tests utilities that work with Strings relating to a resource path.
 
 #include "MezzTest.h"
 
