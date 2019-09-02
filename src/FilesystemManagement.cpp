@@ -49,7 +49,12 @@
 #include "StringTools.h"
 
 #ifdef MEZZ_Windows
+    SAVE_WARNING_STATE
+    SUPPRESS_VC_WARNING(4668)
+
     #include <Windows.h>
+
+    RESTORE_WARNING_STATE
 #else
     #include <stdio.h>
     #include <sys/stat.h>
@@ -237,27 +242,31 @@ namespace Filesystem {
     Boole CreateDirectoryPath(const StringView DirectoryPath)
     {
         Boole Result = true;
-        StringVector FolderNames;
+    #ifdef MEZZ_Windows
         StringVector FolderVec = StringTools::Split(DirectoryPath,"/\\");
+    #else // MEZZ_Windows
+        StringVector FolderVec = StringTools::Split(DirectoryPath,"/");
+    #endif // MEZZ_Windows
         size_t StartIndex = 0;
         String PathAttempt;
         Char8 SysSlash = GetDirectorySeparator_Host();
     #ifdef MEZZ_Windows
         // For windows and windows like machines, see if the first entry is a drive.
-        // Because attempting to make a drive is silly.
-        if( FolderVec.at(0).find(':') != String::npos ) {
+        if( IsPathAbsolute_Host(DirectoryPath) ) {
             PathAttempt.append( FolderVec.at(0) );
             PathAttempt.append( 1, SysSlash );
             StartIndex++;
         }
     #else // MEZZ_Windows
-        PathAttempt.append( 1, SysSlash );
+        if( IsPathAbsolute_Host(DirectoryPath) ) {
+            PathAttempt.append( 1, SysSlash );
+        }
     #endif // MEZZ_Windows
         for( size_t VecIndex = StartIndex ; Result && VecIndex < FolderVec.size() ; ++VecIndex )
         {
             PathAttempt.append( FolderVec.at(VecIndex) );
             PathAttempt.append( 1, SysSlash );
-            Result = CreateDirectory( PathAttempt );
+            Result = Filesystem::CreateDirectory( PathAttempt );
         }
         return Result;
     }
