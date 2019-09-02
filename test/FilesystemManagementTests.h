@@ -92,7 +92,7 @@ AUTOMATIC_TEST_GROUP(FilesystemManagementTests,FilesystemManagement)
                    false,Filesystem::FileExists("MoveTarget/RenamedCopy.txt"));
         TEST_EQUAL("RemoveFile(const_StringView)-DeleteOriginal",
                    true,Filesystem::RemoveFile("UtilityTestFile.txt"));
-        TEST_EQUAL("RemoveFile(const_StringView)-VerifyOriginal",
+        TEST_EQUAL("RemoveFile(const_StringView)-VerifyDeleted",
                    false,Filesystem::FileExists("UtilityTestFile.txt"));
         TEST_EQUAL("MoveFile(const_StringView,const_StringView)-DestroyDest",
                    true,Filesystem::RemoveDirectory("MoveTarget/"));
