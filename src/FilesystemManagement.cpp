@@ -119,8 +119,8 @@ namespace Filesystem {
         std::ifstream SrcStream;
         std::ofstream DestStream;
 
-        SrcStream.open(OldFilePath,std::ios_base::binary | std::ios_base::in);
-        DestStream.open(NewFilePath,std::ios_base::binary | std::ios_base::out);
+        SrcStream.open(String(OldFilePath),std::ios_base::binary | std::ios_base::in);//Converting to String is Ew.
+        DestStream.open(String(NewFilePath),std::ios_base::binary | std::ios_base::out);//Converting to String is Ew.
 
         DestStream << SrcStream.rdbuf();
         return true;
