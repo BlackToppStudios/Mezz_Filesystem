@@ -62,6 +62,8 @@
     #include <unistd.h>
 #endif
 
+#include <cstring>
+
 #include "PlatformUndefs.h"
 
 namespace
