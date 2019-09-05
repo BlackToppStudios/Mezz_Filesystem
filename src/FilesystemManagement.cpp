@@ -302,7 +302,9 @@ namespace Filesystem {
                 case ENOTDIR:       std::cout << "rmdir failure: ENOTDIR\n";       break;
                 case EPERM:         std::cout << "rmdir failure: EPERM\n";         break;
                 case EROFS:         std::cout << "rmdir failure: EROFS\n";         break;
+                default:            std::cout << "rmdir failure: Unknown error\n"; break;
             }
+            return false;
         }
     #endif // MEZZ_Windows
     }
