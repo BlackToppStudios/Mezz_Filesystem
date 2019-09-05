@@ -42,14 +42,17 @@
 
 #ifdef MEZZ_Windows
     #define _WIN32_WINNT 0x0601
-    #define WIN32_LEAN_AND_MEAN
 #endif
 
 #include "FilesystemManagement.h"
 #include "PathUtilities.h"
 #include "StringTools.h"
 
+#include <cstring>
+
 #ifdef MEZZ_Windows
+    #define WIN32_LEAN_AND_MEAN
+
     SAVE_WARNING_STATE
     SUPPRESS_VC_WARNING(4668)
 
@@ -62,8 +65,6 @@
     #include <sys/types.h>
     #include <unistd.h>
 #endif
-
-#include <cstring>
 
 #include "PlatformUndefs.h"
 
@@ -217,7 +218,7 @@ namespace Filesystem {
                 return false;
             }
             StringStream ExceptionStream;
-            ExceptionStream << "Unable to create directory.  Error follows:" << std::endl;
+            ExceptionStream << "Unable to create directory.  Error follows:\n";
             if( ERROR_PATH_NOT_FOUND == ::GetLastError() ) {
                 ExceptionStream << "Path to requested directory does not exist.";
             }else{
@@ -228,12 +229,12 @@ namespace Filesystem {
         }
         return true;
     #else // MEZZ_Windows
-        if( ::mkdir(DirectoryPath.data(),0777) < 0 ) {
+        if( ::mkdir(DirectoryPath.data(),0755) < 0 ) {
             if( EEXIST == errno ) {
                 return false;
             }
             StringStream ExceptionStream;
-            ExceptionStream << "Unable to create directory.  Error follows:" << std::endl;
+            ExceptionStream << "Unable to create directory.  Error follows:\n";
             ExceptionStream << std::strerror(errno);
             //MEZZ_EXCEPTION(ExceptionBase::IO_DIRECTORY_NOT_FOUND_EXCEPTION,ExceptionStream.str());
             throw std::runtime_error(ExceptionStream.str());
@@ -282,7 +283,26 @@ namespace Filesystem {
         std::wstring ConvertedPath = ConvertToWideString(DirectoryPath);
         return ( ::RemoveDirectoryW(ConvertedPath.data()) != 0 );
     #else // MEZZ_Windows
-        return ( ::rmdir(DirectoryPath.data()) == 0 );
+        //return ( ::rmdir(DirectoryPath.data()) == 0 );
+        if( ::rmdir(DirectoryPath.data()) == 0 ) {
+            return true;
+        }else{
+            switch( errno )
+            {
+                case EACCES:        std::cout << "rmdir failure: EACCES\n";        break;
+                case EBUSY:         std::cout << "rmdir failure: EBUSY\n";         break;
+                case EEXIST:        std::cout << "rmdir failure: EEXIST\n";        break;
+                case ENOTEMPTY:     std::cout << "rmdir failure: ENOTEMPTY\n";     break;
+                case EINVAL:        std::cout << "rmdir failure: EINVAL\n";        break;
+                case EIO:           std::cout << "rmdir failure: EIO\n";           break;
+                case ELOOP:         std::cout << "rmdir failure: ELOOP\n";         break;
+                case ENAMETOOLONG:  std::cout << "rmdir failure: ENAMETOOLONG\n";  break;
+                case ENOENT:        std::cout << "rmdir failure: ENOENT\n";        break;
+                case ENOTDIR:       std::cout << "rmdir failure: ENOTDIR\n";       break;
+                case EPERM:         std::cout << "rmdir failure: EPERM\n";         break;
+                case EROFS:         std::cout << "rmdir failure: EROFS\n";         break;
+            }
+        }
     #endif // MEZZ_Windows
     }
 }//Filesystem
