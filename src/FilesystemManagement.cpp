@@ -49,6 +49,7 @@
 #include "StringTools.h"
 
 #include <cstring>
+#include <iostream>
 
 #ifdef MEZZ_Windows
     #define WIN32_LEAN_AND_MEAN
