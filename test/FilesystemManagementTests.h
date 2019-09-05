@@ -95,7 +95,7 @@ AUTOMATIC_TEST_GROUP(FilesystemManagementTests,FilesystemManagement)
         TEST_EQUAL("RemoveFile(const_StringView)-VerifyDeleted",
                    false,Filesystem::FileExists("UtilityTestFile.txt"));
         TEST_EQUAL("MoveFile(const_StringView,const_StringView)-DestroyDest",
-                   true,Filesystem::RemoveDirectory("MoveTarget/"));
+                   true,Filesystem::RemoveDirectory("MoveTarget"));
     }// Basic File Management
 
     {// Symlinks
@@ -103,10 +103,10 @@ AUTOMATIC_TEST_GROUP(FilesystemManagementTests,FilesystemManagement)
     }// Symlinks
 
     {// Basic Directory Management
-        String TestDirString("./DirTestingDir/");
+        String BasePathTestDir("./DirTestingDir/");
 
         // Perform cleanup from any unclean runs of the tests
-        Boole Exists = Filesystem::DirectoryExists(TestDirString);
+        Boole Exists = Filesystem::DirectoryExists(BasePathTestDir);
         if( Exists ) {
             TEST_RESULT("DirectoryManagement-VerifyPreviousRunCleanup",Testing::TestResult::Failed);
         }else{
@@ -114,29 +114,30 @@ AUTOMATIC_TEST_GROUP(FilesystemManagementTests,FilesystemManagement)
         }
 
         TEST_EQUAL("CreateDirectory(const_StringView)",
-                   true,Filesystem::CreateDirectory(TestDirString));
+                   true,Filesystem::CreateDirectory(BasePathTestDir));
         TEST_EQUAL("DirectoryExists(const_StringView)",
-                   true,Filesystem::DirectoryExists(TestDirString));
+                   true,Filesystem::DirectoryExists(BasePathTestDir));
 
-        const String BaseDir = "./";
-        const String Depth1 = "Depth1/";
-        const String Depth2 = "Depth2/";
-        const String Depth3 = "Depth3/";
-        const String DepthDir = BaseDir + Depth1 + Depth2 + Depth3;
+        //const String BaseDir = "./";
+        //const String Depth1 = "Depth1/";
+        //const String Depth2 = "Depth2/";
+        //const String Depth3 = "Depth3/";
+        //const String DepthDir = BaseDir + Depth1 + Depth2 + Depth3;
+        const String FullPathTestDir = "./DirTestingDir/Depth1/Depth2/Depth3/";
 
         TEST_EQUAL("CreateDirectoryPath(const_StringView)",
-                   true,Filesystem::CreateDirectoryPath(DepthDir));
+                   true,Filesystem::CreateDirectoryPath(FullPathTestDir));
         TEST_EQUAL("CreateDirectoryPath(const_StringView)-Verify",
-                   true,Filesystem::DirectoryExists(DepthDir));
+                   true,Filesystem::DirectoryExists(FullPathTestDir));
         TEST_EQUAL("RemoveDirectory(const_StringView)-PathDepth3",
-                   true,Filesystem::RemoveDirectory(BaseDir + Depth1 + Depth2 + Depth3));
+                   true,Filesystem::RemoveDirectory(FullPathTestDir));
         TEST_EQUAL("RemoveDirectory(const_StringView)-PathDepth2",
-                   true,Filesystem::RemoveDirectory(BaseDir + Depth1 + Depth2));
+                   true,Filesystem::RemoveDirectory("./DirTestingDir/Depth1/Depth2/"));
         TEST_EQUAL("RemoveDirectory(const_StringView)-PathDepth1",
-                   true,Filesystem::RemoveDirectory(BaseDir + Depth1));
+                   true,Filesystem::RemoveDirectory("./DirTestingDir/Depth1/"));
 
         TEST_EQUAL("RemoveDirectory(const_StringView)-BaseDir",
-                   true,Filesystem::RemoveDirectory(TestDirString));
+                   true,Filesystem::RemoveDirectory(BasePathTestDir));
     }// Basic Directory Management
 }
 
