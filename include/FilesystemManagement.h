@@ -46,6 +46,36 @@
 
 namespace Mezzanine {
 namespace Filesystem {
+    /// @brief A Collection of possible results from common filesystem operations.
+    /// @remarks Any value larger than success should be considered an error/failure. Any function that returns
+    /// such a value did not complete and in most cases did not modify the filesystem.
+    enum class ModifyResult
+    {
+        Success = 0,       ///< Everything worked.
+
+        AlreadyExists,     ///< The file or directory to be created already exists.
+        DoesNotExist,      ///< The file of directory specified wasn't found.
+
+        InvalidPath,       ///< The path provided is invalid. Could be caused by a "." at the end.
+        LoopingPath,       ///< The path provided contains links that form a loop.
+        NameTooLong,       ///< The name of a file or directory specified is too long.
+
+        PermissionDenied,  ///< The filesystem permissions forbid the action to be taken.
+        ReadOnly,          ///< The filesystem only permits read operations.
+
+        NotADirectory,     ///< The path was expected to direct to a directory, but doesn't.
+        IsADirectory,      ///< The path was expected to direct to non-directory link, but does.
+        NotEmpty,          ///< The directory specified is not empty.
+
+        IOError,           ///< There was a hardware I/O error while completing the operation.
+        NoSpace,           ///< There is insufficient space on the filesystem to complete the operation.
+        MaxLinksExceeded,  ///< The operation would exceeded the maximum links supported for the directory.
+        CurrentlyBusy,     ///< The file or directory specified is in use by the system and operation can't complete.
+        OperationCanceled, ///< The operation was canceled or aborted.
+
+        Unknown            ///< Error is unknown.
+    };
+
     ///////////////////////////////////////////////////////////////////////////////
     // Basic File Management
 
@@ -60,18 +90,18 @@ namespace Filesystem {
     /// @param NewFilePath The path (including the filename) to where the file should be copied.
     /// @param FailIfExists If true the operation will fail if a file with the target name already exists.
     /// @return Returns true if the file was successfully copied, false otherwise.
-    Boole MEZZ_LIB CopyFile(const StringView OldFilePath, const StringView NewFilePath, const Boole FailIfExists);
+    ModifyResult MEZZ_LIB CopyFile(const StringView OldFilePath, const StringView NewFilePath, const Boole FailIfExists);
     /// @brief Moves a file on disk from one location to another.
     /// @remarks This function can be used to rename files.
     /// @param OldFilePath The existing path to the file (including the filename) to be moved.
     /// @param NewFilePath The path (including the filename) to where the file should be named.
     /// @param FailIfExists If true the operation will fail if a file with the target name already exists.
     /// @return Returns true if the file was successfully moved, false otherwise.
-    Boole MEZZ_LIB MoveFile(const StringView OldFilePath, const StringView NewFilePath, const Boole FailIfExists);
+    ModifyResult MEZZ_LIB MoveFile(const StringView OldFilePath, const StringView NewFilePath, const Boole FailIfExists);
     /// @brief Deletes a file existing on the filesystem.
     /// @param FilePath The existing path to the file (including the filename) to be deleted.
     /// @return Returns true if the operation was successful, false if it failed.
-    Boole MEZZ_LIB RemoveFile(const StringView FilePath);
+    ModifyResult MEZZ_LIB RemoveFile(const StringView FilePath);
 
     ///////////////////////////////////////////////////////////////////////////////
     // Symlinks
@@ -80,12 +110,12 @@ namespace Filesystem {
     /// @param SymPath A path (including the name of the symbolic link) to where the link should be placed.
     /// @param TargetPath A path to where the symbolic link will point to.
     /// @return Returns true if the operation was successful, false otherwise.
-    Boole MEZZ_LIB CreateSymlink(const StringView SymPath, const StringView TargetPath);
+    ModifyResult MEZZ_LIB CreateSymlink(const StringView SymPath, const StringView TargetPath);
     /// @brief Creates a symbolic link to a directory on disk.
     /// @param SymPath A path (including the name of the symbolic link) to where the link should be placed.
     /// @param TargetPath A path to where the symbolic link will point to.
     /// @return Returns true if the operation was successful, false otherwise.
-    Boole MEZZ_LIB CreateDirectorySymlink(const StringView SymPath, const StringView TargetPath);
+    ModifyResult MEZZ_LIB CreateDirectorySymlink(const StringView SymPath, const StringView TargetPath);
 
     ///////////////////////////////////////////////////////////////////////////////
     // Basic Directory Management
@@ -99,15 +129,15 @@ namespace Filesystem {
     /// @remarks This function will only create the directory specified at the end of the path.
     /// @param DirectoryPath The path for the newly created directory.
     /// @return Returns true if the directory was created, false in the case of a non-critical error.
-    Boole MEZZ_LIB CreateDirectory(const StringView DirectoryPath);
+    ModifyResult MEZZ_LIB CreateDirectory(const StringView DirectoryPath);
     /// @brief Creates all directories that do not exist in the provided path.
     /// @param DirectoryPath The path for the newly created directory or directories.
     /// @return Returns true if all directories were created, false in the case of a non-critical error.
-    Boole MEZZ_LIB CreateDirectoryPath(const StringView DirectoryPath);
+    ModifyResult MEZZ_LIB CreateDirectoryPath(const StringView DirectoryPath);
     /// @brief Remove an empty directory.
     /// @param DirectoryPath The Path to the directory to remove.
     /// @return Returns true if the directory was successfully removed, false otherwise.
-    Boole MEZZ_LIB RemoveDirectory(const StringView DirectoryPath);
+    ModifyResult MEZZ_LIB RemoveDirectory(const StringView DirectoryPath);
 }//Filesystem
 }//Mezzanine
 

@@ -88,6 +88,64 @@ namespace
         }
         return Ret;
     }
+
+    /// @brief Converts the system error number to a Mezzanine ModifyResult.
+    /// @param err The system error to be converted.
+    /// @return Returns a ModifyResult value corresponding to the system error code.
+    Filesystem::ModifyResult ConvertErrNo(DWORD err)
+    {
+        switch( err )
+        {
+            case ERROR_SUCCESS:            return Filesystem::ModifyResult::Success;            break;
+            case ERROR_ALREADY_EXISTS:     return Filesystem::ModifyResult::AlreadyExists;      break;
+            case ERROR_FILE_EXISTS:        return Filesystem::ModifyResult::AlreadyExists;      break;
+            case ERROR_FILE_NOT_FOUND:     return Filesystem::ModifyResult::DoesNotExist;       break;
+            case ERROR_PATH_NOT_FOUND:     return Filesystem::ModifyResult::DoesNotExist;       break;
+            case ERROR_INVALID_NAME:       return Filesystem::ModifyResult::InvalidPath;        break;
+            case ERROR_BAD_PATHNAME:       return Filesystem::ModifyResult::InvalidPath;        break;
+            //case :         return Filesystem::ModifyResult::LoopingPath;       break;
+            //case :  return Filesystem::ModifyResult::NameTooLong;       break;
+            case ERROR_ACCESS_DENIED:      return Filesystem::ModifyResult::PermissionDenied;   break;
+            //case :         return Filesystem::ModifyResult::ReadOnly;          break;
+            //case :       return Filesystem::ModifyResult::NotADirectory;     break;
+            case ERROR_DIR_NOT_EMPTY:      return Filesystem::ModifyResult::NotEmpty;           break;
+            //case :           return Filesystem::ModifyResult::IOError;           break;
+            case ERROR_NOT_ENOUGH_MEMORY:  return Filesystem::ModifyResult::NoSpace;            break;
+            case ERROR_OUTOFMEMORY:        return Filesystem::ModifyResult::NoSpace;            break;
+            case ERROR_DISK_FULL:          return Filesystem::ModifyResult::NoSpace;            break;
+            //case :        return Filesystem::ModifyResult::MaxLinksExceeded;  break;
+            case ERROR_PATH_BUSY:          return Filesystem::ModifyResult::CurrentlyBusy;      break;
+            case ERROR_REQUEST_ABORTED:    return Filesystem::ModifyResult::OperationCanceled;  break;
+            default:                       return Filesystem::ModifyResult::Unknown;            break;
+        }
+    }
+#else // MEZZ_Windows
+    /// @brief Converts the system error number to a Mezzanine ModifyResult.
+    /// @param err The system error to be converted.
+    /// @return Returns a ModifyResult value corresponding to the system error code.
+    Filesystem::ModifyResult ConvertErrNo(int err)
+    {
+        switch( err )
+        {
+            case EEXIST:        return Filesystem::ModifyResult::AlreadyExists;      break;
+            case ENOENT:        return Filesystem::ModifyResult::DoesNotExist;       break;
+            case EINVAL:        return Filesystem::ModifyResult::InvalidPath;        break;
+            case ELOOP:         return Filesystem::ModifyResult::LoopingPath;        break;
+            case ENAMETOOLONG:  return Filesystem::ModifyResult::NameTooLong;        break;
+            case EACCES:        return Filesystem::ModifyResult::PermissionDenied;   break;
+            case EPERM:         return Filesystem::ModifyResult::PermissionDenied;   break;
+            case EROFS:         return Filesystem::ModifyResult::ReadOnly;           break;
+            case ENOTDIR:       return Filesystem::ModifyResult::NotADirectory;      break;
+            case EISDIR:        return Filesystem::ModifyResult::IsADirectory;       break;
+            case ENOTEMPTY:     return Filesystem::ModifyResult::NotEmpty;           break;
+            case EIO:           return Filesystem::ModifyResult::IOError;            break;
+            case ENOSPC:        return Filesystem::ModifyResult::NoSpace;            break;
+            case EMLINK:        return Filesystem::ModifyResult::MaxLinksExceeded;   break;
+            case EBUSY:         return Filesystem::ModifyResult::CurrentlyBusy;      break;
+            case ECANCELED:     return Filesystem::ModifyResult::OperationCanceled;  break;
+            default:            return Filesystem::ModifyResult::Unknown;            break;
+        }
+    }
 #endif // MEZZ_Windows
 }
 
@@ -112,7 +170,7 @@ namespace Filesystem {
     #endif // MEZZ_Windows
     }
 
-    Boole CopyFile(const StringView OldFilePath, const StringView NewFilePath, const Boole FailIfExists)
+    ModifyResult CopyFile(const StringView OldFilePath, const StringView NewFilePath, const Boole FailIfExists)
     {
     #ifdef MEZZ_Windows
         DWORD CopyFlags = COPY_FILE_COPY_SYMLINK;
@@ -121,10 +179,14 @@ namespace Filesystem {
         }
         std::wstring ConvertedOldPath = ConvertToWideString(OldFilePath);
         std::wstring ConvertedNewPath = ConvertToWideString(NewFilePath);
-        return ( ::CopyFileExW(ConvertedOldPath.c_str(),ConvertedNewPath.c_str(),NULL,NULL,NULL,CopyFlags) != 0 );
+        if( ::CopyFileExW(ConvertedOldPath.c_str(),ConvertedNewPath.c_str(),NULL,NULL,NULL,CopyFlags) != 0 ) {
+            return ModifyResult::Success;
+        }else{
+            return ConvertErrNo( ::GetLastError() );
+        }
     #else // MEZZ_Windows
         if( FailIfExists && FileExists(NewFilePath.data()) ) {
-            return false;
+            return ModifyResult::AlreadyExists;
         }
         std::ifstream SrcStream;
         std::ofstream DestStream;
@@ -133,11 +195,11 @@ namespace Filesystem {
         DestStream.open(String(NewFilePath),std::ios_base::binary | std::ios_base::out);//Converting to String is Ew.
 
         DestStream << SrcStream.rdbuf();
-        return true;
+        return ModifyResult::Success;
     #endif // MEZZ_Windows
     }
 
-    Boole MoveFile(const StringView OldFilePath, const StringView NewFilePath, const Boole FailIfExists)
+    ModifyResult MoveFile(const StringView OldFilePath, const StringView NewFilePath, const Boole FailIfExists)
     {
     #ifdef MEZZ_Windows
         DWORD MoveFlags = MOVEFILE_COPY_ALLOWED;
@@ -146,49 +208,81 @@ namespace Filesystem {
         }
         std::wstring ConvertedOldPath = ConvertToWideString(OldFilePath);
         std::wstring ConvertedNewPath = ConvertToWideString(NewFilePath);
-        return ( ::MoveFileExW(ConvertedOldPath.data(),ConvertedNewPath.data(),MoveFlags) != 0 );
+        if( ::MoveFileExW(ConvertedOldPath.data(),ConvertedNewPath.data(),MoveFlags) != 0 ) {
+            return ModifyResult::Success;
+        }else{
+            return ConvertErrNo( ::GetLastError() );
+        }
     #else // MEZZ_Windows
         if( FailIfExists && FileExists(NewFilePath.data()) ) {
-            return false;
+            return ModifyResult::AlreadyExists;
         }
-        return ( ::rename(OldFilePath.data(),NewFilePath.data()) == 0 );
+        if( ::rename(OldFilePath.data(),NewFilePath.data()) == 0 ) {
+            return ModifyResult::Success;
+        }else{
+            return ConvertErrNo(errno);
+        }
     #endif // MEZZ_Windows
     }
 
-    Boole RemoveFile(const StringView FilePath)
+    ModifyResult RemoveFile(const StringView FilePath)
     {
     #ifdef MEZZ_Windows
         std::wstring ConvertedPath = ConvertToWideString(FilePath);
-        return ( ::DeleteFileW(ConvertedPath.data()) != 0 );
+        if( ::DeleteFileW(ConvertedPath.data()) != 0 ) {
+            return ModifyResult::Success;
+        }else{
+            return ConvertErrNo( ::GetLastError() );
+        }
     #else // MEZZ_Windows
-        return ( ::unlink(FilePath.data()) == 0 );
+        if( ::unlink(FilePath.data()) == 0 ) {
+            return ModifyResult::Success;
+        }else{
+            return ConvertErrNo(errno);
+        }
     #endif // MEZZ_Windows
     }
 
     ///////////////////////////////////////////////////////////////////////////////
     // Symlinks
 
-    Boole CreateSymlink(const StringView SymPath, const StringView TargetPath)
+    ModifyResult CreateSymlink(const StringView SymPath, const StringView TargetPath)
     {
     #ifdef MEZZ_Windows
         DWORD LinkFlags = 0;
         std::wstring ConvertedSymPath = ConvertToWideString(SymPath);
         std::wstring ConvertedTargetPath = ConvertToWideString(TargetPath);
-        return ( ::CreateSymbolicLinkW(ConvertedSymPath.data(),ConvertedTargetPath.data(),LinkFlags) != 0 );
+        if( ::CreateSymbolicLinkW(ConvertedSymPath.data(),ConvertedTargetPath.data(),LinkFlags) != 0 ) {
+            return ModifyResult::Success;
+        }else{
+            return ConvertErrNo( ::GetLastError() );
+        }
     #else // MEZZ_Windows
-        return ( ::symlink(SymPath.data(),TargetPath.data()) == 0 );
+        if( ::symlink(SymPath.data(),TargetPath.data()) == 0 ) {
+            return ModifyResult::Success;
+        }else{
+            return ConvertErrNo(errno);
+        }
     #endif // MEZZ_Windows
     }
 
-    Boole CreateDirectorySymlink(const StringView SymPath, const StringView TargetPath)
+    ModifyResult CreateDirectorySymlink(const StringView SymPath, const StringView TargetPath)
     {
     #ifdef MEZZ_Windows
         DWORD LinkFlags = SYMBOLIC_LINK_FLAG_DIRECTORY;
         std::wstring ConvertedSymPath = ConvertToWideString(SymPath);
         std::wstring ConvertedTargetPath = ConvertToWideString(TargetPath);
-        return ( ::CreateSymbolicLinkW(ConvertedSymPath.data(),ConvertedTargetPath.data(),LinkFlags) != 0 );
+        if( ::CreateSymbolicLinkW(ConvertedSymPath.data(),ConvertedTargetPath.data(),LinkFlags) != 0 ) {
+            return ModifyResult::Success;
+        }else{
+            return ConvertErrNo( ::GetLastError() );
+        }
     #else // MEZZ_Windows
-        return ( ::symlink(SymPath.data(),TargetPath.data()) == 0 );
+        if( ::symlink(SymPath.data(),TargetPath.data()) == 0 ) {
+            return ModifyResult::Success;
+        }else{
+            return ConvertErrNo(errno);
+        }
     #endif // MEZZ_Windows
     }
 
@@ -210,49 +304,33 @@ namespace Filesystem {
     #endif // MEZZ_Windows
     }
 
-    Boole CreateDirectory(const StringView DirectoryPath)
+    ModifyResult CreateDirectory(const StringView DirectoryPath)
     {
     #ifdef MEZZ_Windows
         std::wstring ConvertedPath = ConvertToWideString(DirectoryPath);
-        if( ::CreateDirectoryW(ConvertedPath.data(),NULL) < 0 ) {
-            if( ERROR_ALREADY_EXISTS == ::GetLastError() ) {
-                return false;
-            }
-            StringStream ExceptionStream;
-            ExceptionStream << "Unable to create directory.  Error follows:\n";
-            if( ERROR_PATH_NOT_FOUND == ::GetLastError() ) {
-                ExceptionStream << "Path to requested directory does not exist.";
-            }else{
-                ExceptionStream << "Error Unknown. :(";
-            }
-            //MEZZ_EXCEPTION(ExceptionBase::IO_DIRECTORY_NOT_FOUND_EXCEPTION,ExceptionStream.str());
-            throw std::runtime_error(ExceptionStream.str());
+        if( ::CreateDirectoryW(ConvertedPath.data(),NULL) != 0 ) {
+            return ModifyResult::Success;
+        }else{
+            return ConvertErrNo( ::GetLastError() );
         }
-        return true;
     #else // MEZZ_Windows
-        if( ::mkdir(DirectoryPath.data(),0755) < 0 ) {
-            if( EEXIST == errno ) {
-                return false;
-            }
-            StringStream ExceptionStream;
-            ExceptionStream << "Unable to create directory.  Error follows:\n";
-            ExceptionStream << std::strerror(errno);
-            //MEZZ_EXCEPTION(ExceptionBase::IO_DIRECTORY_NOT_FOUND_EXCEPTION,ExceptionStream.str());
-            throw std::runtime_error(ExceptionStream.str());
+        if( ::mkdir(DirectoryPath.data(),0755) == 0 ) {
+            return ModifyResult::Success;
+        }else{
+            return ConvertErrNo(errno);
         }
-        return true;
     #endif // MEZZ_Windows
     }
 
-    Boole CreateDirectoryPath(const StringView DirectoryPath)
+    ModifyResult CreateDirectoryPath(const StringView DirectoryPath)
     {
-        Boole Result = true;
+        ModifyResult Result = ModifyResult::Success;
     #ifdef MEZZ_Windows
         StringVector FolderVec = StringTools::Split(DirectoryPath,"/\\");
     #else // MEZZ_Windows
         StringVector FolderVec = StringTools::Split(DirectoryPath,"/");
     #endif // MEZZ_Windows
-        size_t StartIndex = 0;
+        size_t VecIndex = 0;
         String PathAttempt;
         Char8 SysSlash = GetDirectorySeparator_Host();
     #ifdef MEZZ_Windows
@@ -260,51 +338,41 @@ namespace Filesystem {
         if( IsPathAbsolute_Host(DirectoryPath) ) {
             PathAttempt.append( FolderVec.at(0) );
             PathAttempt.append( 1, SysSlash );
-            StartIndex++;
+            VecIndex++;
         }
     #else // MEZZ_Windows
         if( IsPathAbsolute_Host(DirectoryPath) ) {
             PathAttempt.append( 1, SysSlash );
         }
     #endif // MEZZ_Windows
-        for( size_t VecIndex = StartIndex ; Result && VecIndex < FolderVec.size() ; ++VecIndex )
+        while( ( Result == ModifyResult::Success || Result == ModifyResult::AlreadyExists )
+               && VecIndex < FolderVec.size() )
         {
             PathAttempt.append( FolderVec.at(VecIndex) );
             PathAttempt.append( 1, SysSlash );
             if( !Filesystem::IsDotSegment( FolderVec.at(VecIndex) ) ) {
                 Result = Filesystem::CreateDirectory( PathAttempt );
             }
+            ++VecIndex;
         }
         return Result;
     }
 
-    Boole RemoveDirectory(const StringView DirectoryPath)
+    ModifyResult RemoveDirectory(const StringView DirectoryPath)
     {
     #ifdef MEZZ_Windows
         std::wstring ConvertedPath = ConvertToWideString(DirectoryPath);
-        return ( ::RemoveDirectoryW(ConvertedPath.data()) != 0 );
+        if( ::RemoveDirectoryW(ConvertedPath.data()) != 0 ) {
+            return ModifyResult::Success;
+        }else{
+            return ConvertErrNo( ::GetLastError() );
+        }
     #else // MEZZ_Windows
         //return ( ::rmdir(DirectoryPath.data()) == 0 );
         if( ::rmdir(DirectoryPath.data()) == 0 ) {
-            return true;
+            return ModifyResult::Success;
         }else{
-            switch( errno )
-            {
-                case EACCES:        std::cout << "rmdir failure: EACCES\n";        break;
-                case EBUSY:         std::cout << "rmdir failure: EBUSY\n";         break;
-                case EEXIST:        std::cout << "rmdir failure: EEXIST\n";        break;
-                case ENOTEMPTY:     std::cout << "rmdir failure: ENOTEMPTY\n";     break;
-                case EINVAL:        std::cout << "rmdir failure: EINVAL\n";        break;
-                case EIO:           std::cout << "rmdir failure: EIO\n";           break;
-                case ELOOP:         std::cout << "rmdir failure: ELOOP\n";         break;
-                case ENAMETOOLONG:  std::cout << "rmdir failure: ENAMETOOLONG\n";  break;
-                case ENOENT:        std::cout << "rmdir failure: ENOENT\n";        break;
-                case ENOTDIR:       std::cout << "rmdir failure: ENOTDIR\n";       break;
-                case EPERM:         std::cout << "rmdir failure: EPERM\n";         break;
-                case EROFS:         std::cout << "rmdir failure: EROFS\n";         break;
-                default:            std::cout << "rmdir failure: Unknown error\n"; break;
-            }
-            return false;
+            return ConvertErrNo(errno);
         }
     #endif // MEZZ_Windows
     }
