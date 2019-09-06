@@ -96,27 +96,27 @@ namespace
     {
         switch( err )
         {
-            case ERROR_SUCCESS:            return Filesystem::ModifyResult::Success;            break;
-            case ERROR_ALREADY_EXISTS:     return Filesystem::ModifyResult::AlreadyExists;      break;
-            case ERROR_FILE_EXISTS:        return Filesystem::ModifyResult::AlreadyExists;      break;
-            case ERROR_FILE_NOT_FOUND:     return Filesystem::ModifyResult::DoesNotExist;       break;
-            case ERROR_PATH_NOT_FOUND:     return Filesystem::ModifyResult::DoesNotExist;       break;
-            case ERROR_INVALID_NAME:       return Filesystem::ModifyResult::InvalidPath;        break;
-            case ERROR_BAD_PATHNAME:       return Filesystem::ModifyResult::InvalidPath;        break;
-            //case :         return Filesystem::ModifyResult::LoopingPath;       break;
-            //case :  return Filesystem::ModifyResult::NameTooLong;       break;
-            case ERROR_ACCESS_DENIED:      return Filesystem::ModifyResult::PermissionDenied;   break;
-            //case :         return Filesystem::ModifyResult::ReadOnly;          break;
-            //case :       return Filesystem::ModifyResult::NotADirectory;     break;
-            case ERROR_DIR_NOT_EMPTY:      return Filesystem::ModifyResult::NotEmpty;           break;
-            //case :           return Filesystem::ModifyResult::IOError;           break;
-            case ERROR_NOT_ENOUGH_MEMORY:  return Filesystem::ModifyResult::NoSpace;            break;
-            case ERROR_OUTOFMEMORY:        return Filesystem::ModifyResult::NoSpace;            break;
-            case ERROR_DISK_FULL:          return Filesystem::ModifyResult::NoSpace;            break;
-            //case :        return Filesystem::ModifyResult::MaxLinksExceeded;  break;
-            case ERROR_PATH_BUSY:          return Filesystem::ModifyResult::CurrentlyBusy;      break;
-            case ERROR_REQUEST_ABORTED:    return Filesystem::ModifyResult::OperationCanceled;  break;
-            default:                       return Filesystem::ModifyResult::Unknown;            break;
+            case ERROR_SUCCESS:            return Filesystem::ModifyResult::Success;
+            case ERROR_ALREADY_EXISTS:     return Filesystem::ModifyResult::AlreadyExists;
+            case ERROR_FILE_EXISTS:        return Filesystem::ModifyResult::AlreadyExists;
+            case ERROR_FILE_NOT_FOUND:     return Filesystem::ModifyResult::DoesNotExist;
+            case ERROR_PATH_NOT_FOUND:     return Filesystem::ModifyResult::DoesNotExist;
+            case ERROR_INVALID_NAME:       return Filesystem::ModifyResult::InvalidPath;
+            case ERROR_BAD_PATHNAME:       return Filesystem::ModifyResult::InvalidPath;
+            //case :         return Filesystem::ModifyResult::LoopingPath;
+            //case :  return Filesystem::ModifyResult::NameTooLong;
+            case ERROR_ACCESS_DENIED:      return Filesystem::ModifyResult::PermissionDenied;
+            //case :         return Filesystem::ModifyResult::ReadOnly;
+            //case :       return Filesystem::ModifyResult::NotADirectory;
+            case ERROR_DIR_NOT_EMPTY:      return Filesystem::ModifyResult::NotEmpty;
+            //case :           return Filesystem::ModifyResult::IOError;
+            case ERROR_NOT_ENOUGH_MEMORY:  return Filesystem::ModifyResult::NoSpace;
+            case ERROR_OUTOFMEMORY:        return Filesystem::ModifyResult::NoSpace;
+            case ERROR_DISK_FULL:          return Filesystem::ModifyResult::NoSpace;
+            //case :        return Filesystem::ModifyResult::MaxLinksExceeded;
+            case ERROR_PATH_BUSY:          return Filesystem::ModifyResult::CurrentlyBusy;
+            case ERROR_REQUEST_ABORTED:    return Filesystem::ModifyResult::OperationCanceled;
+            default:                       return Filesystem::ModifyResult::Unknown;
         }
     }
 #else // MEZZ_Windows
@@ -127,23 +127,23 @@ namespace
     {
         switch( err )
         {
-            case EEXIST:        return Filesystem::ModifyResult::AlreadyExists;      break;
-            case ENOENT:        return Filesystem::ModifyResult::DoesNotExist;       break;
-            case EINVAL:        return Filesystem::ModifyResult::InvalidPath;        break;
-            case ELOOP:         return Filesystem::ModifyResult::LoopingPath;        break;
-            case ENAMETOOLONG:  return Filesystem::ModifyResult::NameTooLong;        break;
-            case EACCES:        return Filesystem::ModifyResult::PermissionDenied;   break;
-            case EPERM:         return Filesystem::ModifyResult::PermissionDenied;   break;
-            case EROFS:         return Filesystem::ModifyResult::ReadOnly;           break;
-            case ENOTDIR:       return Filesystem::ModifyResult::NotADirectory;      break;
-            case EISDIR:        return Filesystem::ModifyResult::IsADirectory;       break;
-            case ENOTEMPTY:     return Filesystem::ModifyResult::NotEmpty;           break;
-            case EIO:           return Filesystem::ModifyResult::IOError;            break;
-            case ENOSPC:        return Filesystem::ModifyResult::NoSpace;            break;
-            case EMLINK:        return Filesystem::ModifyResult::MaxLinksExceeded;   break;
-            case EBUSY:         return Filesystem::ModifyResult::CurrentlyBusy;      break;
-            case ECANCELED:     return Filesystem::ModifyResult::OperationCanceled;  break;
-            default:            return Filesystem::ModifyResult::Unknown;            break;
+            case EEXIST:        return Filesystem::ModifyResult::AlreadyExists;
+            case ENOENT:        return Filesystem::ModifyResult::DoesNotExist;
+            case EINVAL:        return Filesystem::ModifyResult::InvalidPath;
+            case ELOOP:         return Filesystem::ModifyResult::LoopingPath;
+            case ENAMETOOLONG:  return Filesystem::ModifyResult::NameTooLong;
+            case EACCES:        return Filesystem::ModifyResult::PermissionDenied;
+            case EPERM:         return Filesystem::ModifyResult::PermissionDenied;
+            case EROFS:         return Filesystem::ModifyResult::ReadOnly;
+            case ENOTDIR:       return Filesystem::ModifyResult::NotADirectory;
+            case EISDIR:        return Filesystem::ModifyResult::IsADirectory;
+            case ENOTEMPTY:     return Filesystem::ModifyResult::NotEmpty;
+            case EIO:           return Filesystem::ModifyResult::IOError;
+            case ENOSPC:        return Filesystem::ModifyResult::NoSpace;
+            case EMLINK:        return Filesystem::ModifyResult::MaxLinksExceeded;
+            case EBUSY:         return Filesystem::ModifyResult::CurrentlyBusy;
+            case ECANCELED:     return Filesystem::ModifyResult::OperationCanceled;
+            default:            return Filesystem::ModifyResult::Unknown;
         }
     }
 #endif // MEZZ_Windows
