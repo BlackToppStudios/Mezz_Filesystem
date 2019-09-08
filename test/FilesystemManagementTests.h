@@ -153,14 +153,18 @@ AUTOMATIC_TEST_GROUP(FilesystemManagementTests,FilesystemManagement)
         TEST_EQUAL("CreateDirectoryPath(const_StringView)",
                    Filesystem::ModifyResult::Success,
                    Filesystem::CreateDirectoryPath(FullPathTestDir));
-        TEST_EQUAL("CreateDirectoryPath(const_StringView)-Verify",
+        TEST_EQUAL("CreateDirectoryPath(const_StringView)-Verify1",
                    true,Filesystem::DirectoryExists(FullPathTestDir));
         TEST_EQUAL("RemoveDirectory(const_StringView)-PathDepth3",
                    Filesystem::ModifyResult::Success,
                    Filesystem::RemoveDirectory(FullPathTestDir));
+        TEST_EQUAL("CreateDirectoryPath(const_StringView)-Verify2",
+                   true,Filesystem::DirectoryExists("./DirTestingDir/Depth1/Depth2/"));
         TEST_EQUAL("RemoveDirectory(const_StringView)-PathDepth2",
                    Filesystem::ModifyResult::Success,
                    Filesystem::RemoveDirectory("./DirTestingDir/Depth1/Depth2/"));
+        TEST_EQUAL("CreateDirectoryPath(const_StringView)-Verify3",
+                   true,Filesystem::DirectoryExists("./DirTestingDir/Depth1/"));
         TEST_EQUAL("RemoveDirectory(const_StringView)-PathDepth1",
                    Filesystem::ModifyResult::Success,
                    Filesystem::RemoveDirectory("./DirTestingDir/Depth1/"));
