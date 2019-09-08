@@ -148,7 +148,7 @@ AUTOMATIC_TEST_GROUP(FilesystemManagementTests,FilesystemManagement)
         //const String Depth2 = "Depth2/";
         //const String Depth3 = "Depth3/";
         //const String DepthDir = BaseDir + Depth1 + Depth2 + Depth3;
-        const String FullPathTestDir = "DirTestingDir/Depth1/Depth2/Depth3/";
+        const String FullPathTestDir = "DirTestingDir/Depth1/Depth2/Depth3";
 
         TEST_EQUAL("CreateDirectoryPath(const_StringView)",
                    Filesystem::ModifyResult::Success,
@@ -166,7 +166,7 @@ AUTOMATIC_TEST_GROUP(FilesystemManagementTests,FilesystemManagement)
         //           true,Filesystem::DirectoryExists("./DirTestingDir/Depth1/Depth2/"));
         TEST_EQUAL("RemoveDirectory(const_StringView)-PathDepth2",
                    Filesystem::ModifyResult::Success,
-                   Filesystem::RemoveDirectory("DirTestingDir/Depth1/Depth2/"));
+                   Filesystem::RemoveDirectory("DirTestingDir/Depth1/Depth2"));
         //TEST_EQUAL("CreateDirectoryPath(const_StringView)-PostVerify-Depth2",
         //           false,Filesystem::DirectoryExists("./DirTestingDir/Depth1/Depth2/"));
 
@@ -174,7 +174,7 @@ AUTOMATIC_TEST_GROUP(FilesystemManagementTests,FilesystemManagement)
         //           true,Filesystem::DirectoryExists("./DirTestingDir/Depth1/"));
         TEST_EQUAL("RemoveDirectory(const_StringView)-PathDepth1",
                    Filesystem::ModifyResult::Success,
-                   Filesystem::RemoveDirectory("DirTestingDir/Depth1/"));
+                   Filesystem::RemoveDirectory("DirTestingDir/Depth1"));
         //TEST_EQUAL("CreateDirectoryPath(const_StringView)-PostVerify-Depth1",
         //           false,Filesystem::DirectoryExists("./DirTestingDir/Depth1"));
 
