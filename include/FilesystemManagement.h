@@ -52,27 +52,27 @@ namespace Filesystem {
     enum class ModifyResult
     {
         Success = 0,       ///< Everything worked.
-
+        // Existence Errors
         AlreadyExists,     ///< The file or directory to be created already exists.
         DoesNotExist,      ///< The file of directory specified wasn't found.
-
+        // Path Errors
         InvalidPath,       ///< The path provided is invalid. Could be caused by a "." at the end.
         LoopingPath,       ///< The path provided contains links that form a loop.
         NameTooLong,       ///< The name of a file or directory specified is too long.
-
+        // Permission Errors
         PermissionDenied,  ///< The filesystem permissions forbid the action to be taken.
         ReadOnly,          ///< The filesystem only permits read operations.
-
+        // Directory Errors
         NotADirectory,     ///< The path was expected to direct to a directory, but doesn't.
         IsADirectory,      ///< The path was expected to direct to non-directory link, but does.
         NotEmpty,          ///< The directory specified is not empty.
-
+        // Other Errors
         IOError,           ///< There was a hardware I/O error while completing the operation.
         NoSpace,           ///< There is insufficient space on the filesystem to complete the operation.
         MaxLinksExceeded,  ///< The operation would exceeded the maximum links supported for the directory.
         CurrentlyBusy,     ///< The file or directory specified is in use by the system and operation can't complete.
         OperationCanceled, ///< The operation was canceled or aborted.
-
+        // Unknown
         Unknown            ///< Error is unknown.
     };
 
