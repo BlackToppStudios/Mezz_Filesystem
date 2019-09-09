@@ -343,7 +343,7 @@ namespace Filesystem {
         return ( ::RemoveDirectoryW(WidePath.data()) != 0 ?
                  ModifyResult::Success :
                  ConvertErrNo( ::GetLastError() ) );
-    #elif MEZZ_CompilerIsEmscripten
+    #elif defined(MEZZ_CompilerIsEmscripten)
         // rmdir on emscripten fails to find the directory specified if it contains a trailing slash.
         if( IsDirectorySeparator_Host( DirectoryPath.back() ) ) {
             String FixedPath(DirectoryPath.data(),DirectoryPath.size() - 1);
