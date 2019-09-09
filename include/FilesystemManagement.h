@@ -49,7 +49,7 @@ namespace Filesystem {
     /// @brief A Collection of possible results from common filesystem operations.
     /// @remarks Any value larger than success should be considered an error/failure. Any function that returns
     /// such a value did not complete and in most cases did not modify the filesystem.
-    enum class ModifyResult
+    enum class [[nodiscard]] ModifyResult
     {
         Success = 0,       ///< Everything worked.
         // Existence Errors
@@ -82,6 +82,7 @@ namespace Filesystem {
     /// @brief Verifies the existence of a file.
     /// @param FilePath The path and name of the file to check for.
     /// @return Returns true if the file at the specified location exists, false otherwise.
+    [[nodiscard]]
     Boole MEZZ_LIB FileExists(const StringView FilePath);
 
     /// @brief Copies a file on disk to a new location.
@@ -90,17 +91,22 @@ namespace Filesystem {
     /// @param NewFilePath The path (including the filename) to where the file should be copied.
     /// @param FailIfExists If true the operation will fail if a file with the target name already exists.
     /// @return Returns true if the file was successfully copied, false otherwise.
-    ModifyResult MEZZ_LIB CopyFile(const StringView OldFilePath, const StringView NewFilePath, const Boole FailIfExists);
+    [[nodiscard]]
+    ModifyResult MEZZ_LIB CopyFile(const StringView OldFilePath, const StringView NewFilePath,
+                                   const Boole FailIfExists);
     /// @brief Moves a file on disk from one location to another.
     /// @remarks This function can be used to rename files.
     /// @param OldFilePath The existing path to the file (including the filename) to be moved.
     /// @param NewFilePath The path (including the filename) to where the file should be named.
     /// @param FailIfExists If true the operation will fail if a file with the target name already exists.
     /// @return Returns true if the file was successfully moved, false otherwise.
-    ModifyResult MEZZ_LIB MoveFile(const StringView OldFilePath, const StringView NewFilePath, const Boole FailIfExists);
+    [[nodiscard]]
+    ModifyResult MEZZ_LIB MoveFile(const StringView OldFilePath, const StringView NewFilePath,
+                                   const Boole FailIfExists);
     /// @brief Deletes a file existing on the filesystem.
     /// @param FilePath The existing path to the file (including the filename) to be deleted.
     /// @return Returns true if the operation was successful, false if it failed.
+    [[nodiscard]]
     ModifyResult MEZZ_LIB RemoveFile(const StringView FilePath);
 
     ///////////////////////////////////////////////////////////////////////////////
@@ -110,11 +116,13 @@ namespace Filesystem {
     /// @param SymPath A path (including the name of the symbolic link) to where the link should be placed.
     /// @param TargetPath A path to where the symbolic link will point to.
     /// @return Returns true if the operation was successful, false otherwise.
+    [[nodiscard]]
     ModifyResult MEZZ_LIB CreateSymlink(const StringView SymPath, const StringView TargetPath);
     /// @brief Creates a symbolic link to a directory on disk.
     /// @param SymPath A path (including the name of the symbolic link) to where the link should be placed.
     /// @param TargetPath A path to where the symbolic link will point to.
     /// @return Returns true if the operation was successful, false otherwise.
+    [[nodiscard]]
     ModifyResult MEZZ_LIB CreateDirectorySymlink(const StringView SymPath, const StringView TargetPath);
 
     ///////////////////////////////////////////////////////////////////////////////
@@ -123,20 +131,24 @@ namespace Filesystem {
     /// @brief Verifies the existence of a folder.
     /// @param DirectoryPath The path and name of the folder to check for.
     /// @return Returns true if the folder at the specified location exists, false otherwise.
+    [[nodiscard]]
     Boole MEZZ_LIB DirectoryExists(const StringView DirectoryPath);
 
     /// @brief Creates a single new directory.
     /// @remarks This function will only create the directory specified at the end of the path.
     /// @param DirectoryPath The path for the newly created directory.
     /// @return Returns true if the directory was created, false in the case of a non-critical error.
+    [[nodiscard]]
     ModifyResult MEZZ_LIB CreateDirectory(const StringView DirectoryPath);
     /// @brief Creates all directories that do not exist in the provided path.
     /// @param DirectoryPath The path for the newly created directory or directories.
     /// @return Returns true if all directories were created, false in the case of a non-critical error.
+    [[nodiscard]]
     ModifyResult MEZZ_LIB CreateDirectoryPath(const StringView DirectoryPath);
     /// @brief Remove an empty directory.
     /// @param DirectoryPath The Path to the directory to remove.
     /// @return Returns true if the directory was successfully removed, false otherwise.
+    [[nodiscard]]
     ModifyResult MEZZ_LIB RemoveDirectory(const StringView DirectoryPath);
 }//Filesystem
 }//Mezzanine

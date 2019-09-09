@@ -275,16 +275,16 @@ AUTOMATIC_TEST_GROUP(PathUtilitiesTests,PathUtilities)
 
         TEST_THROW("IsSubPath_Posix(const_StringView,const_StringView)-Absolute/Relative-Throw",
                    std::runtime_error,
-                   [&](){ Filesystem::IsSubPath_Posix(BaseDirOne,"relative/path/"); });
+                   [&](){ static_cast<void>( Filesystem::IsSubPath_Posix(BaseDirOne,"relative/path/") ); });
         TEST_THROW("IsSubPath_Posix(const_StringView,const_StringView)-Relative/Absolute-Throw",
                    std::runtime_error,
-                   [&](){ Filesystem::IsSubPath_Posix(BaseDirTwo,"/absolute/path/"); });
+                   [&](){ static_cast<void>( Filesystem::IsSubPath_Posix(BaseDirTwo,"/absolute/path/") ); });
         TEST_THROW("IsSubPath_Windows(const_StringView,const_StringView)-Absolute/Relative-Throw",
                    std::runtime_error,
-                   [&](){ Filesystem::IsSubPath_Windows(BaseDirThree,"relative\\path\\"); });
+                   [&](){ static_cast<void>( Filesystem::IsSubPath_Windows(BaseDirThree,"relative\\path\\") ); });
         TEST_THROW("IsSubPath_Windows(const_StringView,const_StringView)-Relative/Absolute-Throw",
                    std::runtime_error,
-                   [&](){ Filesystem::IsSubPath_Windows(BaseDirFour,"C:\\absolute\\path\\"); });
+                   [&](){ static_cast<void>( Filesystem::IsSubPath_Windows(BaseDirFour,"C:\\absolute\\path\\") ); });
     }// Path Checks
 
     {// Path Utilities
