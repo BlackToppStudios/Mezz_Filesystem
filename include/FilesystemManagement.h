@@ -80,8 +80,10 @@ namespace Filesystem {
     // Basic File Management
 
     /// @brief Verifies the existence of a file.
+    /// @remarks If the path provided refers to a symlink, the link will be followed and the existence
+    /// of the file pointed to by the symlink will be tested.
     /// @param FilePath The path and name of the file to check for.
-    /// @return Returns true if the file at the specified location exists, false otherwise.
+    /// @return Returns true if the file at the specified file exists, false otherwise.
     [[nodiscard]]
     Boole MEZZ_LIB FileExists(const StringView FilePath);
 
@@ -90,7 +92,7 @@ namespace Filesystem {
     /// @param OldFilePath The existing path to the file (including the filename) to be copied.
     /// @param NewFilePath The path (including the filename) to where the file should be copied.
     /// @param FailIfExists If true the operation will fail if a file with the target name already exists.
-    /// @return Returns true if the file was successfully copied, false otherwise.
+    /// @return Returns a ModifyResult value describing the result of the file copy.
     [[nodiscard]]
     ModifyResult MEZZ_LIB CopyFile(const StringView OldFilePath, const StringView NewFilePath,
                                    const Boole FailIfExists);
@@ -99,55 +101,66 @@ namespace Filesystem {
     /// @param OldFilePath The existing path to the file (including the filename) to be moved.
     /// @param NewFilePath The path (including the filename) to where the file should be named.
     /// @param FailIfExists If true the operation will fail if a file with the target name already exists.
-    /// @return Returns true if the file was successfully moved, false otherwise.
+    /// @return Returns a ModifyResult value describing the result of the file move.
     [[nodiscard]]
     ModifyResult MEZZ_LIB MoveFile(const StringView OldFilePath, const StringView NewFilePath,
                                    const Boole FailIfExists);
     /// @brief Deletes a file existing on the filesystem.
     /// @param FilePath The existing path to the file (including the filename) to be deleted.
-    /// @return Returns true if the operation was successful, false if it failed.
+    /// @return Returns a ModifyResult value describing the result of the file removal(delete).
     [[nodiscard]]
     ModifyResult MEZZ_LIB RemoveFile(const StringView FilePath);
 
     ///////////////////////////////////////////////////////////////////////////////
     // Symlinks
 
+    /// @brief Checks to see if the file at the specified path is a Symlink.
+    /// @param SymPath The path to the file to check.
+    /// @return Returns true if a Symlink is located at the specified path, false otherwise.
+    [[nodiscard]]
+    Boole MEZZ_LIB SymlinkExists(const StringView SymPath);
     /// @brief Creates a symbolic link to a file on disk.
     /// @param SymPath A path (including the name of the symbolic link) to where the link should be placed.
     /// @param TargetPath A path to where the symbolic link will point to.
-    /// @return Returns true if the operation was successful, false otherwise.
+    /// @return Returns a ModifyResult value describing the result of the link creation.
     [[nodiscard]]
     ModifyResult MEZZ_LIB CreateSymlink(const StringView SymPath, const StringView TargetPath);
     /// @brief Creates a symbolic link to a directory on disk.
     /// @param SymPath A path (including the name of the symbolic link) to where the link should be placed.
     /// @param TargetPath A path to where the symbolic link will point to.
-    /// @return Returns true if the operation was successful, false otherwise.
+    /// @return Returns a ModifyResult value describing the result of the link creation.
     [[nodiscard]]
     ModifyResult MEZZ_LIB CreateDirectorySymlink(const StringView SymPath, const StringView TargetPath);
+    /// @brief Gets the target path of a Symlink.
+    /// @param SymPath The path to the Symlink to read the target of.
+    /// @return Returns an Optional storing the path to the target if the file at SymPath is a Symlink, or
+    /// an empty invalid Optional if the file wasn't found or wasn't a Symlink.
+    [[nodiscard]]
+    Optional<String> MEZZ_LIB GetSymlinkTargetPath(const StringView SymPath);
 
     ///////////////////////////////////////////////////////////////////////////////
     // Basic Directory Management
 
     /// @brief Verifies the existence of a folder.
     /// @param DirectoryPath The path and name of the folder to check for.
-    /// @return Returns true if the folder at the specified location exists, false otherwise.
+    /// @return Returns true if the folder at the specified directory exists, false otherwise.
     [[nodiscard]]
     Boole MEZZ_LIB DirectoryExists(const StringView DirectoryPath);
 
     /// @brief Creates a single new directory.
     /// @remarks This function will only create the directory specified at the end of the path.
     /// @param DirectoryPath The path for the newly created directory.
-    /// @return Returns true if the directory was created, false in the case of a non-critical error.
+    /// @return Returns a ModifyResult value describing the result of the directory creation.
     [[nodiscard]]
     ModifyResult MEZZ_LIB CreateDirectory(const StringView DirectoryPath);
     /// @brief Creates all directories that do not exist in the provided path.
     /// @param DirectoryPath The path for the newly created directory or directories.
-    /// @return Returns true if all directories were created, false in the case of a non-critical error.
+    /// @return Returns a ModifyResult value describing the result of the multi-directory creation.
     [[nodiscard]]
     ModifyResult MEZZ_LIB CreateDirectoryPath(const StringView DirectoryPath);
     /// @brief Remove an empty directory.
     /// @param DirectoryPath The Path to the directory to remove.
-    /// @return Returns true if the directory was successfully removed, false otherwise.
+    /// @return Returns a ModifyResult value describing the result of the directory removal(delete).
     [[nodiscard]]
     ModifyResult MEZZ_LIB RemoveDirectory(const StringView DirectoryPath);
 }//Filesystem

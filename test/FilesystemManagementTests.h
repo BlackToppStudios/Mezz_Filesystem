@@ -117,13 +117,50 @@ AUTOMATIC_TEST_GROUP(FilesystemManagementTests,FilesystemManagement)
                    Filesystem::RemoveFile("UtilityTestFile.txt"));
         TEST_EQUAL("RemoveFile(const_StringView)-VerifyDeleted",
                    false,Filesystem::FileExists("UtilityTestFile.txt"));
-        TEST_EQUAL("MoveFile(const_StringView,const_StringView)-DestroyDest",
+        TEST_EQUAL("FileManagement-Cleanup",
                    Filesystem::ModifyResult::Success,
                    Filesystem::RemoveDirectory("MoveTarget"));
     }// Basic File Management
 
     {// Symlinks
-        // No tests for symlinks exist yet.
+        const String TargetName("./LinkTargetFile.txt");
+        const String LinkName("./TotallyNotALink.txt");
+
+        std::ofstream LinkTargetFile;
+        LinkTargetFile.open(TargetName,std::ios_base::out | std::ios_base::trunc);
+        LinkTargetFile << "I'm a link target!";
+        LinkTargetFile.close();
+
+        TEST_EQUAL("CreateSymlink(const_StringView,const_StringView)",
+                   Filesystem::ModifyResult::Success,
+                   Filesystem::CreateSymlink(LinkName,TargetName));
+
+        TEST_EQUAL("SymlinkExists(const_StringView)-Link",
+                   true,
+                   Filesystem::SymlinkExists(LinkName));
+        TEST_EQUAL("SymlinkExists(const_StringView)-Target",
+                   false,
+                   Filesystem::SymlinkExists(TargetName));
+
+        Optional<String> LinkPathPass = Filesystem::GetSymlinkTargetPath(LinkName);
+        TEST_EQUAL("GetSymlinkTargetPath(const_StringView)-Link-Validity",
+                   true,
+                   LinkPathPass.has_value());
+        TEST_EQUAL("GetSymlinkTargetPath(const_StringView)-Link-Value",
+                   TargetName,
+                   LinkPathPass.value());
+
+        Optional<String> LinkPathFail = Filesystem::GetSymlinkTargetPath(TargetName)
+        TEST_EQUAL("GetSymlinkTargetPath(const_StringView)-Target-Validity",
+                   false,
+                   LinkPathFail.has_value());
+
+        TEST_EQUAL("SymlinkManagement-CleanupLink",
+                   Filesystem::ModifyResult::Success,
+                   Filesystem::RemoveFile(LinkName));
+        TEST_EQUAL("SymlinkManagement-CleanupTarget",
+                   Filesystem::ModifyResult::Success,
+                   Filesystem::RemoveFile(TargetName));
     }// Symlinks
 
     {// Basic Directory Management

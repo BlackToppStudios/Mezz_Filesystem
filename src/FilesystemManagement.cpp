@@ -74,9 +74,9 @@ namespace
     using namespace Mezzanine;
 
 #ifdef MEZZ_Windows
-    /// @brief Converts a narrow (8-bit) string to a wide (16-bit) string.
-    /// @param Narrow The string to be converted.
-    /// @return Returns a wide string with the converted contents.
+    /// @brief Converts a narrow (8-bit) String to a wide (16-bit) String.
+    /// @param Narrow The String to be converted.
+    /// @return Returns a wide String with the converted contents.
     std::wstring ConvertToWideString(const StringView Narrow)
     {
         std::wstring Ret;
@@ -85,6 +85,123 @@ namespace
             size_t WideLength = ::MultiByteToWideChar(CP_UTF8,0,Narrow.data(),NarrowSize,0,0);
             Ret.resize(WideLength,L'\0');
             ::MultiByteToWideChar(CP_UTF8,0,Narrow.data(),NarrowSize,&Ret[0],static_cast<int>(Ret.size()));
+        }
+        return Ret;
+    }
+    /// @brief Converts a wide (16-bit) String to a narrow (8-bit) String.
+    /// @param Wide The String to be converted.
+    /// @param Length The length of the String to be converted.
+    /// @return Returns a narrow String with the converted contents.
+    String ConvertToNarrowString(const wchar_t* Wide, const size_t Length)
+    {
+        String Ret;
+        int CastedLength = static_cast<int>(Length);
+        if( CastedLength > 0 ) {
+            int NarrowLength = ::WideCharToMultiByte(CP_UTF8,0,Wide,CastedLength,0,0,nullptr,nullptr);
+            Ret.resize(static_cast<size_t>(NarrowLength),'\0');
+            ::WideCharToMultiByte(CP_UTF8,0,Wide,CastedLength,&Ret[0],static_cast<int>(Ret.size()),nullptr,nullptr);
+        }
+        return Ret;
+    }
+
+    // Reading reparse points, courtesy of http://blog.kalmbach-software.de/2008/02/
+    typedef struct _REPARSE_DATA_BUFFER
+    {
+        ULONG  ReparseTag;
+        USHORT  ReparseDataLength;
+        USHORT  Reserved;
+        union
+        {
+            struct
+            {
+                USHORT  SubstituteNameOffset;
+                USHORT  SubstituteNameLength;
+                USHORT  PrintNameOffset;
+                USHORT  PrintNameLength;
+                ULONG   Flags; // it seems that the docu is missing this entry (at least 2008-03-07)
+                WCHAR  PathBuffer[1];
+            } SymbolicLinkReparseBuffer;
+            struct
+            {
+                USHORT  SubstituteNameOffset;
+                USHORT  SubstituteNameLength;
+                USHORT  PrintNameOffset;
+                USHORT  PrintNameLength;
+                WCHAR  PathBuffer[1];
+            } MountPointReparseBuffer;
+            struct
+            {
+                UCHAR  DataBuffer[1];
+            } GenericReparseBuffer;
+        };
+    } REPARSE_DATA_BUFFER, *PREPARSE_DATA_BUFFER;
+
+    #ifndef REPARSE_DATA_BUFFER_HEADER_SIZE
+    #define REPARSE_DATA_BUFFER_HEADER_SIZE FIELD_OFFSET(REPARSE_DATA_BUFFER, GenericReparseBuffer)
+    #endif
+
+    #ifndef MAXIMUM_REPARSE_DATA_BUFFER_SIZE
+    #define MAXIMUM_REPARSE_DATA_BUFFER_SIZE ( 16 * 1024 )
+    #endif
+
+    #ifndef FSCTL_GET_REPARSE_POINT
+    #define FSCTL_GET_REPARSE_POINT 0x900a8
+    #endif
+
+    String ExtractSymlinkPrintName(REPARSE_DATA_BUFFER* Buffer)
+    {
+        size_t PrintLength = Buffer->SymbolicLinkReparseBuffer.PrintNameLength / sizeof(WCHAR);
+        size_t PrintOffset = Buffer->SymbolicLinkReparseBuffer.PrintNameOffset / sizeof(WCHAR);
+        return ConvertToNarrowString(&Buffer->SymbolicLinkReparseBuffer.PathBuffer[PrintOffset],PrintLength);
+    }
+
+    String ExtractSymlinkSubstituteName(REPARSE_DATA_BUFFER* Buffer)
+    {
+        size_t SubLength = Buffer->SymbolicLinkReparseBuffer.SubstituteNameLength / sizeof(WCHAR);
+        size_t SubOffset = Buffer->SymbolicLinkReparseBuffer.SubstituteNameOffset / sizeof(WCHAR);
+        String SubName = ConvertToNarrowString(&Buffer->SymbolicLinkReparseBuffer.PathBuffer[SubOffset],SubLength);
+        size_t ColonPos = SubName.find(':');
+        if( ColonPos != String::npos && ColonPos != 0 ) {
+            return SubName.substr(ColonPos - 1);
+        }else{
+            return SubName;
+        }
+    }
+
+    String ReadSymlinkTarget(const StringView Link)
+    {
+        String Ret;
+        char ReparseBuffer[MAXIMUM_REPARSE_DATA_BUFFER_SIZE];
+        std::wstring ConvertedPath = ConvertToWideString(Link);
+        HANDLE FileHandle = ::CreateFileW(ConvertedPath.c_str(),
+                                          FILE_READ_EA,
+                                          FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE,
+                                          nullptr,
+                                          OPEN_EXISTING,
+                                          FILE_FLAG_BACKUP_SEMANTICS | FILE_FLAG_OPEN_REPARSE_POINT,
+                                          nullptr);
+
+        if( FileHandle != INVALID_HANDLE_VALUE ) {
+            DWORD BytesWritten = 0;
+            BOOL OpSuccess = ::DeviceIoControl(FileHandle,FSCTL_GET_REPARSE_POINT,
+                                               nullptr,0,
+                                               static_cast<void*>(ReparseBuffer),MAXIMUM_REPARSE_DATA_BUFFER_SIZE,
+                                               &BytesWritten,nullptr);
+
+            if( OpSuccess == false ) {
+                // Ruh Roh
+                return Ret;
+            }
+
+            REPARSE_DATA_BUFFER* CastedBuffer = reinterpret_cast<REPARSE_DATA_BUFFER*>(&ReparseBuffer[0]);
+            ULONG ReparseTag = CastedBuffer->ReparseTag;
+            if( IsReparseTagMicrosoft( ReparseTag ) && ReparseTag == IO_REPARSE_TAG_SYMLINK ) {
+                if( CastedBuffer->SymbolicLinkReparseBuffer.PrintNameLength > 0 ) {
+                    Ret = ExtractSymlinkPrintName(CastedBuffer);
+                }else{
+                    Ret = ExtractSymlinkSubstituteName(CastedBuffer);
+                }
+            }
         }
         return Ret;
     }
@@ -236,6 +353,29 @@ namespace Filesystem {
     ///////////////////////////////////////////////////////////////////////////////
     // Symlinks
 
+    Boole SymlinkExists(const StringView SymPath)
+    {
+    #ifdef MEZZ_Windows
+    // Documented as a solution here:
+    // https://docs.microsoft.com/en-us/windows/win32/fileio/determining-whether-a-directory-is-a-volume-mount-point
+        std::wstring WidePath = ConvertToWideString(SymPath);
+        WIN32_FIND_DATAW FileData;
+        HANDLE FileHandle = ::FindFirstFileW( WidePath.c_str(), &FileData );
+        if( FileHandle != INVALID_HANDLE_VALUE ) {
+            ::FindClose(FileHandle);
+            return (FileData.dwFileAttributes & FILE_ATTRIBUTE_REPARSE_POINT) &&
+                   (FileData.dwReserved0 & IO_REPARSE_TAG_SYMLINK );
+        }
+        return false;
+    #else // MEZZ_Windows
+        struct stat st;
+        if( lstat(SymPath.data(),&st) == 0 ) {
+            return S_ISLNK(st.st_mode);
+        }
+        return false;
+    #endif // MEZZ_Windows
+    }
+
     ModifyResult CreateSymlink(const StringView SymPath, const StringView TargetPath)
     {
     #ifdef MEZZ_Windows
@@ -265,6 +405,27 @@ namespace Filesystem {
         return ( ::symlink(SymPath.data(),TargetPath.data()) == 0 ?
                  ModifyResult::Success :
                  ConvertErrNo(errno) );
+    #endif // MEZZ_Windows
+    }
+
+    Optional<String> GetSymlinkTargetPath(const StringView SymPath)
+    {
+    #ifdef MEZZ_Windows
+        String Target = ReadSymlinkTarget(SymPath);
+        if( !Target.empty() ) {
+            return Optional<String>(Target);
+        }
+        return Optional<String>();
+    #else // MEZZ_Windows
+        struct stat st;
+        if( lstat(FilePath.data(),&st) == 0 ) {
+            if( S_ISLNK(st.st_mode) ) {
+                String Ret(st.st_size,'\0');
+                ::readlink(SymPath.data(),Ret.data(),st.st_size);
+                return Optional<String>(Ret);
+            }
+        }
+        return Optional<String>();
     #endif // MEZZ_Windows
     }
 
