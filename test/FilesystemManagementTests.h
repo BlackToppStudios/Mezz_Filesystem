@@ -146,9 +146,11 @@ AUTOMATIC_TEST_GROUP(FilesystemManagementTests,FilesystemManagement)
         TEST_EQUAL("GetSymlinkTargetPath(const_StringView)-Link-Validity",
                    true,
                    LinkPathPass.has_value());
-        TEST_EQUAL("GetSymlinkTargetPath(const_StringView)-Link-Value",
-                   TargetName,
-                   LinkPathPass.value());
+        if( LinkPathPass.has_value() ) {
+            TEST_EQUAL("GetSymlinkTargetPath(const_StringView)-Link-Value",
+                       TargetName,
+                       LinkPathPass.value());
+        }
 
         Optional<String> LinkPathFail = Filesystem::GetSymlinkTargetPath(TargetName)
         TEST_EQUAL("GetSymlinkTargetPath(const_StringView)-Target-Validity",
