@@ -418,10 +418,11 @@ namespace Filesystem {
         return Optional<String>();
     #else // MEZZ_Windows
         struct stat st;
-        if( lstat(FilePath.data(),&st) == 0 ) {
+        if( lstat(SymPath.data(),&st) == 0 ) {
             if( S_ISLNK(st.st_mode) ) {
-                String Ret(st.st_size,'\0');
-                ::readlink(SymPath.data(),Ret.data(),st.st_size);
+                size_t PathLength = static_cast<size_t>(st.st_size);
+                String Ret(PathLength,'\0');
+                ::readlink(SymPath.data(),Ret.data(),PathLength);
                 return Optional<String>(Ret);
             }
         }
