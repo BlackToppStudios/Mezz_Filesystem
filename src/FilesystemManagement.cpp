@@ -55,7 +55,8 @@
     #define WIN32_LEAN_AND_MEAN
 
     SAVE_WARNING_STATE
-    SUPPRESS_VC_WARNING(4668)
+    // This warning is raised when an undefined preprocessor is used in code, which is converted to false.
+    //SUPPRESS_VC_WARNING(4668)
 
     #include <Windows.h>
 
@@ -220,17 +221,11 @@ namespace
             case ERROR_PATH_NOT_FOUND:     return Filesystem::ModifyResult::DoesNotExist;
             case ERROR_INVALID_NAME:       return Filesystem::ModifyResult::InvalidPath;
             case ERROR_BAD_PATHNAME:       return Filesystem::ModifyResult::InvalidPath;
-            //case :         return Filesystem::ModifyResult::LoopingPath;
-            //case :  return Filesystem::ModifyResult::NameTooLong;
             case ERROR_ACCESS_DENIED:      return Filesystem::ModifyResult::PermissionDenied;
-            //case :         return Filesystem::ModifyResult::ReadOnly;
-            //case :       return Filesystem::ModifyResult::NotADirectory;
             case ERROR_DIR_NOT_EMPTY:      return Filesystem::ModifyResult::NotEmpty;
-            //case :           return Filesystem::ModifyResult::IOError;
             case ERROR_NOT_ENOUGH_MEMORY:  return Filesystem::ModifyResult::NoSpace;
             case ERROR_OUTOFMEMORY:        return Filesystem::ModifyResult::NoSpace;
             case ERROR_DISK_FULL:          return Filesystem::ModifyResult::NoSpace;
-            //case :        return Filesystem::ModifyResult::MaxLinksExceeded;
             case ERROR_PATH_BUSY:          return Filesystem::ModifyResult::CurrentlyBusy;
             case ERROR_REQUEST_ABORTED:    return Filesystem::ModifyResult::OperationCanceled;
             default:                       return Filesystem::ModifyResult::Unknown;
@@ -386,7 +381,7 @@ namespace Filesystem {
                  ModifyResult::Success :
                  ConvertErrNo( ::GetLastError() ) );
     #else // MEZZ_Windows
-        return ( ::symlink(SymPath.data(),TargetPath.data()) == 0 ?
+        return ( ::symlink(TargetPath.data(),SymPath.data()) == 0 ?
                  ModifyResult::Success :
                  ConvertErrNo(errno) );
     #endif // MEZZ_Windows

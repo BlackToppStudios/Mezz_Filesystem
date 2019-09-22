@@ -146,6 +146,7 @@ AUTOMATIC_TEST_GROUP(FilesystemManagementTests,FilesystemManagement)
         TEST_EQUAL("GetSymlinkTargetPath(const_StringView)-Link-Validity",
                    true,
                    LinkPathPass.has_value());
+        // Without this if, we get an uncaught exception that prevents the viewing of other test results.
         if( LinkPathPass.has_value() ) {
             TEST_EQUAL("GetSymlinkTargetPath(const_StringView)-Link-Value",
                        TargetName,
