@@ -417,8 +417,9 @@ namespace Filesystem {
             if( S_ISLNK(st.st_mode) ) {
                 size_t PathLength = static_cast<size_t>(st.st_size);
                 String Ret(PathLength,'\0');
-                ::readlink(SymPath.data(),Ret.data(),PathLength);
-                return Optional<String>(Ret);
+                if( ::readlink(SymPath.data(),Ret.data(),PathLength) > 0 ) {
+                    return Optional<String>(Ret);
+                }
             }
         }
         return Optional<String>();
