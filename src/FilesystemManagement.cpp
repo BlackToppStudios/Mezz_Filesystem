@@ -226,6 +226,7 @@ namespace
             case ERROR_NOT_ENOUGH_MEMORY:  return Filesystem::ModifyResult::NoSpace;
             case ERROR_OUTOFMEMORY:        return Filesystem::ModifyResult::NoSpace;
             case ERROR_DISK_FULL:          return Filesystem::ModifyResult::NoSpace;
+            case ERROR_PRIVILEGE_NOT_HELD: return Filesystem::ModifyResult::PrivilegeNotHeld;
             case ERROR_PATH_BUSY:          return Filesystem::ModifyResult::CurrentlyBusy;
             case ERROR_REQUEST_ABORTED:    return Filesystem::ModifyResult::OperationCanceled;
             default:                       return Filesystem::ModifyResult::Unknown;
@@ -273,7 +274,6 @@ namespace Filesystem {
         DWORD dwAttrib = GetFileAttributesW(WidePath.c_str());
         return ( dwAttrib != INVALID_FILE_ATTRIBUTES && !( dwAttrib & FILE_ATTRIBUTE_DIRECTORY ) );
     #else // MEZZ_Windows
-        //return ( ::access(PathAndName.c_str(),F_OK) );
         struct stat st;
         if( stat(FilePath.data(),&st) == 0 ) {
             return S_ISREG(st.st_mode);
@@ -374,12 +374,19 @@ namespace Filesystem {
     ModifyResult CreateSymlink(const StringView SymPath, const StringView TargetPath)
     {
     #ifdef MEZZ_Windows
-        DWORD LinkFlags = 0;
-        std::wstring WideSymPath = ConvertToWideString(SymPath);
-        std::wstring WideTargetPath = ConvertToWideString(TargetPath);
-        return ( ::CreateSymbolicLinkW(WideSymPath.data(),WideTargetPath.data(),LinkFlags) != 0 ?
-                 ModifyResult::Success :
-                 ConvertErrNo( ::GetLastError() ) );
+        using CreateLinkPtr = BOOLEAN(WINAPI*)(LPCWSTR,LPCWSTR,DWORD);
+        CreateLinkPtr CreateLink = reinterpret_cast<CreateLinkPtr>( GetProcAddress(GetModuleHandleW(L"kernel32.dll"),
+                                                                    "CreateSymbolicLinkW") );
+        if( CreateLink ) {
+            DWORD LinkFlags = 0;
+            std::wstring WideSymPath = ConvertToWideString(SymPath);
+            std::wstring WideTargetPath = ConvertToWideString(TargetPath);
+            return ( CreateLink(WideSymPath.data(),WideTargetPath.data(),LinkFlags) != 0 ?
+                     ModifyResult::Success :
+                     ConvertErrNo( ::GetLastError() ) );
+        }else{
+            return ModifyResult::NotSupported;
+        }
     #else // MEZZ_Windows
         return ( ::symlink(TargetPath.data(),SymPath.data()) == 0 ?
                  ModifyResult::Success :
@@ -521,3 +528,25 @@ namespace Filesystem {
     }
 }//Filesystem
 }//Mezzanine
+
+Mezzanine::Boole operator==(const Mezzanine::Filesystem::ModifyResult Left, const Mezzanine::Boole Right)
+{
+    using namespace Mezzanine::Filesystem;
+    return ( Right ? Left == ModifyResult::Success : Left != ModifyResult::Success );
+}
+
+Mezzanine::Boole operator==(const Mezzanine::Boole Left, const Mezzanine::Filesystem::ModifyResult Right)
+{
+    using namespace Mezzanine::Filesystem;
+    return ( Left ? Right == ModifyResult::Success : Right != ModifyResult::Success );
+}
+
+Mezzanine::Boole operator!=(const Mezzanine::Filesystem::ModifyResult Left, const Mezzanine::Boole Right)
+{
+    return !operator==(Left,Right);
+}
+
+Mezzanine::Boole operator!=(const Mezzanine::Boole Left, const Mezzanine::Filesystem::ModifyResult Right)
+{
+    return !operator==(Left,Right);
+}

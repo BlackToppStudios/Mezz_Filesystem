@@ -131,39 +131,54 @@ AUTOMATIC_TEST_GROUP(FilesystemManagementTests,FilesystemManagement)
         LinkTargetFile << "I'm a link target!";
         LinkTargetFile.close();
 
-        TEST_EQUAL("CreateSymlink(const_StringView,const_StringView)",
-                   Filesystem::ModifyResult::Success,
-                   Filesystem::CreateSymlink(LinkName,TargetName));
+        Filesystem::ModifyResult CreateResult = Filesystem::CreateSymlink(LinkName,TargetName);
+        if( CreateResult == Filesystem::ModifyResult::Success ) {
+            TEST_EQUAL("CreateSymlink(const_StringView,const_StringView)",
+                       Filesystem::ModifyResult::Success,
+                       CreateResult);
 
-        TEST_EQUAL("SymlinkExists(const_StringView)-Link",
-                   true,
-                   Filesystem::SymlinkExists(LinkName));
-        TEST_EQUAL("SymlinkExists(const_StringView)-Target",
-                   false,
-                   Filesystem::SymlinkExists(TargetName));
+            TEST_EQUAL("SymlinkExists(const_StringView)-Link",
+                       true,
+                       Filesystem::SymlinkExists(LinkName));
+            TEST_EQUAL("SymlinkExists(const_StringView)-Target",
+                       false,
+                       Filesystem::SymlinkExists(TargetName));
 
-        Optional<String> LinkPathPass = Filesystem::GetSymlinkTargetPath(LinkName);
-        TEST_EQUAL("GetSymlinkTargetPath(const_StringView)-Link-Validity",
-                   true,
-                   LinkPathPass.has_value());
-        // Without this if, we get an uncaught exception that prevents the viewing of other test results.
-        if( LinkPathPass.has_value() ) {
-            TEST_EQUAL("GetSymlinkTargetPath(const_StringView)-Link-Value",
-                       TargetName,
-                       LinkPathPass.value());
+            Optional<String> LinkPathPass = Filesystem::GetSymlinkTargetPath(LinkName);
+            TEST_EQUAL("GetSymlinkTargetPath(const_StringView)-Link-Validity",
+                       true,
+                       LinkPathPass.has_value());
+            // Without this if, we get an uncaught exception that prevents the viewing of other test results.
+            if( LinkPathPass.has_value() ) {
+                TEST_EQUAL("GetSymlinkTargetPath(const_StringView)-Link-Value",
+                           TargetName,
+                           LinkPathPass.value());
+            }
+
+            Optional<String> LinkPathFail = Filesystem::GetSymlinkTargetPath(TargetName)
+            TEST_EQUAL("GetSymlinkTargetPath(const_StringView)-Target-Validity",
+                       false,
+                       LinkPathFail.has_value());
+
+            TEST_EQUAL("SymlinkManagement-CleanupLink",
+                       Filesystem::ModifyResult::Success,
+                       Filesystem::RemoveFile(LinkName));
+            TEST_EQUAL("SymlinkManagement-CleanupTarget",
+                       Filesystem::ModifyResult::Success,
+                       Filesystem::RemoveFile(TargetName));
+        }else if( CreateResult == Filesystem::ModifyResult::PrivilegeNotHeld ) {
+            this->TestLog << "User Privileges are insufficient for this operation.\n";
+            TEST_RESULT("CreateSymlink(const_StringView,const_StringView)",
+                        Testing::TestResult::Skipped);
+        }else if( CreateResult == Filesystem::ModifyResult::NotSupported ) {
+            this->TestLog << "Creation of Symlinks are not supported on the host system.\n";
+            TEST_RESULT("CreateSymlink(const_StringView,const_StringView)",
+                        Testing::TestResult::Skipped);
+        }else{
+            this->TestLog << "Unknown Symlink error.  :(\n";
+            TEST_RESULT("CreateSymlink(const_StringView,const_StringView)",
+                        Testing::TestResult::Failed);
         }
-
-        Optional<String> LinkPathFail = Filesystem::GetSymlinkTargetPath(TargetName)
-        TEST_EQUAL("GetSymlinkTargetPath(const_StringView)-Target-Validity",
-                   false,
-                   LinkPathFail.has_value());
-
-        TEST_EQUAL("SymlinkManagement-CleanupLink",
-                   Filesystem::ModifyResult::Success,
-                   Filesystem::RemoveFile(LinkName));
-        TEST_EQUAL("SymlinkManagement-CleanupTarget",
-                   Filesystem::ModifyResult::Success,
-                   Filesystem::RemoveFile(TargetName));
     }// Symlinks
 
     {// Basic Directory Management
@@ -204,6 +219,48 @@ AUTOMATIC_TEST_GROUP(FilesystemManagementTests,FilesystemManagement)
                    Filesystem::ModifyResult::Success,
                    Filesystem::RemoveDirectory(BasePathTestDir));
     }// Basic Directory Management
+
+    {// ModifyResult Operators
+        Filesystem::ModifyResult Good = Filesystem::ModifyResult::Success;
+        Filesystem::ModifyResult BadOne = Filesystem::ModifyResult::DoesNotExist;
+        Filesystem::ModifyResult BadTwo = Filesystem::ModifyResult::InvalidPath;
+
+        TEST_EQUAL("operator==(const_ModifyResult,const_Boole)-True-Pass",
+                   true,operator==(Good,true));
+        TEST_EQUAL("operator==(const_ModifyResult,const_Boole)-True-Fail",
+                   false,operator==(BadOne,true));
+        TEST_EQUAL("operator==(const_ModifyResult,const_Boole)-False-Pass",
+                   true,operator==(BadTwo,false));
+        TEST_EQUAL("operator==(const_ModifyResult,const_Boole)-False-Fail",
+                   false,operator==(Good,false));
+
+        TEST_EQUAL("operator==(const_Boole,const_ModifyResult)-True-Pass",
+                   true,operator==(true,Good));
+        TEST_EQUAL("operator==(const_Boole,const_ModifyResult)-True-Fail",
+                   false,operator==(true,BadTwo));
+        TEST_EQUAL("operator==(const_Boole,const_ModifyResult)-False-Pass",
+                   true,operator==(false,BadOne));
+        TEST_EQUAL("operator==(const_Boole,const_ModifyResult)-False-Fail",
+                   false,operator==(false,Good));
+
+        TEST_EQUAL("operator!=(const_ModifyResult,const_Boole)-True-Pass",
+                   true,operator!=(BadOne,true));
+        TEST_EQUAL("operator!=(const_ModifyResult,const_Boole)-True-Fail",
+                   false,operator!=(Good,true));
+        TEST_EQUAL("operator!=(const_ModifyResult,const_Boole)-False-Pass",
+                   true,operator!=(Good,false));
+        TEST_EQUAL("operator!=(const_ModifyResult,const_Boole)-False-Fail",
+                   false,operator!=(BadTwo,false));
+
+        TEST_EQUAL("operator!=(const_Boole,const_ModifyResult)-True-Pass",
+                   true,operator!=(true,BadTwo));
+        TEST_EQUAL("operator!=(const_Boole,const_ModifyResult)-True-Fail",
+                   false,operator!=(true,Good));
+        TEST_EQUAL("operator!=(const_Boole,const_ModifyResult)-False-Pass",
+                   true,operator!=(false,Good));
+        TEST_EQUAL("operator!=(const_Boole,const_ModifyResult)-False-Fail",
+                   false,operator!=(false,BadOne));
+    }// ModifyResult Operators
 }
 
 #endif

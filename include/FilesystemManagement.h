@@ -70,11 +70,13 @@ namespace Filesystem {
         IOError,           ///< There was a hardware I/O error while completing the operation.
         NoSpace,           ///< There is insufficient space on the filesystem to complete the operation.
         MaxLinksExceeded,  ///< The operation would exceeded the maximum links supported for the directory.
+        PrivilegeNotHeld,  ///< (Mostly Windows) A privilege needed for the operation is not held by the executing user.
         CurrentlyBusy,     ///< The file or directory specified is in use by the system and operation can't complete.
         OperationCanceled, ///< The operation was canceled or aborted.
+        NotSupported,      ///< The operation is not supported on the host system.
         // Unknown
         Unknown            ///< Error is unknown.
-    };
+    };//ModifyResult
 
     ///////////////////////////////////////////////////////////////////////////////
     // Basic File Management
@@ -165,5 +167,38 @@ namespace Filesystem {
     ModifyResult MEZZ_LIB RemoveDirectory(const StringView DirectoryPath);
 }//Filesystem
 }//Mezzanine
+
+/// @brief ModifyResult Equality with Boole operator.
+/// @param Left The ModifyResult to compare.
+/// @param Right The bool to compare.  True tests for a passing result, false tests for a failing result.
+/// @return If Right is testing for a passing result (is true) and Left is Success, returns true.
+/// If Right is testing for a failing result (is false) and Left is NOT Success, returns true.
+/// Otherwise, returns false.
+[[nodiscard]]
+Mezzanine::Boole MEZZ_LIB operator==(const Mezzanine::Filesystem::ModifyResult Left, const Mezzanine::Boole Right);
+/// @brief ModifyResult Equality with Boole operator.
+/// @param Left The bool to compare.  True tests for a passing result, false tests for a failing result.
+/// @param Right The ModifyResult to compare.
+/// @return If Left is testing for a passing result (is true) and Right is Success, returns true.
+/// If Left is testing for a failing result (is false) and Right is NOT Success, returns true.
+/// Otherwise, returns false.
+[[nodiscard]]
+Mezzanine::Boole MEZZ_LIB operator==(const Mezzanine::Boole Left, const Mezzanine::Filesystem::ModifyResult Right);
+/// @brief ModifyResult Inequality with Boole operator.
+/// @param Left The ModifyResult to compare.
+/// @param Right The bool to compare.  True tests for a failing result, false tests for a passing result.
+/// @return If Right is testing for a passing result (is false) and Left is Success, returns true.
+/// If Right is testing for a failing result (is true) and Left is NOT Success, returns true.
+/// Otherwise, returns false.
+[[nodiscard]]
+Mezzanine::Boole MEZZ_LIB operator!=(const Mezzanine::Filesystem::ModifyResult Left, const Mezzanine::Boole Right);
+/// @brief ModifyResult Inequality with Boole operator.
+/// @param Left The bool to compare.  True tests for a failing result, false tests for a passing result.
+/// @param Right The ModifyResult to compare.
+/// @return If Left is testing for a passing result (is false) and Right is Success, returns true.
+/// If Left is testing for a failing result (is true) and Right is NOT Success, returns true.
+/// Otherwise, returns false.
+[[nodiscard]]
+Mezzanine::Boole MEZZ_LIB operator!=(const Mezzanine::Boole Left, const Mezzanine::Filesystem::ModifyResult Right);
 
 #endif
