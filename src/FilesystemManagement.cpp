@@ -375,8 +375,13 @@ namespace Filesystem {
     {
     #ifdef MEZZ_Windows
         using CreateLinkPtr = BOOLEAN(WINAPI*)(LPCWSTR,LPCWSTR,DWORD);
-        CreateLinkPtr CreateLink = reinterpret_cast<CreateLinkPtr>( GetProcAddress(GetModuleHandleW(L"kernel32.dll"),
-                                                                    "CreateSymbolicLinkW") );
+
+        //SAVE_WARNING_STATE
+        //SUPPRESS_VC_WARNING(4191) // Because apparently I need to tell the compiler to shut up twice.
+        CreateLinkPtr CreateLink = CreateLinkPtr( GetProcAddress(GetModuleHandleW(L"kernel32.dll"),
+                                                                 "CreateSymbolicLinkW") );
+        //RESTORE_WARNING_STATE
+
         if( CreateLink ) {
             DWORD LinkFlags = 0;
             std::wstring WideSymPath = ConvertToWideString(SymPath);
