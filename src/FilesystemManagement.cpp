@@ -409,7 +409,7 @@ namespace Filesystem {
                  ModifyResult::Success :
                  ConvertErrNo( ::GetLastError() ) );
     #else // MEZZ_Windows
-        return ( ::symlink(SymPath.data(),TargetPath.data()) == 0 ?
+        return ( ::symlink(TargetPath.data(),SymPath.data()) == 0 ?
                  ModifyResult::Success :
                  ConvertErrNo(errno) );
     #endif // MEZZ_Windows
