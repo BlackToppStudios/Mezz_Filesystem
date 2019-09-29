@@ -135,14 +135,17 @@ AUTOMATIC_TEST_GROUP(FilesystemManagementTests,FilesystemManagement)
                    Filesystem::RemoveDirectory(MoveTargetDir));
     }// Basic File Management
 
-    {// Symlinks
     #ifdef MEZZ_CompilerIsEmscripten
-        const String TargetName("LinkTargetFile.txt");
-        const String LinkName("TotallyNotALink.txt");
+    {// Symlinks
+        // Symlinks don't make sense on emscripten. Attempts were made to make it work and
+        // was far too buggy because weird normalizing and slash inserting behaviors.
+        TEST_RESULT("SymlinkManagement-(NotSupported)",
+                    Testing::TestResult::Skipped);
+    }// Symlinks
     #else
+    {// Symlinks - File
         const String TargetName("./LinkTargetFile.txt");
         const String LinkName("./TotallyNotALink.txt");
-    #endif
 
         std::ofstream LinkTargetFile;
         LinkTargetFile.open(TargetName,std::ios_base::out | std::ios_base::trunc);
@@ -151,53 +154,121 @@ AUTOMATIC_TEST_GROUP(FilesystemManagementTests,FilesystemManagement)
 
         Filesystem::ModifyResult CreateResult = Filesystem::CreateSymlink(LinkName,TargetName);
         if( CreateResult == Filesystem::ModifyResult::Success ) {
-            TEST_EQUAL("CreateSymlink(const_StringView,const_StringView)",
+            TEST_EQUAL("CreateSymlink(const_StringView,const_StringView)-File",
                        Filesystem::ModifyResult::Success,
                        CreateResult);
 
-            TEST_EQUAL("SymlinkExists(const_StringView)-Link",
+            TEST_EQUAL("SymlinkExists(const_StringView)-File-Link",
                        true,
                        Filesystem::SymlinkExists(LinkName));
-            TEST_EQUAL("SymlinkExists(const_StringView)-Target",
+            TEST_EQUAL("SymlinkExists(const_StringView)-File-Target",
                        false,
                        Filesystem::SymlinkExists(TargetName));
 
             Optional<String> LinkPathPass = Filesystem::GetSymlinkTargetPath(LinkName);
-            TEST_EQUAL("GetSymlinkTargetPath(const_StringView)-Link-Validity",
+            TEST_EQUAL("GetSymlinkTargetPath(const_StringView)-File-Link-Validity",
                        true,
                        LinkPathPass.has_value());
             // Without this if, we get an uncaught exception that prevents the viewing of other test results.
             if( LinkPathPass.has_value() ) {
-                TEST_EQUAL("GetSymlinkTargetPath(const_StringView)-Link-Value",
+                TEST_EQUAL("GetSymlinkTargetPath(const_StringView)-File-Link-Value",
                            TargetName,
                            LinkPathPass.value());
+            }else{
+                TEST_RESULT("GetSymlinkTargetPath(const_StringView)-File-Link-Value",
+                            Testing::TestResult::Failed);
             }
 
             Optional<String> LinkPathFail = Filesystem::GetSymlinkTargetPath(TargetName)
-            TEST_EQUAL("GetSymlinkTargetPath(const_StringView)-Target-Validity",
+            TEST_EQUAL("GetSymlinkTargetPath(const_StringView)-File-Target-Validity",
                        false,
                        LinkPathFail.has_value());
 
-            TEST_EQUAL("SymlinkManagement-CleanupLink",
+            TEST_EQUAL("SymlinkManagement-File-CleanupLink",
                        Filesystem::ModifyResult::Success,
                        Filesystem::RemoveFile(LinkName));
-            TEST_EQUAL("SymlinkManagement-CleanupTarget",
+            TEST_EQUAL("SymlinkManagement-File-CleanupTarget",
                        Filesystem::ModifyResult::Success,
                        Filesystem::RemoveFile(TargetName));
         }else if( CreateResult == Filesystem::ModifyResult::PrivilegeNotHeld ) {
             this->TestLog << "User Privileges are insufficient for this operation.\n";
-            TEST_RESULT("CreateSymlink(const_StringView,const_StringView)",
+            TEST_RESULT("CreateSymlink(const_StringView,const_StringView)-File",
                         Testing::TestResult::Skipped);
         }else if( CreateResult == Filesystem::ModifyResult::NotSupported ) {
             this->TestLog << "Creation of Symlinks are not supported on the host system.\n";
-            TEST_RESULT("CreateSymlink(const_StringView,const_StringView)",
+            TEST_RESULT("CreateSymlink(const_StringView,const_StringView)-File",
                         Testing::TestResult::Skipped);
         }else{
             this->TestLog << "Unknown Symlink error.  :(\n";
-            TEST_RESULT("CreateSymlink(const_StringView,const_StringView)",
+            TEST_RESULT("CreateSymlink(const_StringView,const_StringView)-File",
                         Testing::TestResult::Failed);
         }
-    }// Symlinks
+    }// Symlinks - File
+
+    {// Symlinks - Directory
+        const String TargetName("./LinkTargetDir");
+        const String LinkName("./TotallyNotALink");
+
+        Filesystem::ModifyResult MakeDirResult = Filesystem::CreateDirectory(TargetName);
+        if( MakeDirResult != Filesystem::ModifyResult::Success ) {
+            this->TestLog << "Failed to create test directory.";
+            TEST_RESULT("SymlinkManagement-Directory-Setup",
+                        Testing::TestResult::Failed);
+        }else{
+            Filesystem::ModifyResult CreateResult = Filesystem::CreateDirectorySymlink(LinkName,TargetName);
+            if( CreateResult == Filesystem::ModifyResult::Success ) {
+                TEST_EQUAL("CreateSymlink(const_StringView,const_StringView)-Directory",
+                           Filesystem::ModifyResult::Success,
+                           CreateResult);
+
+                TEST_EQUAL("SymlinkExists(const_StringView)-Directory-Link",
+                           true,
+                           Filesystem::SymlinkExists(LinkName));
+                TEST_EQUAL("SymlinkExists(const_StringView)-Directory-Target",
+                           false,
+                           Filesystem::SymlinkExists(TargetName));
+
+                Optional<String> LinkPathPass = Filesystem::GetSymlinkTargetPath(LinkName);
+                TEST_EQUAL("GetSymlinkTargetPath(const_StringView)-Directory-Link-Validity",
+                           true,
+                           LinkPathPass.has_value());
+                // Without this if, we get an uncaught exception that prevents the viewing of other test results.
+                if( LinkPathPass.has_value() ) {
+                    TEST_EQUAL("GetSymlinkTargetPath(const_StringView)-Directory-Link-Value",
+                               TargetName,
+                               LinkPathPass.value());
+                }else{
+                    TEST_RESULT("GetSymlinkTargetPath(const_StringView)-Directory-Link-Value",
+                                Testing::TestResult::Failed);
+                }
+
+                Optional<String> LinkPathFail = Filesystem::GetSymlinkTargetPath(TargetName)
+                TEST_EQUAL("GetSymlinkTargetPath(const_StringView)-Directory-Target-Validity",
+                           false,
+                           LinkPathFail.has_value());
+
+                TEST_EQUAL("SymlinkManagement-Directory-CleanupLink",
+                           Filesystem::ModifyResult::Success,
+                           Filesystem::RemoveDirectory(LinkName));
+                TEST_EQUAL("SymlinkManagement-Directory-CleanupTarget",
+                           Filesystem::ModifyResult::Success,
+                           Filesystem::RemoveDirectory(TargetName));
+            }else if( CreateResult == Filesystem::ModifyResult::PrivilegeNotHeld ) {
+                this->TestLog << "User Privileges are insufficient for this operation.\n";
+                TEST_RESULT("CreateDirectorySymlink(const_StringView,const_StringView)-Directory",
+                            Testing::TestResult::Skipped);
+            }else if( CreateResult == Filesystem::ModifyResult::NotSupported ) {
+                this->TestLog << "Creation of Symlinks are not supported on the host system.\n";
+                TEST_RESULT("CreateDirectorySymlink(const_StringView,const_StringView)-Directory",
+                            Testing::TestResult::Skipped);
+            }else{
+                this->TestLog << "Unknown Symlink error.  :(\n";
+                TEST_RESULT("CreateDirectorySymlink(const_StringView,const_StringView)-Directory",
+                            Testing::TestResult::Failed);
+            }
+        }
+    }// Symlinks - Directory
+    #endif
 
     {// Basic Directory Management
     #ifdef MEZZ_CompilerIsEmscripten
