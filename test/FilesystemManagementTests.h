@@ -68,9 +68,22 @@ AUTOMATIC_TEST_GROUP(FilesystemManagementTests,FilesystemManagement)
     using namespace Mezzanine;
 
     {// Basic File Management
+    #ifdef MEZZ_CompilerIsEmscripten
+        const String UtilityTestFile("UtilityTestFile.txt");
+        const String UtilityTestCopy("UtilityTestCopy.txt");
+        const String MoveTargetDir("MoveTarget/");
+        const String MovedTestCopy("MoveTarget/UtilityTestCopy.txt");
+        const String MovedRenamedTestCopy("MoveTarget/RenamedCopy.txt");
+    #else
+        const String UtilityTestFile("./UtilityTestFile.txt");
+        const String UtilityTestCopy("./UtilityTestCopy.txt");
+        const String MoveTargetDir("./MoveTarget/");
+        const String MovedTestCopy("./MoveTarget/UtilityTestCopy.txt");
+        const String MovedRenamedTestCopy("./MoveTarget/RenamedCopy.txt");
+    #endif
         {// File Detection Test using ifstream
             std::ifstream UtilityFileDetect;
-            UtilityFileDetect.open("./UtilityTestFile.txt");
+            UtilityFileDetect.open(UtilityTestFile);
             if( UtilityFileDetect ) {
                 // Uh oh, we didn't clean up from the previous run.  Probably.
                 TEST_RESULT("FileManagement-VerifyPreviousRunCleanup",Testing::TestResult::Failed);
@@ -80,51 +93,56 @@ AUTOMATIC_TEST_GROUP(FilesystemManagementTests,FilesystemManagement)
             UtilityFileDetect.close();
         }// File Detection Test using ifstream
         std::ofstream UtilityFile;
-        UtilityFile.open("./UtilityTestFile.txt",std::ios_base::out | std::ios_base::trunc);
+        UtilityFile.open(UtilityTestFile,std::ios_base::out | std::ios_base::trunc);
         UtilityFile << "I exist!";
         UtilityFile.close();
 
         TEST_EQUAL("FileExists(const_StringView)-PassCheck",
-                   true,Filesystem::FileExists("UtilityTestFile.txt"));
+                   true,Filesystem::FileExists(UtilityTestFile));
         TEST_EQUAL("CopyFile(const_StringView,const_StringView)-Fresh",
                    Filesystem::ModifyResult::Success,
-                   Filesystem::CopyFile("UtilityTestFile.txt","UtilityTestCopy.txt",false));
+                   Filesystem::CopyFile(UtilityTestFile,UtilityTestCopy,false));
         TEST_EQUAL("CopyFile(const_StringView,const_StringView)-Exists",
-                   true,Filesystem::FileExists("UtilityTestCopy.txt"));
+                   true,Filesystem::FileExists(UtilityTestCopy));
         TEST_EQUAL("CopyFile(const_StringView,const_StringView)-DuplicateFail",
                    Filesystem::ModifyResult::AlreadyExists,
-                   Filesystem::CopyFile("UtilityTestCopy.txt","UtilityTestFile.txt",true));
+                   Filesystem::CopyFile(UtilityTestCopy,UtilityTestFile,true));
         TEST_EQUAL("MoveFile(const_StringView,const_StringView)-CreateDest",
                    Filesystem::ModifyResult::Success,
-                   Filesystem::CreateDirectory("MoveTarget/"));
+                   Filesystem::CreateDirectory(MoveTargetDir));
         TEST_EQUAL("MoveFile(const_StringView,const_StringView)-ActualMove",
                    Filesystem::ModifyResult::Success,
-                   Filesystem::MoveFile("UtilityTestCopy.txt","MoveTarget/UtilityTestCopy.txt",true));
+                   Filesystem::MoveFile(UtilityTestCopy,MovedTestCopy,true));
         TEST_EQUAL("MoveFile(const_StringView,const_StringView)-SourceDoesntExist",
-                   false,Filesystem::FileExists("UtilityTestCopy.txt"));
+                   false,Filesystem::FileExists(UtilityTestCopy));
         TEST_EQUAL("MoveFile(const_StringView,const_StringView)-DestExists",
-                   true,Filesystem::FileExists("MoveTarget/UtilityTestCopy.txt"));
+                   true,Filesystem::FileExists(MovedTestCopy));
         TEST_EQUAL("MoveFile(const_StringView,const_StringView)-Rename",
                    Filesystem::ModifyResult::Success,
-                   Filesystem::MoveFile("MoveTarget/UtilityTestCopy.txt","MoveTarget/RenamedCopy.txt",true));
+                   Filesystem::MoveFile(MovedTestCopy,MovedRenamedTestCopy,true));
         TEST_EQUAL("RemoveFile(const_StringView)-DeleteMoved",
                    Filesystem::ModifyResult::Success,
-                   Filesystem::RemoveFile("MoveTarget/RenamedCopy.txt"));
+                   Filesystem::RemoveFile(MovedRenamedTestCopy));
         TEST_EQUAL("RemoveFile(const_StringView)-VerifyMoved",
-                   false,Filesystem::FileExists("MoveTarget/RenamedCopy.txt"));
+                   false,Filesystem::FileExists(MovedRenamedTestCopy));
         TEST_EQUAL("RemoveFile(const_StringView)-DeleteOriginal",
                    Filesystem::ModifyResult::Success,
-                   Filesystem::RemoveFile("UtilityTestFile.txt"));
+                   Filesystem::RemoveFile(UtilityTestFile));
         TEST_EQUAL("RemoveFile(const_StringView)-VerifyDeleted",
-                   false,Filesystem::FileExists("UtilityTestFile.txt"));
+                   false,Filesystem::FileExists(UtilityTestFile));
         TEST_EQUAL("FileManagement-Cleanup",
                    Filesystem::ModifyResult::Success,
-                   Filesystem::RemoveDirectory("MoveTarget"));
+                   Filesystem::RemoveDirectory(MoveTargetDir));
     }// Basic File Management
 
     {// Symlinks
+    #ifdef MEZZ_CompilerIsEmscripten
+        const String TargetName("LinkTargetFile.txt");
+        const String LinkName("TotallyNotALink.txt");
+    #else
         const String TargetName("./LinkTargetFile.txt");
         const String LinkName("./TotallyNotALink.txt");
+    #endif
 
         std::ofstream LinkTargetFile;
         LinkTargetFile.open(TargetName,std::ios_base::out | std::ios_base::trunc);
@@ -182,7 +200,17 @@ AUTOMATIC_TEST_GROUP(FilesystemManagementTests,FilesystemManagement)
     }// Symlinks
 
     {// Basic Directory Management
-        String BasePathTestDir("./DirTestingDir/");
+    #ifdef MEZZ_CompilerIsEmscripten
+        const String BasePathTestDir("DirTestingDir/");
+        const String DepthOneDir("DirTestingDir/Depth1/");
+        const String DepthTwoDir("DirTestingDir/Depth1/Depth2/");
+        const String DepthThreeDir("DirTestingDir/Depth1/Depth2/Depth3/");
+    #else
+        const String BasePathTestDir("./DirTestingDir/");
+        const String DepthOneDir("./DirTestingDir/Depth1/");
+        const String DepthTwoDir("./DirTestingDir/Depth1/Depth2/");
+        const String DepthThreeDir("./DirTestingDir/Depth1/Depth2/Depth3/");
+    #endif
 
         // Perform cleanup from any unclean runs of the tests
         Boole Exists = Filesystem::DirectoryExists(BasePathTestDir);
@@ -198,22 +226,20 @@ AUTOMATIC_TEST_GROUP(FilesystemManagementTests,FilesystemManagement)
         TEST_EQUAL("DirectoryExists(const_StringView)",
                    true,Filesystem::DirectoryExists(BasePathTestDir));
 
-        const String FullPathTestDir = BasePathTestDir + "Depth1/Depth2/Depth3/";
-
         TEST_EQUAL("CreateDirectoryPath(const_StringView)",
                    Filesystem::ModifyResult::Success,
-                   Filesystem::CreateDirectoryPath(FullPathTestDir));
+                   Filesystem::CreateDirectoryPath(DepthThreeDir));
         TEST_EQUAL("CreateDirectoryPath(const_StringView)-Verify",
-                   true,Filesystem::DirectoryExists(FullPathTestDir));
+                   true,Filesystem::DirectoryExists(DepthThreeDir));
         TEST_EQUAL("RemoveDirectory(const_StringView)-PathDepth3",
                    Filesystem::ModifyResult::Success,
-                   Filesystem::RemoveDirectory(FullPathTestDir));
+                   Filesystem::RemoveDirectory(DepthThreeDir));
         TEST_EQUAL("RemoveDirectory(const_StringView)-PathDepth2",
                    Filesystem::ModifyResult::Success,
-                   Filesystem::RemoveDirectory("./DirTestingDir/Depth1/Depth2/"));
+                   Filesystem::RemoveDirectory(DepthTwoDir));
         TEST_EQUAL("RemoveDirectory(const_StringView)-PathDepth1",
                    Filesystem::ModifyResult::Success,
-                   Filesystem::RemoveDirectory("./DirTestingDir/Depth1/"));//*/
+                   Filesystem::RemoveDirectory(DepthOneDir));
 
         TEST_EQUAL("RemoveDirectory(const_StringView)-BaseDir",
                    Filesystem::ModifyResult::Success,
