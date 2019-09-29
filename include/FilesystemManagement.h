@@ -117,23 +117,31 @@ namespace Filesystem {
     // Symlinks
 
     /// @brief Checks to see if the file at the specified path is a Symlink.
+    /// @warning Symlinks on emscripten is entirely unsupported and no guarantees are made for their behavior.
+    /// Additionally, they don't make much sense in a web browser.
     /// @param SymPath The path to the file to check.
     /// @return Returns true if a Symlink is located at the specified path, false otherwise.
     [[nodiscard]]
     Boole MEZZ_LIB SymlinkExists(const StringView SymPath);
     /// @brief Creates a symbolic link to a file on disk.
+    /// @warning Symlinks on emscripten is entirely unsupported and no guarantees are made for their behavior.
+    /// Additionally, they don't make much sense in a web browser.
     /// @param SymPath A path (including the name of the symbolic link) to where the link should be placed.
     /// @param TargetPath A path to where the symbolic link will point to.
     /// @return Returns a ModifyResult value describing the result of the link creation.
     [[nodiscard]]
     ModifyResult MEZZ_LIB CreateSymlink(const StringView SymPath, const StringView TargetPath);
     /// @brief Creates a symbolic link to a directory on disk.
+    /// @warning Symlinks on emscripten is entirely unsupported and no guarantees are made for their behavior.
+    /// Additionally, they don't make much sense in a web browser.
     /// @param SymPath A path (including the name of the symbolic link) to where the link should be placed.
     /// @param TargetPath A path to where the symbolic link will point to.
     /// @return Returns a ModifyResult value describing the result of the link creation.
     [[nodiscard]]
     ModifyResult MEZZ_LIB CreateDirectorySymlink(const StringView SymPath, const StringView TargetPath);
     /// @brief Gets the target path of a Symlink.
+    /// @warning Symlinks on emscripten is entirely unsupported and no guarantees are made for their behavior.
+    /// Additionally, they don't make much sense in a web browser.
     /// @param SymPath The path to the Symlink to read the target of.
     /// @return Returns an Optional storing the path to the target if the file at SymPath is a Symlink, or
     /// an empty invalid Optional if the file wasn't found or wasn't a Symlink.
