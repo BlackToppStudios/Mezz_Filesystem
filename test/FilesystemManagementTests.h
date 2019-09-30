@@ -184,9 +184,9 @@ AUTOMATIC_TEST_GROUP(FilesystemManagementTests,FilesystemManagement)
                        false,
                        LinkPathFail.has_value());
 
-            TEST_EQUAL("SymlinkManagement-File-CleanupLink",
+            TEST_EQUAL("RemoveSymlink(const_StringView)-File",
                        Filesystem::ModifyResult::Success,
-                       Filesystem::RemoveFile(LinkName));
+                       Filesystem::RemoveSymlink(LinkName));
             TEST_EQUAL("SymlinkManagement-File-CleanupTarget",
                        Filesystem::ModifyResult::Success,
                        Filesystem::RemoveFile(TargetName));
@@ -247,9 +247,9 @@ AUTOMATIC_TEST_GROUP(FilesystemManagementTests,FilesystemManagement)
                            false,
                            LinkPathFail.has_value());
 
-                TEST_EQUAL("SymlinkManagement-Directory-CleanupLink",
+                TEST_EQUAL("RemoveSymlink(const_StringView)-Directory",
                            Filesystem::ModifyResult::Success,
-                           Filesystem::RemoveDirectory(LinkName));
+                           Filesystem::RemoveSymlink(LinkName));
                 TEST_EQUAL("SymlinkManagement-Directory-CleanupTarget",
                            Filesystem::ModifyResult::Success,
                            Filesystem::RemoveDirectory(TargetName));

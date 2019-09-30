@@ -147,6 +147,16 @@ namespace Filesystem {
     /// an empty invalid Optional if the file wasn't found or wasn't a Symlink.
     [[nodiscard]]
     Optional<String> MEZZ_LIB GetSymlinkTargetPath(const StringView SymPath);
+    /// @brief Removes a Symlink from the disk.
+    /// @note Symlinks on Posix are always files, and thus can be removed with RemoveFile.  However, Windows in
+    /// it's infinite wisdom has symlinks that can be files or directories, and thus lacks a single function for
+    /// their removal.  That's where this function comes in handy and will ensure the correct version is called.
+    /// @warning Symlinks on emscripten is entirely unsupported and no guarantees are made for their behavior.
+    /// Additionally, they don't make much sense in a web browser.
+    /// @param SymPath The path to the Symlink to remove.
+    /// @return Returns a ModifyResult value describing the result of the removal.
+    [[nodiscard]]
+    ModifyResult MEZZ_LIB RemoveSymlink(const StringView SymPath);
 
     ///////////////////////////////////////////////////////////////////////////////
     // Basic Directory Management

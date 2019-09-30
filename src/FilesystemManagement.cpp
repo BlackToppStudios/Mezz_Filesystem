@@ -438,6 +438,20 @@ namespace Filesystem {
     #endif // MEZZ_Windows
     }
 
+    ModifyResult RemoveSymlink(const StringView SymPath)
+    {
+    #ifdef MEZZ_Windows
+        if( Filesystem::FileExists(SymPath) ) {
+            return Filesystem::RemoveFile(SymPath);
+        }else if( Filesystem::DirectoryExists(SymPath) ) {
+            return Filesystem::RemoveDirectory(SymPath);
+        }
+        return ModifyResult::DoesNotExist;
+    #else // MEZZ_Windows
+        return Filesystem::RemoveFile(SymPath);
+    #endif // MEZZ_Windows
+    }
+
     ///////////////////////////////////////////////////////////////////////////////
     // Basic Directory Management
 
