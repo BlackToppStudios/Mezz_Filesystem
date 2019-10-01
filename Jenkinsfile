@@ -231,8 +231,8 @@ pipeline {
                         }
                     }
                 }
-                stage('MacOSSierra') {
-                    agent { label "MacOSSierra" }
+                stage('MacOSDuo') {
+                    agent { label "MacOSDuo" }
                     steps {
                         checkout scm
                         sh 'mkdir -p build-release'
