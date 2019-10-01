@@ -239,7 +239,7 @@ pipeline {
                         dir('build-release') { sh """
                             hostname &&
                             export PATH='$PATH:/usr/local/bin/' &&
-                            cmake -E env CXXFLAGS="-fno-var-tracking" cmake -G"Xcode" .. -DCMAKE_BUILD_TYPE=RELEASE -DMEZZ_BuildDoxygen=OFF -DMEZZ_CodeCoverage=OFF &&
+                            cmake -E env CXXFLAGS="-fno-var-tracking" cmake -G"Ninja" .. -DCMAKE_BUILD_TYPE=RELEASE -DMEZZ_BuildDoxygen=OFF -DMEZZ_CodeCoverage=OFF &&
                             cmake --build . &&
                            ./Filesystem_Tester xml
                         """ }
