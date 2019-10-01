@@ -46,15 +46,15 @@ pipeline {
                         }
                     }
                 }
-                stage('MacOSSierra') {
-                    agent { label "MacOSSierra" }
+                stage('MacOSDuo') {
+                    agent { label "MacOSDuo" }
                     steps {
                         checkout scm
                         sh 'mkdir -p build-debug'
                         dir('build-debug') { sh """
                             hostname &&
                             export PATH='$PATH:/usr/local/bin/' &&
-                            cmake -E env CXXFLAGS="-fno-var-tracking" cmake -G"Xcode" .. -DCMAKE_BUILD_TYPE=DEBUG -DMEZZ_BuildDoxygen=OFF -DMEZZ_CodeCoverage=OFF &&
+                            cmake -E env CXXFLAGS="-fno-var-tracking" cmake -G"Ninja" .. -DCMAKE_BUILD_TYPE=DEBUG -DMEZZ_BuildDoxygen=OFF -DMEZZ_CodeCoverage=OFF &&
                             cmake --build . &&
                            ./Filesystem_Tester xml
                         """ }
