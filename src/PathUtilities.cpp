@@ -209,7 +209,7 @@ namespace Filesystem {
     ///////////////////////////////////////////////////////////////////////////////
     // Dot Segment Checks
 
-    Boole IsDotSegment(const StringView ToCheck)
+    Boole IsDotSegment(const StringView ToCheck) noexcept
     {
         return ( ToCheck == "." || ToCheck == ".." );
     }
@@ -217,12 +217,12 @@ namespace Filesystem {
     ///////////////////////////////////////////////////////////////////////////////
     // Absolute and Relative Paths
 
-    Boole IsPathAbsolute(const StringView ToCheck)
+    Boole IsPathAbsolute(const StringView ToCheck) noexcept
     {
         return IsPathAbsolute_Windows(ToCheck) || IsPathAbsolute_Posix(ToCheck);
     }
 
-    Boole IsPathAbsolute_Host(const StringView ToCheck)
+    Boole IsPathAbsolute_Host(const StringView ToCheck) noexcept
     {
     #ifdef MEZZ_Windows
         return IsPathAbsolute_Windows(ToCheck);
@@ -231,7 +231,7 @@ namespace Filesystem {
     #endif
     }
 
-    Boole IsPathAbsolute_Posix(const StringView ToCheck)
+    Boole IsPathAbsolute_Posix(const StringView ToCheck) noexcept
     {
         if( !ToCheck.empty() ) {
             return ( ToCheck[0] == '/' );
@@ -239,7 +239,7 @@ namespace Filesystem {
         return false;
     }
 
-    Boole IsPathAbsolute_Windows(const StringView ToCheck)
+    Boole IsPathAbsolute_Windows(const StringView ToCheck) noexcept
     {
         if( ToCheck.size() >= 3 ) {
             return ( StringTools::IsAlphaLetter(ToCheck[0]) &&
@@ -249,12 +249,12 @@ namespace Filesystem {
         return false;
     }
 
-    Boole IsPathRelative(const StringView ToCheck)
+    Boole IsPathRelative(const StringView ToCheck) noexcept
     {
         return !IsPathAbsolute(ToCheck);
     }
 
-    Boole IsPathRelative_Host(const StringView ToCheck)
+    Boole IsPathRelative_Host(const StringView ToCheck) noexcept
     {
     #ifdef MEZZ_Windows
         return IsPathRelative_Windows(ToCheck);
@@ -263,7 +263,7 @@ namespace Filesystem {
     #endif
     }
 
-    Boole IsPathRelative_Posix(const StringView ToCheck)
+    Boole IsPathRelative_Posix(const StringView ToCheck) noexcept
     {
         if( !ToCheck.empty() ) {
             return ( ToCheck[0] != '/' );
@@ -271,7 +271,7 @@ namespace Filesystem {
         return false;
     }
 
-    Boole IsPathRelative_Windows(const StringView ToCheck)
+    Boole IsPathRelative_Windows(const StringView ToCheck) noexcept
     {
         return !IsPathAbsolute(ToCheck);
     }

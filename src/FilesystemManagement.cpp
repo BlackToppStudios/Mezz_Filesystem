@@ -227,7 +227,7 @@ namespace
     /// @param err The system error to be converted.
     /// @return Returns a ModifyResult value corresponding to the system error code.
     [[nodiscard]]
-    Filesystem::ModifyResult ConvertErrNo(DWORD err)
+    Filesystem::ModifyResult ConvertErrNo(DWORD err) noexcept
     {
         switch( err )
         {
@@ -254,7 +254,7 @@ namespace
     /// @param err The system error to be converted.
     /// @return Returns a ModifyResult value corresponding to the system error code.
     [[nodiscard]]
-    Filesystem::ModifyResult ConvertErrNo(int err)
+    Filesystem::ModifyResult ConvertErrNo(int err) noexcept
     {
         switch( err )
         {
@@ -283,9 +283,34 @@ namespace
 namespace Mezzanine {
 namespace Filesystem {
     ///////////////////////////////////////////////////////////////////////////////
+    // ModifyResult Operators
+
+    Boole operator==(const Filesystem::ModifyResult Left, const Boole Right) noexcept
+    {
+        using namespace Filesystem;
+        return ( Right ? Left == ModifyResult::Success : Left != ModifyResult::Success );
+    }
+
+    Boole operator==(const Boole Left, const Filesystem::ModifyResult Right) noexcept
+    {
+        using namespace Filesystem;
+        return ( Left ? Right == ModifyResult::Success : Right != ModifyResult::Success );
+    }
+
+    Boole operator!=(const Filesystem::ModifyResult Left, const Boole Right) noexcept
+    {
+        return !operator==(Left,Right);
+    }
+
+    Boole operator!=(const Boole Left, const Filesystem::ModifyResult Right) noexcept
+    {
+        return !operator==(Left,Right);
+    }
+
+    ///////////////////////////////////////////////////////////////////////////////
     // Basic File Management
 
-    Boole FileExists(const StringView FilePath)
+    Boole FileExists(const StringView FilePath) noexcept
     {
     #ifdef MEZZ_Windows
         std::wstring WidePath = ConvertToWideString(FilePath);
@@ -366,7 +391,7 @@ namespace Filesystem {
     ///////////////////////////////////////////////////////////////////////////////
     // Symlinks
 
-    Boole SymlinkExists(const StringView SymPath)
+    Boole SymlinkExists(const StringView SymPath) noexcept
     {
     #ifdef MEZZ_Windows
     // Documented as a solution here:
@@ -473,7 +498,7 @@ namespace Filesystem {
     ///////////////////////////////////////////////////////////////////////////////
     // Basic Directory Management
 
-    Boole DirectoryExists(const StringView DirectoryPath)
+    Boole DirectoryExists(const StringView DirectoryPath) noexcept
     {
     #ifdef MEZZ_Windows
         std::wstring WidePath = ConvertToWideString(DirectoryPath);
@@ -563,25 +588,3 @@ namespace Filesystem {
     }
 }//Filesystem
 }//Mezzanine
-
-Mezzanine::Boole operator==(const Mezzanine::Filesystem::ModifyResult Left, const Mezzanine::Boole Right)
-{
-    using namespace Mezzanine::Filesystem;
-    return ( Right ? Left == ModifyResult::Success : Left != ModifyResult::Success );
-}
-
-Mezzanine::Boole operator==(const Mezzanine::Boole Left, const Mezzanine::Filesystem::ModifyResult Right)
-{
-    using namespace Mezzanine::Filesystem;
-    return ( Left ? Right == ModifyResult::Success : Right != ModifyResult::Success );
-}
-
-Mezzanine::Boole operator!=(const Mezzanine::Filesystem::ModifyResult Left, const Mezzanine::Boole Right)
-{
-    return !operator==(Left,Right);
-}
-
-Mezzanine::Boole operator!=(const Mezzanine::Boole Left, const Mezzanine::Filesystem::ModifyResult Right)
-{
-    return !operator==(Left,Right);
-}

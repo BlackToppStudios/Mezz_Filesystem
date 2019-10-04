@@ -79,6 +79,42 @@ namespace Filesystem {
     };//ModifyResult
 
     ///////////////////////////////////////////////////////////////////////////////
+    // ModifyResult Operators
+
+    /// @brief ModifyResult Equality with Boole operator.
+    /// @param Left The ModifyResult to compare.
+    /// @param Right The bool to compare.  True tests for a passing result, false tests for a failing result.
+    /// @return If Right is testing for a passing result (is true) and Left is Success, returns true.
+    /// If Right is testing for a failing result (is false) and Left is NOT Success, returns true.
+    /// Otherwise, returns false.
+    [[nodiscard]]
+    Boole MEZZ_LIB operator==(const Filesystem::ModifyResult Left, const Boole Right) noexcept;
+    /// @brief ModifyResult Equality with Boole operator.
+    /// @param Left The bool to compare.  True tests for a passing result, false tests for a failing result.
+    /// @param Right The ModifyResult to compare.
+    /// @return If Left is testing for a passing result (is true) and Right is Success, returns true.
+    /// If Left is testing for a failing result (is false) and Right is NOT Success, returns true.
+    /// Otherwise, returns false.
+    [[nodiscard]]
+    Boole MEZZ_LIB operator==(const Boole Left, const Filesystem::ModifyResult Right) noexcept;
+    /// @brief ModifyResult Inequality with Boole operator.
+    /// @param Left The ModifyResult to compare.
+    /// @param Right The bool to compare.  True tests for a failing result, false tests for a passing result.
+    /// @return If Right is testing for a passing result (is false) and Left is Success, returns true.
+    /// If Right is testing for a failing result (is true) and Left is NOT Success, returns true.
+    /// Otherwise, returns false.
+    [[nodiscard]]
+    Boole MEZZ_LIB operator!=(const Filesystem::ModifyResult Left, const Boole Right) noexcept;
+    /// @brief ModifyResult Inequality with Boole operator.
+    /// @param Left The bool to compare.  True tests for a failing result, false tests for a passing result.
+    /// @param Right The ModifyResult to compare.
+    /// @return If Left is testing for a passing result (is false) and Right is Success, returns true.
+    /// If Left is testing for a failing result (is true) and Right is NOT Success, returns true.
+    /// Otherwise, returns false.
+    [[nodiscard]]
+    Boole MEZZ_LIB operator!=(const Boole Left, const Filesystem::ModifyResult Right) noexcept;
+
+    ///////////////////////////////////////////////////////////////////////////////
     // Basic File Management
 
     /// @brief Verifies the existence of a file.
@@ -87,7 +123,7 @@ namespace Filesystem {
     /// @param FilePath The path and name of the file to check for.
     /// @return Returns true if the file at the specified file exists, false otherwise.
     [[nodiscard]]
-    Boole MEZZ_LIB FileExists(const StringView FilePath);
+    Boole MEZZ_LIB FileExists(const StringView FilePath) noexcept;
 
     /// @brief Copies a file on disk to a new location.
     /// @note This function makes no attempt to copy file permissions or attributes, only data.
@@ -122,7 +158,7 @@ namespace Filesystem {
     /// @param SymPath The path to the file to check.
     /// @return Returns true if a Symlink is located at the specified path, false otherwise.
     [[nodiscard]]
-    Boole MEZZ_LIB SymlinkExists(const StringView SymPath);
+    Boole MEZZ_LIB SymlinkExists(const StringView SymPath) noexcept;
     /// @brief Creates a symbolic link to a file on disk.
     /// @warning Symlinks on emscripten is entirely unsupported and no guarantees are made for their behavior.
     /// Additionally, they don't make much sense in a web browser.
@@ -165,7 +201,7 @@ namespace Filesystem {
     /// @param DirectoryPath The path and name of the folder to check for.
     /// @return Returns true if the folder at the specified directory exists, false otherwise.
     [[nodiscard]]
-    Boole MEZZ_LIB DirectoryExists(const StringView DirectoryPath);
+    Boole MEZZ_LIB DirectoryExists(const StringView DirectoryPath) noexcept;
 
     /// @brief Creates a single new directory.
     /// @remarks This function will only create the directory specified at the end of the path.
@@ -185,38 +221,5 @@ namespace Filesystem {
     ModifyResult MEZZ_LIB RemoveDirectory(const StringView DirectoryPath);
 }//Filesystem
 }//Mezzanine
-
-/// @brief ModifyResult Equality with Boole operator.
-/// @param Left The ModifyResult to compare.
-/// @param Right The bool to compare.  True tests for a passing result, false tests for a failing result.
-/// @return If Right is testing for a passing result (is true) and Left is Success, returns true.
-/// If Right is testing for a failing result (is false) and Left is NOT Success, returns true.
-/// Otherwise, returns false.
-[[nodiscard]]
-Mezzanine::Boole MEZZ_LIB operator==(const Mezzanine::Filesystem::ModifyResult Left, const Mezzanine::Boole Right);
-/// @brief ModifyResult Equality with Boole operator.
-/// @param Left The bool to compare.  True tests for a passing result, false tests for a failing result.
-/// @param Right The ModifyResult to compare.
-/// @return If Left is testing for a passing result (is true) and Right is Success, returns true.
-/// If Left is testing for a failing result (is false) and Right is NOT Success, returns true.
-/// Otherwise, returns false.
-[[nodiscard]]
-Mezzanine::Boole MEZZ_LIB operator==(const Mezzanine::Boole Left, const Mezzanine::Filesystem::ModifyResult Right);
-/// @brief ModifyResult Inequality with Boole operator.
-/// @param Left The ModifyResult to compare.
-/// @param Right The bool to compare.  True tests for a failing result, false tests for a passing result.
-/// @return If Right is testing for a passing result (is false) and Left is Success, returns true.
-/// If Right is testing for a failing result (is true) and Left is NOT Success, returns true.
-/// Otherwise, returns false.
-[[nodiscard]]
-Mezzanine::Boole MEZZ_LIB operator!=(const Mezzanine::Filesystem::ModifyResult Left, const Mezzanine::Boole Right);
-/// @brief ModifyResult Inequality with Boole operator.
-/// @param Left The bool to compare.  True tests for a failing result, false tests for a passing result.
-/// @param Right The ModifyResult to compare.
-/// @return If Left is testing for a passing result (is false) and Right is Success, returns true.
-/// If Left is testing for a failing result (is true) and Right is NOT Success, returns true.
-/// Otherwise, returns false.
-[[nodiscard]]
-Mezzanine::Boole MEZZ_LIB operator!=(const Mezzanine::Boole Left, const Mezzanine::Filesystem::ModifyResult Right);
 
 #endif
