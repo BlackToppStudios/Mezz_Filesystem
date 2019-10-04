@@ -101,25 +101,25 @@ AUTOMATIC_TEST_GROUP(FilesystemManagementTests,FilesystemManagement)
                    true,Filesystem::FileExists(UtilityTestFile));
         TEST_EQUAL("CopyFile(const_StringView,const_StringView)-Fresh",
                    Filesystem::ModifyResult::Success,
-                   Filesystem::CopyFile(UtilityTestFile,UtilityTestCopy,false));
+                   Filesystem::CopyFile(UtilityTestFile,UtilityTestCopy,Filesystem::FileOverwrite::Allow));
         TEST_EQUAL("CopyFile(const_StringView,const_StringView)-Exists",
                    true,Filesystem::FileExists(UtilityTestCopy));
         TEST_EQUAL("CopyFile(const_StringView,const_StringView)-DuplicateFail",
                    Filesystem::ModifyResult::AlreadyExists,
-                   Filesystem::CopyFile(UtilityTestCopy,UtilityTestFile,true));
+                   Filesystem::CopyFile(UtilityTestCopy,UtilityTestFile,Filesystem::FileOverwrite::Deny));
         TEST_EQUAL("MoveFile(const_StringView,const_StringView)-CreateDest",
                    Filesystem::ModifyResult::Success,
                    Filesystem::CreateDirectory(MoveTargetDir));
         TEST_EQUAL("MoveFile(const_StringView,const_StringView)-ActualMove",
                    Filesystem::ModifyResult::Success,
-                   Filesystem::MoveFile(UtilityTestCopy,MovedTestCopy,true));
+                   Filesystem::MoveFile(UtilityTestCopy,MovedTestCopy,Filesystem::FileOverwrite::Deny));
         TEST_EQUAL("MoveFile(const_StringView,const_StringView)-SourceDoesntExist",
                    false,Filesystem::FileExists(UtilityTestCopy));
         TEST_EQUAL("MoveFile(const_StringView,const_StringView)-DestExists",
                    true,Filesystem::FileExists(MovedTestCopy));
         TEST_EQUAL("MoveFile(const_StringView,const_StringView)-Rename",
                    Filesystem::ModifyResult::Success,
-                   Filesystem::MoveFile(MovedTestCopy,MovedRenamedTestCopy,true));
+                   Filesystem::MoveFile(MovedTestCopy,MovedRenamedTestCopy,Filesystem::FileOverwrite::Deny));
         TEST_EQUAL("RemoveFile(const_StringView)-DeleteMoved",
                    Filesystem::ModifyResult::Success,
                    Filesystem::RemoveFile(MovedRenamedTestCopy));

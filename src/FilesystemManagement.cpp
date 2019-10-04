@@ -285,24 +285,24 @@ namespace Filesystem {
     ///////////////////////////////////////////////////////////////////////////////
     // ModifyResult Operators
 
-    Boole operator==(const Filesystem::ModifyResult Left, const Boole Right) noexcept
+    Boole operator==(const ModifyResult Left, const Boole Right) noexcept
     {
         using namespace Filesystem;
         return ( Right ? Left == ModifyResult::Success : Left != ModifyResult::Success );
     }
 
-    Boole operator==(const Boole Left, const Filesystem::ModifyResult Right) noexcept
+    Boole operator==(const Boole Left, const ModifyResult Right) noexcept
     {
         using namespace Filesystem;
         return ( Left ? Right == ModifyResult::Success : Right != ModifyResult::Success );
     }
 
-    Boole operator!=(const Filesystem::ModifyResult Left, const Boole Right) noexcept
+    Boole operator!=(const ModifyResult Left, const Boole Right) noexcept
     {
         return !operator==(Left,Right);
     }
 
-    Boole operator!=(const Boole Left, const Filesystem::ModifyResult Right) noexcept
+    Boole operator!=(const Boole Left, const ModifyResult Right) noexcept
     {
         return !operator==(Left,Right);
     }
@@ -325,11 +325,11 @@ namespace Filesystem {
     #endif // MEZZ_Windows
     }
 
-    ModifyResult CopyFile(const StringView OldFilePath, const StringView NewFilePath, const Boole FailIfExists)
+    ModifyResult CopyFile(const StringView OldFilePath, const StringView NewFilePath, const FileOverwrite IfExists)
     {
     #ifdef MEZZ_Windows
         DWORD CopyFlags = COPY_FILE_COPY_SYMLINK;
-        if( FailIfExists ) {
+        if( IfExists == FileOverwrite::Deny ) {
             CopyFlags |= COPY_FILE_FAIL_IF_EXISTS;
         }
         std::wstring WideOldPath = ConvertToWideString(OldFilePath);
@@ -338,7 +338,7 @@ namespace Filesystem {
                  ModifyResult::Success :
                  ConvertErrNo( ::GetLastError() ) );
     #else // MEZZ_Windows
-        if( FailIfExists && FileExists(NewFilePath.data()) ) {
+        if( IfExists == FileOverwrite::Deny && FileExists(NewFilePath.data()) ) {
             return ModifyResult::AlreadyExists;
         }
         std::ifstream SrcStream;
@@ -352,11 +352,11 @@ namespace Filesystem {
     #endif // MEZZ_Windows
     }
 
-    ModifyResult MoveFile(const StringView OldFilePath, const StringView NewFilePath, const Boole FailIfExists)
+    ModifyResult MoveFile(const StringView OldFilePath, const StringView NewFilePath, const FileOverwrite IfExists)
     {
     #ifdef MEZZ_Windows
         DWORD MoveFlags = MOVEFILE_COPY_ALLOWED;
-        if( !FailIfExists ) {
+        if( IfExists == FileOverwrite::Allow ) {
             MoveFlags |= MOVEFILE_REPLACE_EXISTING;
         }
         std::wstring WideOldPath = ConvertToWideString(OldFilePath);
@@ -365,7 +365,7 @@ namespace Filesystem {
                  ModifyResult::Success :
                  ConvertErrNo( ::GetLastError() ) );
     #else // MEZZ_Windows
-        if( FailIfExists && FileExists(NewFilePath.data()) ) {
+        if( IfExists == FileOverwrite::Deny && FileExists(NewFilePath.data()) ) {
             return ModifyResult::AlreadyExists;
         }
         return ( ::rename(OldFilePath.data(),NewFilePath.data()) == 0 ?

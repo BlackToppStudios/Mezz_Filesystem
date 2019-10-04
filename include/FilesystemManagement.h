@@ -78,6 +78,13 @@ namespace Filesystem {
         Unknown            ///< Error is unknown.
     };//ModifyResult
 
+    /// @brief An enum for behaviors when a file would be overwritten.
+    enum class FileOverwrite
+    {
+        Allow,
+        Deny
+    };//FileOverwrite
+
     ///////////////////////////////////////////////////////////////////////////////
     // ModifyResult Operators
 
@@ -88,7 +95,7 @@ namespace Filesystem {
     /// If Right is testing for a failing result (is false) and Left is NOT Success, returns true.
     /// Otherwise, returns false.
     [[nodiscard]]
-    Boole MEZZ_LIB operator==(const Filesystem::ModifyResult Left, const Boole Right) noexcept;
+    Boole MEZZ_LIB operator==(const ModifyResult Left, const Boole Right) noexcept;
     /// @brief ModifyResult Equality with Boole operator.
     /// @param Left The bool to compare.  True tests for a passing result, false tests for a failing result.
     /// @param Right The ModifyResult to compare.
@@ -96,7 +103,7 @@ namespace Filesystem {
     /// If Left is testing for a failing result (is false) and Right is NOT Success, returns true.
     /// Otherwise, returns false.
     [[nodiscard]]
-    Boole MEZZ_LIB operator==(const Boole Left, const Filesystem::ModifyResult Right) noexcept;
+    Boole MEZZ_LIB operator==(const Boole Left, const ModifyResult Right) noexcept;
     /// @brief ModifyResult Inequality with Boole operator.
     /// @param Left The ModifyResult to compare.
     /// @param Right The bool to compare.  True tests for a failing result, false tests for a passing result.
@@ -104,7 +111,7 @@ namespace Filesystem {
     /// If Right is testing for a failing result (is true) and Left is NOT Success, returns true.
     /// Otherwise, returns false.
     [[nodiscard]]
-    Boole MEZZ_LIB operator!=(const Filesystem::ModifyResult Left, const Boole Right) noexcept;
+    Boole MEZZ_LIB operator!=(const ModifyResult Left, const Boole Right) noexcept;
     /// @brief ModifyResult Inequality with Boole operator.
     /// @param Left The bool to compare.  True tests for a failing result, false tests for a passing result.
     /// @param Right The ModifyResult to compare.
@@ -112,7 +119,7 @@ namespace Filesystem {
     /// If Left is testing for a failing result (is true) and Right is NOT Success, returns true.
     /// Otherwise, returns false.
     [[nodiscard]]
-    Boole MEZZ_LIB operator!=(const Boole Left, const Filesystem::ModifyResult Right) noexcept;
+    Boole MEZZ_LIB operator!=(const Boole Left, const ModifyResult Right) noexcept;
 
     ///////////////////////////////////////////////////////////////////////////////
     // Basic File Management
@@ -129,20 +136,20 @@ namespace Filesystem {
     /// @note This function makes no attempt to copy file permissions or attributes, only data.
     /// @param OldFilePath The existing path to the file (including the filename) to be copied.
     /// @param NewFilePath The path (including the filename) to where the file should be copied.
-    /// @param FailIfExists If true the operation will fail if a file with the target name already exists.
+    /// @param IfExists If true the operation will fail if a file with the target name already exists.
     /// @return Returns a ModifyResult value describing the result of the file copy.
     [[nodiscard]]
     ModifyResult MEZZ_LIB CopyFile(const StringView OldFilePath, const StringView NewFilePath,
-                                   const Boole FailIfExists);
+                                   const FileOverwrite IfExists);
     /// @brief Moves a file on disk from one location to another.
     /// @remarks This function can be used to rename files.
     /// @param OldFilePath The existing path to the file (including the filename) to be moved.
     /// @param NewFilePath The path (including the filename) to where the file should be named.
-    /// @param FailIfExists If true the operation will fail if a file with the target name already exists.
+    /// @param IfExists If true the operation will fail if a file with the target name already exists.
     /// @return Returns a ModifyResult value describing the result of the file move.
     [[nodiscard]]
     ModifyResult MEZZ_LIB MoveFile(const StringView OldFilePath, const StringView NewFilePath,
-                                   const Boole FailIfExists);
+                                   const FileOverwrite IfExists);
     /// @brief Deletes a file existing on the filesystem.
     /// @param FilePath The existing path to the file (including the filename) to be deleted.
     /// @return Returns a ModifyResult value describing the result of the file removal(delete).
