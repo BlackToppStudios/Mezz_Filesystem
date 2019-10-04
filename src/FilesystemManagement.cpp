@@ -70,11 +70,6 @@
 
 #include "PlatformUndefs.h"
 
-// Are you shitting me, Windows?!
-#ifdef max
-#undef max
-#endif // max
-
 namespace
 {
     using namespace Mezzanine;
@@ -87,7 +82,7 @@ namespace
     std::wstring ConvertToWideString(const StringView Narrow)
     {
         std::wstring Ret;
-        if( !Narrow.empty() && ( Narrow.size() < std::numeric_limits<int>::max() ) ) {
+        if( !Narrow.empty() && ( Narrow.size() < size_t( std::numeric_limits<int>::max() ) ) ) {
             int NarrowSize = static_cast<int>(Narrow.size());
             size_t WideLength = ::MultiByteToWideChar(CP_UTF8,0,Narrow.data(),NarrowSize,0,0);
             Ret.resize(WideLength,L'\0');
@@ -103,7 +98,7 @@ namespace
     String ConvertToNarrowString(const wchar_t* Wide, const size_t Length)
     {
         String Ret;
-        if( Length > 0 && Length < std::numeric_limits<int>::max() ) {
+        if( Length > 0 && Length < size_t( std::numeric_limits<int>::max() ) ) {
             int CastedLength = static_cast<int>(Length);
             int NarrowLength = ::WideCharToMultiByte(CP_UTF8,0,Wide,CastedLength,0,0,nullptr,nullptr);
             Ret.resize(static_cast<size_t>(NarrowLength),'\0');
