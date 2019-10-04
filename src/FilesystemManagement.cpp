@@ -78,10 +78,11 @@ namespace
     /// @brief Converts a narrow (8-bit) String to a wide (16-bit) String.
     /// @param Narrow The String to be converted.
     /// @return Returns a wide String with the converted contents.
+    [[nodiscard]]
     std::wstring ConvertToWideString(const StringView Narrow)
     {
         std::wstring Ret;
-        if( !Narrow.empty() ) {
+        if( !Narrow.empty() && ( Narrow.size() < std::numeric_limits<int>::max() ) ) {
             int NarrowSize = static_cast<int>(Narrow.size());
             size_t WideLength = ::MultiByteToWideChar(CP_UTF8,0,Narrow.data(),NarrowSize,0,0);
             Ret.resize(WideLength,L'\0');
@@ -93,11 +94,12 @@ namespace
     /// @param Wide The String to be converted.
     /// @param Length The length of the String to be converted.
     /// @return Returns a narrow String with the converted contents.
+    [[nodiscard]]
     String ConvertToNarrowString(const wchar_t* Wide, const size_t Length)
     {
         String Ret;
-        int CastedLength = static_cast<int>(Length);
-        if( CastedLength > 0 ) {
+        if( Length > 0 && Length < std::numeric_limits<int>::max() ) {
+            int CastedLength = static_cast<int>(Length);
             int NarrowLength = ::WideCharToMultiByte(CP_UTF8,0,Wide,CastedLength,0,0,nullptr,nullptr);
             Ret.resize(static_cast<size_t>(NarrowLength),'\0');
             ::WideCharToMultiByte(CP_UTF8,0,Wide,CastedLength,&Ret[0],static_cast<int>(Ret.size()),nullptr,nullptr);
@@ -149,6 +151,11 @@ namespace
     #define FSCTL_GET_REPARSE_POINT 0x900a8
     #endif
 
+    /// @brief Gets the Print Name of the Symlink from the Reparse Data Buffer.
+    /// @remarks The Print Name is a human readable/friendly path the Symlink targets.
+    /// @param Buffer The buffer storing the reparse point.
+    /// @return Returns the Print Name of the Symlink.
+    [[nodiscard]]
     String ExtractSymlinkPrintName(REPARSE_DATA_BUFFER* Buffer)
     {
         size_t PrintLength = Buffer->SymbolicLinkReparseBuffer.PrintNameLength / sizeof(WCHAR);
@@ -156,6 +163,11 @@ namespace
         return ConvertToNarrowString(&Buffer->SymbolicLinkReparseBuffer.PathBuffer[PrintOffset],PrintLength);
     }
 
+    /// @brief Gets the Substitute Name of the Symlink from a Reparse Data Buffer.
+    /// @remarks The Substitute Name is a possibly human unfriendly path that may exist in a DOS device namespace.
+    /// @param Buffer The buffer storing the reparse point.
+    /// @return Returns the Substitute Name of the Symlink.
+    [[nodiscard]]
     String ExtractSymlinkSubstituteName(REPARSE_DATA_BUFFER* Buffer)
     {
         size_t SubLength = Buffer->SymbolicLinkReparseBuffer.SubstituteNameLength / sizeof(WCHAR);
@@ -169,6 +181,10 @@ namespace
         }
     }
 
+    /// @brief Gets the target of a Symlink.
+    /// @param Link The name of the Link.
+    /// @return Returns a String containing the target of the Symlink.
+    [[nodiscard]]
     String ReadSymlinkTarget(const StringView Link)
     {
         String Ret;
@@ -210,6 +226,7 @@ namespace
     /// @brief Converts the system error number to a Mezzanine ModifyResult.
     /// @param err The system error to be converted.
     /// @return Returns a ModifyResult value corresponding to the system error code.
+    [[nodiscard]]
     Filesystem::ModifyResult ConvertErrNo(DWORD err)
     {
         switch( err )
@@ -236,6 +253,7 @@ namespace
     /// @brief Converts the system error number to a Mezzanine ModifyResult.
     /// @param err The system error to be converted.
     /// @return Returns a ModifyResult value corresponding to the system error code.
+    [[nodiscard]]
     Filesystem::ModifyResult ConvertErrNo(int err)
     {
         switch( err )
@@ -487,31 +505,29 @@ namespace Filesystem {
     ModifyResult CreateDirectoryPath(const StringView DirectoryPath)
     {
         ModifyResult Result = ModifyResult::Success;
-    #ifdef MEZZ_Windows
-        StringVector FolderVec = StringTools::Split(DirectoryPath,"/\\");
-    #else // MEZZ_Windows
-        StringVector FolderVec = StringTools::Split(DirectoryPath,"/");
-    #endif // MEZZ_Windows
         size_t VecIndex = 0;
         String PathAttempt;
-        Char8 SysSlash = GetDirectorySeparator_Host();
+
     #ifdef MEZZ_Windows
+        StringVector FolderVec = StringTools::Split(DirectoryPath,"/\\");
         // For windows and windows like machines, see if the first entry is a drive.
         if( IsPathAbsolute_Host(DirectoryPath) ) {
             PathAttempt.append( FolderVec.at(0) );
-            PathAttempt.append( 1, SysSlash );
+            PathAttempt.append( 1, GetDirectorySeparator_Host() );
             VecIndex++;
         }
     #else // MEZZ_Windows
+        StringVector FolderVec = StringTools::Split(DirectoryPath,"/");
         if( IsPathAbsolute_Host(DirectoryPath) ) {
-            PathAttempt.append( 1, SysSlash );
+            PathAttempt.append( 1, GetDirectorySeparator_Host() );
         }
     #endif // MEZZ_Windows
+
         while( ( Result == ModifyResult::Success || Result == ModifyResult::AlreadyExists )
                && VecIndex < FolderVec.size() )
         {
             PathAttempt.append( FolderVec.at(VecIndex) );
-            PathAttempt.append( 1, SysSlash );
+            PathAttempt.append( 1, GetDirectorySeparator_Host() );
             if( !Filesystem::IsDotSegment( FolderVec.at(VecIndex) ) ) {
                 Result = Filesystem::CreateDirectory( PathAttempt );
             }

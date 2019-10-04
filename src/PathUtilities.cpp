@@ -59,9 +59,9 @@ namespace
         {
             if( DirSep.find_first_of(*StrIt) != StringView::npos ) {
                 if( TempDir == ".." ) {
-                    Depth -= 1;
+                    Depth--;
                 }else if( !TempDir.empty() && TempDir != "." ) {
-                    Depth += 1;
+                    Depth++;
                 }
                 TempDir.clear();
 
