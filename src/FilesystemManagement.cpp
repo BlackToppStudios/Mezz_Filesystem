@@ -70,6 +70,11 @@
 
 #include "PlatformUndefs.h"
 
+// Are you shitting me, Windows?!
+#ifdef max
+#undef max
+#endif // max
+
 namespace
 {
     using namespace Mezzanine;
