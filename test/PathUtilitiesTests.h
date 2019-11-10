@@ -41,7 +41,7 @@
 #define Mezz_Filesystem_PathUtilitiesTests_h
 
 /// @file
-/// @brief This file tests of some utilities that work with Strings relating to a resource path.
+/// @brief This file tests utilities that work with Strings relating to a resource path.
 
 #include "MezzTest.h"
 
@@ -94,6 +94,12 @@ AUTOMATIC_TEST_GROUP(PathUtilitiesTests,PathUtilities)
         TEST_EQUAL("GetBaseName(const_StringView)-UnixDir",
                    "",Filesystem::GetBaseName(String("/a/b/c/")));
     }// Dir and Base Name
+
+    {// Dot Segment Checks
+        TEST_EQUAL("IsDotSegment(const_StringView)-SingleDot",true,Filesystem::IsDotSegment("."));
+        TEST_EQUAL("IsDotSegment(const_StringView)-DoubleDot",true,Filesystem::IsDotSegment(".."));
+        TEST_EQUAL("IsDotSegment(const_StringView)-NotADot",false,Filesystem::IsDotSegment("Hello"));
+    }// Dot Segment Checks
 
     {// Separators
         TEST_EQUAL("IsDirectorySeparator(const_T)-Pass",true,Filesystem::IsDirectorySeparator('/'));
@@ -269,16 +275,16 @@ AUTOMATIC_TEST_GROUP(PathUtilitiesTests,PathUtilities)
 
         TEST_THROW("IsSubPath_Posix(const_StringView,const_StringView)-Absolute/Relative-Throw",
                    std::runtime_error,
-                   [&](){ Filesystem::IsSubPath_Posix(BaseDirOne,"relative/path/"); });
+                   [&](){ static_cast<void>( Filesystem::IsSubPath_Posix(BaseDirOne,"relative/path/") ); });
         TEST_THROW("IsSubPath_Posix(const_StringView,const_StringView)-Relative/Absolute-Throw",
                    std::runtime_error,
-                   [&](){ Filesystem::IsSubPath_Posix(BaseDirTwo,"/absolute/path/"); });
+                   [&](){ static_cast<void>( Filesystem::IsSubPath_Posix(BaseDirTwo,"/absolute/path/") ); });
         TEST_THROW("IsSubPath_Windows(const_StringView,const_StringView)-Absolute/Relative-Throw",
                    std::runtime_error,
-                   [&](){ Filesystem::IsSubPath_Windows(BaseDirThree,"relative\\path\\"); });
+                   [&](){ static_cast<void>( Filesystem::IsSubPath_Windows(BaseDirThree,"relative\\path\\") ); });
         TEST_THROW("IsSubPath_Windows(const_StringView,const_StringView)-Relative/Absolute-Throw",
                    std::runtime_error,
-                   [&](){ Filesystem::IsSubPath_Windows(BaseDirFour,"C:\\absolute\\path\\"); });
+                   [&](){ static_cast<void>( Filesystem::IsSubPath_Windows(BaseDirFour,"C:\\absolute\\path\\") ); });
     }// Path Checks
 
     {// Path Utilities
