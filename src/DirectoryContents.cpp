@@ -190,7 +190,7 @@ namespace
         Ret |= static_cast<UInt32>( Perms & S_IRWXU );
         return Ret;
     }
-    /// @brief Converts Mezzanine file permissions to posix permissions
+    /*/// @brief Converts Mezzanine file permissions to posix permissions
     /// @param Perms The permissions to be converted.
     /// @return Returns a mode_t bitmask containing the converted file permissions.
     [[nodiscard]]
@@ -201,30 +201,30 @@ namespace
         Ret |= static_cast<mode_t>( Perms & static_cast<UInt32>(FilePermissions::Group_All) );
         Ret |= static_cast<mode_t>( Perms & static_cast<UInt32>(FilePermissions::Owner_All) );
         return Ret;
-    }
+    }//*/
     /// @brief Transposes all data from the Posix OS entry to a Mezzanine entry.
     /// @param Original The entry produced by the OS to be transposed.
     /// @param NewEntry The new Mezzanine entry to transpose to.
     void TransposeEntry(const struct stat& Original, ArchiveEntry& NewEntry) noexcept
     {
-        NewEntry.CreateTime = ConvertTime( FileStat.st_ctime );
-        NewEntry.AccessTime = ConvertTime( FileStat.st_atime );
-        NewEntry.ModifyTime = ConvertTime( FileStat.st_mtime );
-        NewEntry.Permissions = ConvertPosixPermissions(FileStat.st_mode);
+        NewEntry.CreateTime = static_cast<UInt64>( Original.st_ctime );
+        NewEntry.AccessTime = static_cast<UInt64>( Original.st_atime );
+        NewEntry.ModifyTime = static_cast<UInt64>( Original.st_mtime );
+        NewEntry.Permissions = ConvertPosixPermissions(Original.st_mode);
 
-        if( S_ISDIR(FileStat.st_mode) ) {
+        if( S_ISDIR(Original.st_mode) ) {
             NewEntry.Entry = EntryType::Directory;
         }else{
-            if( S_ISLNK(FileStat.st_mode) ) {
+            if( S_ISLNK(Original.st_mode) ) {
                 NewEntry.Entry = EntryType::Symlink;
-            }else if( S_ISREG(FileStat.st_mode) ) {
+            }else if( S_ISREG(Original.st_mode) ) {
                 NewEntry.Entry = EntryType::File;
             }else{
                 // I dunno wtf we found
                 return;
             }
 
-            NewEntry.Size = FileStat.st_size;
+            NewEntry.Size = Original.st_size;
         }
     }
 #endif // MEZZ_Windows
@@ -267,7 +267,6 @@ namespace Filesystem {
         struct dirent* DirEntry;
         DIR* Directory = ::opendir( DirectoryPath.data() );
         if( Directory ) {
-            struct stat FileStat;
             while( ( DirEntry = ::readdir(Directory) ) )
             {
                 String EntryName = DirEntry->d_name;
