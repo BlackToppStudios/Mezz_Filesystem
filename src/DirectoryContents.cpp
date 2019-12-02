@@ -182,7 +182,7 @@ namespace
     /// @param Perms The permissions to be converted.
     /// @return Returns a UInt32 bitmask containing the converted file permissions.
     [[nodiscard]]
-    UInt32 ConvertPermissions(const mode_t Perms) noexcept
+    UInt32 ConvertPosixPermissions(const mode_t Perms) noexcept
     {
         UInt32 Ret = 0;
         Ret |= static_cast<UInt32>( Perms & S_IRWXO );
@@ -194,12 +194,12 @@ namespace
     /// @param Perms The permissions to be converted.
     /// @return Returns a mode_t bitmask containing the converted file permissions.
     [[nodiscard]]
-    mode_t ConvertPermissions(const UInt32 Perms) noexcept
+    mode_t ConvertMezzPermissions(const UInt32 Perms) noexcept
     {
         mode_t Ret = 0;
-        Ret |= static_cast<mode_t>( Perms & Resource::FP_Other );
-        Ret |= static_cast<mode_t>( Perms & Resource::FP_Group );
-        Ret |= static_cast<mode_t>( Perms & Resource::FP_Owner );
+        Ret |= static_cast<mode_t>( Perms & FilePermissions::Other_All );
+        Ret |= static_cast<mode_t>( Perms & FilePermissions::Group_All );
+        Ret |= static_cast<mode_t>( Perms & FilePermissions::Owner_All );
         return Ret;
     }
     /// @brief Transposes all data from the Posix OS entry to a Mezzanine entry.
@@ -210,18 +210,18 @@ namespace
         NewEntry.CreateTime = ConvertTime( FileStat.st_ctime );
         NewEntry.AccessTime = ConvertTime( FileStat.st_atime );
         NewEntry.ModifyTime = ConvertTime( FileStat.st_mtime );
-        NewEntry.Attributes = ConvertPermissions(FileStat.st_mode);
+        NewEntry.Attributes = ConvertPosixPermissions(FileStat.st_mode);
 
         if( S_ISDIR(FileStat.st_mode) ) {
-            NewEntry.EntType = Resource::ET_Directory;
+            NewEntry.EntType = EntryType::Directory;
         }else{
             if( S_ISLNK(FileStat.st_mode) ) {
-                NewEntry.EntType = Resource::ET_Symlink;
-            }else if( S_ISREG(FileStat.st_mode) ) { // if( FileData.dwFileAttributes &  ) {
-                NewEntry.EntType = Resource::ET_File;
+                NewEntry.EntType = EntryType::Symlink;
+            }else if( S_ISREG(FileStat.st_mode) ) {
+                NewEntry.EntType = EntryType::File;
             }else{
                 // I dunno wtf we found
-                continue;
+                return;
             }
 
             NewEntry.Size = FileStat.st_size;
@@ -249,7 +249,7 @@ namespace Filesystem {
         HANDLE FileHandle = INVALID_HANDLE_VALUE;
 
         WideString ConvertedPath = PreparePathForWindows(DirectoryPath);
-        FileHandle = ::FindFirstFileW( ConvertedPath.c_str(), &FileData );
+        FileHandle = ::FindFirstFileW( ConvertedPath.data(), &FileData );
         if( FileHandle == INVALID_HANDLE_VALUE ) {
             return Ret;
         }
@@ -265,7 +265,7 @@ namespace Filesystem {
         ::FindClose(FileHandle);
     #else
         struct dirent* DirEntry;
-        DIR* Directory = ::opendir( DirectoryPath.c_str() );
+        DIR* Directory = ::opendir( DirectoryPath.data() );
         if( Directory ) {
             stat FileStat;
             while( ( DirEntry = ::readdir(Directory) ) )
@@ -293,7 +293,7 @@ namespace Filesystem {
         HANDLE FileHandle = INVALID_HANDLE_VALUE;
 
         WideString ConvertedPath = PreparePathForWindows(DirectoryPath);
-        FileHandle = ::FindFirstFileW( ConvertedPath.c_str(), &FileData );
+        FileHandle = ::FindFirstFileW( ConvertedPath.data(), &FileData );
         if( FileHandle == INVALID_HANDLE_VALUE ) {
             return Ret;
         }
@@ -313,7 +313,7 @@ namespace Filesystem {
         ::FindClose(FileHandle);
     #else
         struct dirent* DirEntry;
-        DIR* Directory = ::opendir( DirectoryPath.c_str() );
+        DIR* Directory = ::opendir( DirectoryPath.data() );
         if( Directory ) {
             stat FileStat;
             while( ( DirEntry = ::readdir(Directory) ) )
@@ -328,7 +328,7 @@ namespace Filesystem {
                     continue;
                 }
 
-                NewEntry.ArchType = Resource::AT_FileSystem;
+                NewEntry.ArchType = ArchiveType::FileSystem;
                 TransposeEntry(FileStat,NewEntry);
                 Ret.push_back(NewEntry);
             }
