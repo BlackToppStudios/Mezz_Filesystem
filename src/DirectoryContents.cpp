@@ -197,28 +197,28 @@ namespace
     mode_t ConvertMezzPermissions(const UInt32 Perms) noexcept
     {
         mode_t Ret = 0;
-        Ret |= static_cast<mode_t>( Perms & FilePermissions::Other_All );
-        Ret |= static_cast<mode_t>( Perms & FilePermissions::Group_All );
-        Ret |= static_cast<mode_t>( Perms & FilePermissions::Owner_All );
+        Ret |= static_cast<mode_t>( Perms & static_cast<UInt32>(FilePermissions::Other_All) );
+        Ret |= static_cast<mode_t>( Perms & static_cast<UInt32>(FilePermissions::Group_All) );
+        Ret |= static_cast<mode_t>( Perms & static_cast<UInt32>(FilePermissions::Owner_All) );
         return Ret;
     }
     /// @brief Transposes all data from the Posix OS entry to a Mezzanine entry.
     /// @param Original The entry produced by the OS to be transposed.
     /// @param NewEntry The new Mezzanine entry to transpose to.
-    void TransposeEntry(const stat& Original, ArchiveEntry& NewEntry) noexcept
+    void TransposeEntry(const struct stat& Original, ArchiveEntry& NewEntry) noexcept
     {
         NewEntry.CreateTime = ConvertTime( FileStat.st_ctime );
         NewEntry.AccessTime = ConvertTime( FileStat.st_atime );
         NewEntry.ModifyTime = ConvertTime( FileStat.st_mtime );
-        NewEntry.Attributes = ConvertPosixPermissions(FileStat.st_mode);
+        NewEntry.Permissions = ConvertPosixPermissions(FileStat.st_mode);
 
         if( S_ISDIR(FileStat.st_mode) ) {
-            NewEntry.EntType = EntryType::Directory;
+            NewEntry.Entry = EntryType::Directory;
         }else{
             if( S_ISLNK(FileStat.st_mode) ) {
-                NewEntry.EntType = EntryType::Symlink;
+                NewEntry.Entry = EntryType::Symlink;
             }else if( S_ISREG(FileStat.st_mode) ) {
-                NewEntry.EntType = EntryType::File;
+                NewEntry.Entry = EntryType::File;
             }else{
                 // I dunno wtf we found
                 return;
@@ -267,7 +267,7 @@ namespace Filesystem {
         struct dirent* DirEntry;
         DIR* Directory = ::opendir( DirectoryPath.data() );
         if( Directory ) {
-            stat FileStat;
+            struct stat FileStat;
             while( ( DirEntry = ::readdir(Directory) ) )
             {
                 String EntryName = DirEntry->d_name;
@@ -315,7 +315,7 @@ namespace Filesystem {
         struct dirent* DirEntry;
         DIR* Directory = ::opendir( DirectoryPath.data() );
         if( Directory ) {
-            stat FileStat;
+            struct stat FileStat;
             while( ( DirEntry = ::readdir(Directory) ) )
             {
                 if( ::stat(DirEntry->d_name,&FileStat) ) {
@@ -328,7 +328,7 @@ namespace Filesystem {
                     continue;
                 }
 
-                NewEntry.ArchType = ArchiveType::FileSystem;
+                NewEntry.Archive = ArchiveType::FileSystem;
                 TransposeEntry(FileStat,NewEntry);
                 Ret.push_back(NewEntry);
             }
