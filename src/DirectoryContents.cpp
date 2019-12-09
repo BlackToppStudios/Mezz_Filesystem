@@ -319,7 +319,7 @@ namespace Filesystem {
             struct stat FileStat;
             while( ( DirEntry = ::readdir(Directory) ) )
             {
-                if( ::stat(DirEntry->d_name,&FileStat) != 0 ) {
+                if( ::stat(DirEntry->d_name,&FileStat) == -1 ) {
                     continue;
                 }
 
