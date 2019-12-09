@@ -314,9 +314,9 @@ namespace Filesystem {
             struct stat FileStat;
             while( ( DirEntry = ::readdir(Directory) ) )
             {
-                String FullPath = DirectoryPath;
-                if( IsDirectorySeparator_Posix( FullPath.back() ) ) {
-                    FullPath.append( GetDirectorySeparator_Posix() );
+                String FullPath(DirectoryPath.data(),DirectoryPath.size());
+                if( !IsDirectorySeparator_Posix( FullPath.back() ) ) {
+                    FullPath.push_back( GetDirectorySeparator_Posix() );
                 }
                 FullPath.append(DirEntry->d_name);
 
