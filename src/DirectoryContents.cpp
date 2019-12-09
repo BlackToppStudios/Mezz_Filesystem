@@ -47,6 +47,8 @@
 #include "DirectoryContents.h"
 #include "StringTools.h"
 
+#include <iostream>
+
 #ifdef MEZZ_Windows
     #define WIN32_LEAN_AND_MEAN
 
