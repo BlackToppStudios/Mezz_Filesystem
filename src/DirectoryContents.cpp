@@ -48,8 +48,6 @@
 #include "PathUtilities.h"
 #include "StringTools.h"
 
-#include <iostream>
-
 #ifdef MEZZ_Windows
     #define WIN32_LEAN_AND_MEAN
 
@@ -233,12 +231,6 @@ namespace
         }
     }
 #endif // MEZZ_Windows
-    /// @brief Checks to see if the String is a dot segment.
-    /// @param ToCheck The String to be checked.
-    /// @return Returns true if the String is "." or "..", false otherwise.
-    [[nodiscard]]
-    Boole IsDotSegment(const StringView ToCheck) noexcept
-        { return ToCheck == "." || ToCheck == ".."; }
 }
 
 namespace Mezzanine {
