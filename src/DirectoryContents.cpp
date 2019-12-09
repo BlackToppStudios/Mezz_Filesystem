@@ -314,23 +314,30 @@ namespace Filesystem {
         ::FindClose(FileHandle);
     #else
         struct dirent* DirEntry;
+        std::cout << "Checking for the existence of directory \"" << DirectoryPath << "\"\n";
         DIR* Directory = ::opendir( DirectoryPath.data() );
         if( Directory ) {
+            std::cout << "\"" << DirectoryPath << "\" exists!\n";
             struct stat FileStat;
             while( ( DirEntry = ::readdir(Directory) ) )
             {
+                std::cout << "stat'ing \"" << DirEntry->d_name << "\".\n";
                 if( ::stat(DirEntry->d_name,&FileStat) == -1 ) {
+                    std::cout << "stat for \"" << DirEntry->d_name << "\" failed.\n";
                     continue;
                 }
 
                 ArchiveEntry NewEntry;
                 NewEntry.Name = DirEntry->d_name;
+                std::cout << "Checking to see if \"" << DirEntry->d_name << "\" is a dot segment.\n";
                 if( IsDotSegment(NewEntry.Name) ) {
+                    std::cout << "\"" << DirEntry->d_name << "\" is in fast a dot segment.\n";
                     continue;
                 }
 
                 NewEntry.Archive = ArchiveType::FileSystem;
                 TransposeEntry(FileStat,NewEntry);
+                std::cout << "Pushing \"" << DirEntry->d_name << "\" to result vector.\n";
                 Ret.push_back(NewEntry);
             }
 
