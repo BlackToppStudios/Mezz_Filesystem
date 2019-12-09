@@ -89,7 +89,7 @@ AUTOMATIC_TEST_GROUP(DirectoryContentsTests,DirectoryContents)
             return;
         }
 
-        StringVector ContentNames = std::move( Filesystem::GetDirectoryContentNames("Content/") );
+        StringVector ContentNames = Filesystem::GetDirectoryContentNames("Content/");
         TEST_EQUAL("GetDirectoryContentNames-Count",
                    size_t(5),ContentNames.size());
         TEST_EQUAL("GetDirectoryContentNames-DirFound",
@@ -141,7 +141,7 @@ AUTOMATIC_TEST_GROUP(DirectoryContentsTests,DirectoryContents)
             return;
         }
 
-        ArchiveEntryVector ContentEntries = std::move( Filesystem::GetDirectoryContents("Content/") );
+        ArchiveEntryVector ContentEntries = Filesystem::GetDirectoryContents("Content/");
         TEST_EQUAL("GetDirectoryContents-Count",
                    size_t(4),ContentEntries.size());
         ArchiveEntryIterator EntryIt = ContentEntries.end();

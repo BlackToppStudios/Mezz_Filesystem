@@ -75,7 +75,7 @@ namespace
     [[nodiscard]]
     int IntDemote(const size_t ToDemote)
     {
-        assert( ToDemote <= std::numeric_limits<int>::max() );
+        assert( ToDemote <= static_cast<size_t>( std::numeric_limits<int>::max() ) );
         return static_cast<int>(ToDemote);
     }
     /// @brief Converts a system time type to a standard time type.
