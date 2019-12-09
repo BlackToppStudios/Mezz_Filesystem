@@ -48,6 +48,8 @@
 #include "StringTools.h"
 
 #ifdef MEZZ_Windows
+    #define WIN32_LEAN_AND_MEAN
+
     #include <Windows.h>
 #else
     #include <stdio.h>
@@ -210,7 +212,7 @@ namespace
         NewEntry.CreateTime = static_cast<UInt64>( Original.st_ctime );
         NewEntry.AccessTime = static_cast<UInt64>( Original.st_atime );
         NewEntry.ModifyTime = static_cast<UInt64>( Original.st_mtime );
-        NewEntry.Permissions = ConvertPosixPermissions(Original.st_mode);
+        NewEntry.Permissions = static_cast<FilePermissions>( ConvertPosixPermissions(Original.st_mode) );
 
         if( S_ISDIR(Original.st_mode) ) {
             NewEntry.Entry = EntryType::Directory;
@@ -224,7 +226,7 @@ namespace
                 return;
             }
 
-            NewEntry.Size = Original.st_size;
+            NewEntry.Size = static_cast<UInt64>(Original.st_size);
         }
     }
 #endif // MEZZ_Windows
