@@ -41,6 +41,7 @@
 #include "CrossPlatformExport.h"
 
 #ifdef MEZZ_Windows
+    // We want Windows Vista APIs and up.
     #define _WIN32_WINNT 0x0601
 #endif
 
@@ -54,13 +55,7 @@
 #ifdef MEZZ_Windows
     #define WIN32_LEAN_AND_MEAN
 
-    SAVE_WARNING_STATE
-    // This warning is raised when an undefined preprocessor is used in code, which is converted to false.
-    //SUPPRESS_VC_WARNING(4668)
-
     #include <Windows.h>
-
-    RESTORE_WARNING_STATE
 #else
     #include <stdio.h>
     #include <sys/stat.h>
