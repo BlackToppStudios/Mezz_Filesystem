@@ -41,6 +41,7 @@
 #include "CrossPlatformExport.h"
 
 #ifdef MEZZ_Windows
+    // We want Windows Vista APIs and up.
     #define _WIN32_WINNT 0x0601
 #endif
 
@@ -285,7 +286,6 @@ namespace Filesystem {
         ArchiveEntryVector Ret;
     #ifdef MEZZ_Windows
         WIN32_FIND_DATAW FileData;
-        //LARGE_INTEGER FileSizeConverter;
         HANDLE FileHandle = INVALID_HANDLE_VALUE;
 
         WideString ConvertedPath = PreparePathForWindows(DirectoryPath);

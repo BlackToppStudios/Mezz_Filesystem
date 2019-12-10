@@ -41,6 +41,7 @@
 #include "CrossPlatformExport.h"
 
 #ifdef MEZZ_Windows
+    // We want Windows Vista APIs and up.
     #define _WIN32_WINNT 0x0601
 #endif
 
