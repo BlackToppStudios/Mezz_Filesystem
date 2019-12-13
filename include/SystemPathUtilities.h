@@ -41,7 +41,7 @@
 #define Mezz_Filesystem_SystemPathUtilities_h
 
 #ifndef SWIG
-    #include "Datatypes.h"
+    #include "DataTypes.h"
 #endif
 
 namespace Mezzanine {
