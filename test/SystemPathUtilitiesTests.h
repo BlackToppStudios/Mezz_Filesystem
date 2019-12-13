@@ -78,7 +78,11 @@ AUTOMATIC_TEST_GROUP(SystemPathUtilitiesTests,SystemPathUtilities)
             Cmd.append(" > CommandResults.txt");
             system(Cmd.data());
             std::ifstream ResultFile("CommandResults.txt");
-            return String( std::istreambuf_iterator<char>(ResultFile), {} );
+            String Ret( std::istreambuf_iterator<char>(ResultFile), {} );
+            if( StringTools::IsNewline( Ret.back() ) ) {
+                Ret.pop_back();
+            }
+            return Ret;
         };
     #ifdef MEZZ_Windows
         String SysWhichcmd = GetCommandResults("where cmd");
@@ -87,10 +91,6 @@ AUTOMATIC_TEST_GROUP(SystemPathUtilitiesTests,SystemPathUtilities)
         // returning "C:/Windows/system32" instead of "C:/Windows/System32".
         StringTools::ToLowerCase(SysWhichcmd.begin(),SysWhichcmd.end());
         StringTools::ToLowerCase(MezzWhichcmd.begin(),MezzWhichcmd.end());
-        // where seems to like to insert newlines at the end of it's results, even if it's only one.
-        if( StringTools::IsNewline( SysWhichcmd.back() ) ) {
-            SysWhichcmd.pop_back();
-        }
         TEST_EQUAL("Which(const_StringView)-cmd",SysWhichcmd,MezzWhichcmd);
     #else
         String SysWhichls = GetCommandResults("which ls");
