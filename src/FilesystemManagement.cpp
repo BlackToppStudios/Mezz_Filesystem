@@ -241,7 +241,19 @@ namespace
             case ERROR_PRIVILEGE_NOT_HELD: return Filesystem::ModifyResult::PrivilegeNotHeld;
             case ERROR_PATH_BUSY:          return Filesystem::ModifyResult::CurrentlyBusy;
             case ERROR_REQUEST_ABORTED:    return Filesystem::ModifyResult::OperationCanceled;
-            default:                       return Filesystem::ModifyResult::Unknown;
+            default:
+            {
+                wchar_t WideBuffer[256];
+                FormatMessageW(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
+                               nullptr,
+                               err,
+                               MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
+                               WideBuffer,
+                               sizeof(WideBuffer) / sizeof(wchar_t),
+                               nullptr);
+                std::cerr << "Filesystem Modification failed: " << err << "\n" << WideBuffer << "\n";
+                return Filesystem::ModifyResult::Unknown;
+            }
         }
     }
 #else // MEZZ_Windows
