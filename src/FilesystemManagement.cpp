@@ -283,7 +283,7 @@ namespace
             case EMLINK:        return Filesystem::ModifyResult::MaxLinksExceeded;
             case EBUSY:         return Filesystem::ModifyResult::CurrentlyBusy;
             case ECANCELED:     return Filesystem::ModifyResult::OperationCanceled;
-            default:            return Filesystem::ModifyResult::Unknown;
+            default:
             {
                 std::stringstream ErrorStream;
                 ErrorStream << "Filesystem Modification failed: " << err << "\n" << strerror(err) << "\n";
