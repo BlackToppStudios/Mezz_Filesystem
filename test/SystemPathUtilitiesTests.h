@@ -76,7 +76,7 @@ AUTOMATIC_TEST_GROUP(SystemPathUtilitiesTests,SystemPathUtilities)
     {//Which
         auto GetCommandResults = [](String Cmd) -> String {
             Cmd.append(" > CommandResults.txt");
-            system(Cmd.data());
+            static_cast<void>( system( Cmd.data() ) );
             std::ifstream ResultFile("CommandResults.txt");
             String Ret( std::istreambuf_iterator<char>(ResultFile), {} );
             if( StringTools::IsNewline( Ret.back() ) ) {
