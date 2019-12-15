@@ -251,7 +251,7 @@ namespace
                                WideBuffer,
                                sizeof(WideBuffer) / sizeof(wchar_t),
                                nullptr);
-                std::cerr << "Filesystem Modification failed: " << err << "\n" << WideBuffer << "\n";
+                std::wcerr << "Filesystem Modification failed: " << err << "\n" << WideBuffer << "\n";
                 return Filesystem::ModifyResult::Unknown;
             }
         }
@@ -282,6 +282,10 @@ namespace
             case EBUSY:         return Filesystem::ModifyResult::CurrentlyBusy;
             case ECANCELED:     return Filesystem::ModifyResult::OperationCanceled;
             default:            return Filesystem::ModifyResult::Unknown;
+            {
+                std::cerr << "Filesystem Modification failed: " << err << "\n" << strerror(err) << "\n";
+                return Filesystem::ModifyResult::Unknown;
+            }
         }
     }
 #endif // MEZZ_Windows
