@@ -251,7 +251,9 @@ namespace
                                WideBuffer,
                                sizeof(WideBuffer) / sizeof(wchar_t),
                                nullptr);
-                std::wcerr << "Filesystem Modification failed: " << err << "\n" << WideBuffer << "\n";
+                std::wstringstream ErrorStream;
+                ErrorStream << "Filesystem Modification failed: " << err << "\n" << WideBuffer << "\n";
+                std::wcerr << ErrorStream.str();
                 return Filesystem::ModifyResult::Unknown;
             }
         }
@@ -283,7 +285,9 @@ namespace
             case ECANCELED:     return Filesystem::ModifyResult::OperationCanceled;
             default:            return Filesystem::ModifyResult::Unknown;
             {
-                std::cerr << "Filesystem Modification failed: " << err << "\n" << strerror(err) << "\n";
+                std::stringstream ErrorStream;
+                ErrorStream << "Filesystem Modification failed: " << err << "\n" << strerror(err) << "\n";
+                std::cerr << ErrorStream.str();
                 return Filesystem::ModifyResult::Unknown;
             }
         }
