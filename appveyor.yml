@@ -28,7 +28,7 @@ build_script:
 
 test_script:
   - cmd: cd C:\projects\Mezz_Filesystem\build
-  - cmd: Filesystem_Tester xml
+  - cmd: Filesystem_Tester debugtests xml
 
 notifications:
 - provider: Email
