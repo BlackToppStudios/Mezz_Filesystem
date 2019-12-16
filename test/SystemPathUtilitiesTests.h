@@ -73,6 +73,7 @@ AUTOMATIC_TEST_GROUP(SystemPathUtilitiesTests,SystemPathUtilities)
         TEST_EQUAL("GetSystemPATH(const_StringView)-Element3",String(""),SplitPosixPath[2]);
     }//GetSystemPATH
 
+#ifndef MEZZ_CompilerIsEmscripten
     {//Which
         auto GetCommandResults = [](String Cmd) -> String {
             Cmd.append(" > CommandResults.txt");
@@ -101,12 +102,11 @@ AUTOMATIC_TEST_GROUP(SystemPathUtilitiesTests,SystemPathUtilities)
         TEST_EQUAL("Which(const_StringView)-ls",SysWhichls,MezzWhichls);
     #endif
 
-        Filesystem::ModifyResult CleanupResult = Filesystem::RemoveFile("CommandResults.txt");
-        if( CleanupResult == false ) {
-            TestLog << "Cleanup Error: " << CleanupResult << ".";
+        if( Filesystem::RemoveFile("CommandResults.txt") == false ) {
             TEST_RESULT("CommandResults-CleanupFailed",Testing::TestResult::Warning);
         }
     }//Which
+#endif
 }
 
 #endif
