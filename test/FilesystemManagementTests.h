@@ -93,11 +93,8 @@ AUTOMATIC_TEST_GROUP(FilesystemManagementTests,FilesystemManagement)
         {// Test file creation
             std::ofstream UtilityFile;
             UtilityFile.open(UtilityTestFile,std::ios_base::out | std::ios_base::trunc);
-            UtilityFile << "I exist!";
+            UtilityFile << "I exist! But being without thought is my existence merely subjective?";
             UtilityFile.close();
-            if( UtilityFile.fail() ) {
-                TEST_RESULT("FileManagement-TestFileCloseFailure",Testing::TestResult::Failed);
-            }
         }// Test file creation
 
         TEST_EQUAL("FileExists(const_StringView)-PassCheck",

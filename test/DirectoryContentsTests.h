@@ -52,8 +52,8 @@ AUTOMATIC_TEST_GROUP(DirectoryContentsTests,DirectoryContents)
 {
     using namespace Mezzanine;
 
-    String FileData1 = "This is a simple test file.";
-    String FileData2 = "This is a larger test file text for testing.";
+    String FileData1 = "This is a simple test file, with some length.";
+    String FileData2 = "This is a larger test file text for testing larger files.";
     String FileData3 = "How much wood would a woodchuck chuck if a woodchuck could chuck wood?";
     String FileData4 = "When in the Course of human events, it becomes necessary for one people to dissolve "
                        "the political bands which have connected them with another, and to assume among the "
