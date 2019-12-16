@@ -93,7 +93,7 @@ AUTOMATIC_TEST_GROUP(FilesystemManagementTests,FilesystemManagement)
         {// Test file creation
             std::ofstream UtilityFile;
             UtilityFile.open(UtilityTestFile,std::ios_base::out | std::ios_base::trunc);
-            UtilityFile << "I exist! But being without thought is my existence merely subjective?";
+            UtilityFile << "I exist! Temporarily! For this test! Then poof!";
             UtilityFile.close();
         }// Test file creation
 
