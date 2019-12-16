@@ -87,8 +87,6 @@ AUTOMATIC_TEST_GROUP(FilesystemManagementTests,FilesystemManagement)
             if( UtilityFileDetect ) {
                 // Uh oh, we didn't clean up from the previous run.  Probably.
                 TEST_RESULT("FileManagement-VerifyPreviousRunCleanup",Testing::TestResult::Failed);
-            }else{
-                TEST_RESULT("FileManagement-VerifyPreviousRunCleanup",Testing::TestResult::Success);
             }
             UtilityFileDetect.close();
         }// File Detection Test using ifstream
@@ -96,6 +94,10 @@ AUTOMATIC_TEST_GROUP(FilesystemManagementTests,FilesystemManagement)
             std::ofstream UtilityFile;
             UtilityFile.open(UtilityTestFile,std::ios_base::out | std::ios_base::trunc);
             UtilityFile << "I exist!";
+            UtilityFile.close();
+            if( UtilityFile.fail() ) {
+                TEST_RESULT("FileManagement-TestFileCloseFailure",Testing::TestResult::Failed);
+            }
         }// Test file creation
 
         TEST_EQUAL("FileExists(const_StringView)-PassCheck",

@@ -64,7 +64,7 @@ namespace Filesystem {
         ReadOnly,          ///< The filesystem only permits read operations.
         // Directory Errors
         NotADirectory,     ///< The path was expected to direct to a directory, but doesn't.
-        IsADirectory,      ///< The path was expected to direct to non-directory link, but does.
+        IsADirectory,      ///< The path was expected to direct to a non-directory link, but does.
         NotEmpty,          ///< The directory specified is not empty.
         // Other Errors
         IOError,           ///< There was a hardware I/O error while completing the operation.
