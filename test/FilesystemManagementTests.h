@@ -69,13 +69,13 @@ AUTOMATIC_TEST_GROUP(FilesystemManagementTests,FilesystemManagement)
 
     {// Basic File Management
     #ifdef MEZZ_CompilerIsEmscripten
-        const String UtilityTestFile("UtilityTestFile.txt");
+        const String UtilityTestFile("UtilityTestOriginal.txt");
         const String UtilityTestCopy("UtilityTestCopy.txt");
         const String MoveTargetDir("MoveTarget/");
         const String MovedTestCopy("MoveTarget/UtilityTestCopy.txt");
         const String MovedRenamedTestCopy("MoveTarget/RenamedCopy.txt");
     #else
-        const String UtilityTestFile("./UtilityTestFile.txt");
+        const String UtilityTestFile("./UtilityTestOriginal.txt");
         const String UtilityTestCopy("./UtilityTestCopy.txt");
         const String MoveTargetDir("./MoveTarget/");
         const String MovedTestCopy("./MoveTarget/UtilityTestCopy.txt");
