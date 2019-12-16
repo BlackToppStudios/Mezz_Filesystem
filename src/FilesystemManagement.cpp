@@ -243,6 +243,7 @@ namespace
             case ERROR_REQUEST_ABORTED:    return Filesystem::ModifyResult::OperationCanceled;
             default:
             {
+            #ifdef MEZZ_Debug
                 wchar_t WideBuffer[256];
                 FormatMessageW(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
                                nullptr,
@@ -254,6 +255,7 @@ namespace
                 std::wstringstream ErrorStream;
                 ErrorStream << "Filesystem Modification failed: " << err << "\n" << WideBuffer << "\n";
                 std::wcerr << ErrorStream.str();
+            #endif
                 return Filesystem::ModifyResult::Unknown;
             }
         }
@@ -285,9 +287,11 @@ namespace
             case ECANCELED:     return Filesystem::ModifyResult::OperationCanceled;
             default:
             {
+            #ifdef MEZZ_Debug
                 std::stringstream ErrorStream;
                 ErrorStream << "Filesystem Modification failed: " << err << "\n" << strerror(err) << "\n";
                 std::cerr << ErrorStream.str();
+            #endif
                 return Filesystem::ModifyResult::Unknown;
             }
         }

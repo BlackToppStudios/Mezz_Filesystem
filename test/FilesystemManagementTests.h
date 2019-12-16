@@ -92,10 +92,11 @@ AUTOMATIC_TEST_GROUP(FilesystemManagementTests,FilesystemManagement)
             }
             UtilityFileDetect.close();
         }// File Detection Test using ifstream
-        std::ofstream UtilityFile;
-        UtilityFile.open(UtilityTestFile,std::ios_base::out | std::ios_base::trunc);
-        UtilityFile << "I exist!";
-        UtilityFile.close();
+        {// Test file creation
+            std::ofstream UtilityFile;
+            UtilityFile.open(UtilityTestFile,std::ios_base::out | std::ios_base::trunc);
+            UtilityFile << "I exist!";
+        }// Test file creation
 
         TEST_EQUAL("FileExists(const_StringView)-PassCheck",
                    true,Filesystem::FileExists(UtilityTestFile));
