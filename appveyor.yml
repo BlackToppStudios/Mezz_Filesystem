@@ -28,9 +28,9 @@ build_script:
 
 test_script:
   - cmd: cd C:\projects\Mezz_Filesystem\build
-  # 'this process' is required to prevent appveyor build failures related to
+  # 'debugtests' is required to prevent appveyor build failures related to
   # the number of file handles being tested at the same time.
-  - cmd: Filesystem_Tester thisprocess xml
+  - cmd: Filesystem_Tester debugtests xml
 
 notifications:
 - provider: Email
