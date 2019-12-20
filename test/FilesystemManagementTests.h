@@ -69,13 +69,13 @@ AUTOMATIC_TEST_GROUP(FilesystemManagementTests,FilesystemManagement)
 
     {// Basic File Management
     #ifdef MEZZ_CompilerIsEmscripten
-        const String UtilityTestFile("UtilityTestFile.txt");
+        const String UtilityTestFile("UtilityTestOriginal.txt");
         const String UtilityTestCopy("UtilityTestCopy.txt");
         const String MoveTargetDir("MoveTarget/");
         const String MovedTestCopy("MoveTarget/UtilityTestCopy.txt");
         const String MovedRenamedTestCopy("MoveTarget/RenamedCopy.txt");
     #else
-        const String UtilityTestFile("./UtilityTestFile.txt");
+        const String UtilityTestFile("./UtilityTestOriginal.txt");
         const String UtilityTestCopy("./UtilityTestCopy.txt");
         const String MoveTargetDir("./MoveTarget/");
         const String MovedTestCopy("./MoveTarget/UtilityTestCopy.txt");
@@ -87,15 +87,15 @@ AUTOMATIC_TEST_GROUP(FilesystemManagementTests,FilesystemManagement)
             if( UtilityFileDetect ) {
                 // Uh oh, we didn't clean up from the previous run.  Probably.
                 TEST_RESULT("FileManagement-VerifyPreviousRunCleanup",Testing::TestResult::Failed);
-            }else{
-                TEST_RESULT("FileManagement-VerifyPreviousRunCleanup",Testing::TestResult::Success);
             }
             UtilityFileDetect.close();
         }// File Detection Test using ifstream
-        std::ofstream UtilityFile;
-        UtilityFile.open(UtilityTestFile,std::ios_base::out | std::ios_base::trunc);
-        UtilityFile << "I exist!";
-        UtilityFile.close();
+        {// Test file creation
+            std::ofstream UtilityFile;
+            UtilityFile.open(UtilityTestFile,std::ios_base::out | std::ios_base::trunc);
+            UtilityFile << "I exist! Temporarily! For this test! Then poof!";
+            UtilityFile.close();
+        }// Test file creation
 
         TEST_EQUAL("FileExists(const_StringView)-PassCheck",
                    true,Filesystem::FileExists(UtilityTestFile));

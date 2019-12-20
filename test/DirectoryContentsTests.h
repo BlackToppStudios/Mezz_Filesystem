@@ -52,8 +52,8 @@ AUTOMATIC_TEST_GROUP(DirectoryContentsTests,DirectoryContents)
 {
     using namespace Mezzanine;
 
-    String FileData1 = "This is a simple test file.";
-    String FileData2 = "This is a larger test file text for testing.";
+    String FileData1 = "This is a simple test file, with some length.";
+    String FileData2 = "This is a larger test file text for testing larger files.";
     String FileData3 = "How much wood would a woodchuck chuck if a woodchuck could chuck wood?";
     String FileData4 = "When in the Course of human events, it becomes necessary for one people to dissolve "
                        "the political bands which have connected them with another, and to assume among the "
@@ -68,19 +68,19 @@ AUTOMATIC_TEST_GROUP(DirectoryContentsTests,DirectoryContents)
 
     {// GetDirectoryContentNames
         std::ofstream NameTestFile1;
-        NameTestFile1.open("./Content/NameTestFile1.txt");
+        NameTestFile1.open("Content/NameTestFile1.txt");
         NameTestFile1 << FileData1;
         NameTestFile1.close();
         std::ofstream NameTestFile2;
-        NameTestFile2.open("./Content/NameTestFile2.txt");
+        NameTestFile2.open("Content/NameTestFile2.txt");
         NameTestFile2 << FileData2;
         NameTestFile2.close();
         std::ofstream NameTestFile3;
-        NameTestFile3.open("./Content/NameTestFile3.txt");
+        NameTestFile3.open("Content/NameTestFile3.txt");
         NameTestFile3 << FileData3;
         NameTestFile3.close();
         std::ofstream NameTestFile4;
-        NameTestFile4.open("./Content/NameTestFile4.txt");
+        NameTestFile4.open("Content/NameTestFile4.txt");
         NameTestFile4 << FileData4;
         NameTestFile4.close();
 
@@ -103,16 +103,16 @@ AUTOMATIC_TEST_GROUP(DirectoryContentsTests,DirectoryContents)
         TEST_EQUAL("GetDirectoryContentNames-FourthFound",
                    true,std::find(ContentNames.begin(),ContentNames.end(),"NameTestFile4.txt") != ContentNames.end());
 
-        if( Filesystem::RemoveFile("./Content/NameTestFile1.txt") == false ) {
+        if( Filesystem::RemoveFile("Content/NameTestFile1.txt") == false ) {
             TEST_RESULT("NameTestFile1-CleanupFailed",Testing::TestResult::Warning);
         }
-        if( Filesystem::RemoveFile("./Content/NameTestFile2.txt") == false ) {
+        if( Filesystem::RemoveFile("Content/NameTestFile2.txt") == false ) {
             TEST_RESULT("NameTestFile2-CleanupFailed",Testing::TestResult::Warning);
         }
-        if( Filesystem::RemoveFile("./Content/NameTestFile3.txt") == false ) {
+        if( Filesystem::RemoveFile("Content/NameTestFile3.txt") == false ) {
             TEST_RESULT("NameTestFile3-CleanupFailed",Testing::TestResult::Warning);
         }
-        if( Filesystem::RemoveFile("./Content/NameTestFile4.txt") == false ) {
+        if( Filesystem::RemoveFile("Content/NameTestFile4.txt") == false ) {
             TEST_RESULT("NameTestFile4-CleanupFailed",Testing::TestResult::Warning);
         }
         if( Filesystem::RemoveDirectory("Content/NameTestDir/") == false ) {
@@ -124,15 +124,15 @@ AUTOMATIC_TEST_GROUP(DirectoryContentsTests,DirectoryContents)
         using ArchiveEntryIterator = ArchiveEntryVector::iterator;
 
         std::ofstream ContentTestFile2;
-        ContentTestFile2.open("./Content/ContentTestFile2.txt");
+        ContentTestFile2.open("Content/ContentTestFile2.txt");
         ContentTestFile2 << FileData2;
         ContentTestFile2.close();
         std::ofstream ContentTestFile3;
-        ContentTestFile3.open("./Content/ContentTestFile3.txt");
+        ContentTestFile3.open("Content/ContentTestFile3.txt");
         ContentTestFile3 << FileData3;
         ContentTestFile3.close();
         std::ofstream ContentTestFile4;
-        ContentTestFile4.open("./Content/ContentTestFile4.txt");
+        ContentTestFile4.open("Content/ContentTestFile4.txt");
         ContentTestFile4 << FileData4;
         ContentTestFile4.close();
 
@@ -226,13 +226,13 @@ AUTOMATIC_TEST_GROUP(DirectoryContentsTests,DirectoryContents)
             TEST_RESULT("GetDirectoryContents-FourthSize",Testing::TestResult::Failed);
         }
 
-        if( Filesystem::RemoveFile("./Content/ContentTestFile2.txt") == false ) {
+        if( Filesystem::RemoveFile("Content/ContentTestFile2.txt") == false ) {
             TEST_RESULT("ContentTestFile1-CleanupFailed",Testing::TestResult::Warning);
         }
-        if( Filesystem::RemoveFile("./Content/ContentTestFile3.txt") == false ) {
+        if( Filesystem::RemoveFile("Content/ContentTestFile3.txt") == false ) {
             TEST_RESULT("ContentTestFile2-CleanupFailed",Testing::TestResult::Warning);
         }
-        if( Filesystem::RemoveFile("./Content/ContentTestFile4.txt") == false ) {
+        if( Filesystem::RemoveFile("Content/ContentTestFile4.txt") == false ) {
             TEST_RESULT("ContentTestFile3-CleanupFailed",Testing::TestResult::Warning);
         }
         if( Filesystem::RemoveDirectory("Content/TestDir/") == false ) {
