@@ -49,6 +49,8 @@
 #include "PathUtilities.h"
 #include "StringTools.h"
 
+#include <cstring>
+
 #ifdef MEZZ_Windows
     #define WIN32_LEAN_AND_MEAN
 
