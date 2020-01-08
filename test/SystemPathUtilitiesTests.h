@@ -73,7 +73,11 @@ AUTOMATIC_TEST_GROUP(SystemPathUtilitiesTests,SystemPathUtilities)
         TEST_EQUAL("GetSystemPATH(const_StringView)-Element3",String(""),SplitPosixPath[2]);
     }//GetSystemPATH
 
-#ifndef MEZZ_CompilerIsEmscripten
+#ifdef MEZZ_CompilerIsEmscripten
+    {//Which
+        TEST_RESULT("Which(const_StringView)",Testing::TestResult::Skipped);
+    }//Which
+#else
     {//Which
         auto GetCommandResults = [](String Cmd) -> String {
             Cmd.append(" > CommandResults.txt");
@@ -83,7 +87,7 @@ AUTOMATIC_TEST_GROUP(SystemPathUtilitiesTests,SystemPathUtilities)
         RESTORE_WARNING_STATE
             std::ifstream ResultFile("CommandResults.txt");
             String Ret( std::istreambuf_iterator<char>(ResultFile), {} );
-            if( StringTools::IsNewline( Ret.back() ) ) {
+            while( StringTools::IsNewline( Ret.back() ) || StringTools::IsSpace( Ret.back() ) ) {
                 Ret.pop_back();
             }
             return Ret;
