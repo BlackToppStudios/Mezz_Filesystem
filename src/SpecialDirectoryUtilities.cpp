@@ -54,7 +54,10 @@
 
     #include <Windows.h>
     #include <direct.h> //May not be friendly on some versions of MSVC
+SAVE_WARNING_STATE
+SUPPRESS_VC_WARNING(4768) //Suppresses a warning generated from an improper declaration in the platform header on MSVC.
     #include <Shlobj.h>
+RESTORE_WARNING_STATE
 #else
     #include <sys/types.h>
     #include <unistd.h>
@@ -142,7 +145,7 @@ namespace
 #else
     /// @brief Gets the filesystem location of the current users home folder.
     /// @return Returns a String path to the location of the users home folder.
-    String GetHomeFholder()
+    String GetHomeFolder()
     {
         struct passwd* pw = getpwuid( getuid() );
         if( pw != nullptr ) {
@@ -219,7 +222,7 @@ namespace Filesystem {
                 return String();
             }
 
-            String Results(GetDirName(ArgVars[0]));
+            String Results( GetDirName(ArgVars[0]) );
 
             // common cases of exe existing but dir is empty
             if( Results.empty() || Results == "./" || Results == ".\\" ) {
