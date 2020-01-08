@@ -134,13 +134,15 @@ namespace
     /// @return Returns a String path to the location of the folder specified.
     String GetSystemFolder(REFKNOWNFOLDERID FolderID)
     {
+        String Ret;
         LPWSTR WPath = nullptr;
         HRESULT Result = S_OK;
         Result = SHGetKnownFolderPath(FolderID,0,nullptr,&WPath);
         if( SUCCEEDED(Result) ) {
-            return ConvertToNarrowString(WPath);
+            Ret = ConvertToNarrowString(WPath);
+            CoTaskMemFree(WPath);
         }
-        return String();
+        return Ret;
     }
 #else
     /// @brief Gets the filesystem location of the current users home folder.
@@ -190,7 +192,7 @@ namespace Filesystem {
         char Results[FILENAME_MAX];
     #if defined(MEZZ_Windows)
         ::GetModuleFileName(nullptr,Results,FILENAME_MAX);
-        return GetDirName(String(Results));
+        return GetDirName( String(Results) );
     #elif defined(MEZZ_MacOSX) || defined(MEZZ_Ios)
         uint32_t ResultsSize = sizeof(Results);
         if( _NSGetExecutablePath(Results,&ResultsSize) == 0 ) {
@@ -202,7 +204,7 @@ namespace Filesystem {
         MaxInt Length = ::readlink("/proc/self/exe",Results,sizeof(Results)-1);
         if( Length != -1 ) {
             Results[Length] = '\0';
-            return GetDirName(String(Results));
+            return GetDirName( String(Results) );
         }else{
             return String();
         }
@@ -232,10 +234,8 @@ namespace Filesystem {
             if( !Results.empty() ) {
                 return Results;
             }
-            return String();
-        }else{
-            return String();
         }
+        return String();
     }
 
     ///////////////////////////////////////////////////////////////////////////////

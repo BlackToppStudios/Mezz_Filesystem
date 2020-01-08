@@ -82,7 +82,7 @@ AUTOMATIC_TEST_GROUP(SpecialDirectoryUtilitiesTests,SpecialDirectoryUtilities)
         char** ReasonablePosPtr = &ReasonablePos;
 
         TEST_EQUAL("GetExecutableDirFromArg(int,char**)-DirEmpty",
-                   String(""),Filesystem::GetExecutableDirFromArg(0,0));
+                   String(""),Filesystem::GetExecutableDirFromArg(0,nullptr));
         TEST_EQUAL("GetExecutableDirFromArg(int,char**)-ExeOnly",
                    String("."),Filesystem::GetExecutableDirFromArg(1,ExePtr));
         TEST_EQUAL("GetExecutableDirFromArg(int,char**)-DothSlash",
@@ -98,7 +98,7 @@ AUTOMATIC_TEST_GROUP(SpecialDirectoryUtilitiesTests,SpecialDirectoryUtilities)
         TEST_EQUAL("GetExecutableDirFromArg(int,char**)-ValidPos",
                    String("/usr/share/bin/"),Filesystem::GetExecutableDirFromArg(1,ReasonablePosPtr));
 
-        Filesystem::CacheMainArgs(0,0);
+        Filesystem::CacheMainArgs(0,nullptr);
         TEST_EQUAL("GetExecutableDirFromArg()-DirEmpty",
                    String(""),Filesystem::GetExecutableDirFromArg());
         Filesystem::CacheMainArgs(1,ExePtr);
