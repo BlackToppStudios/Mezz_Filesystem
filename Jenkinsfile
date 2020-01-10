@@ -127,7 +127,7 @@ pipeline {
                             bat 'hostname'
                             bat 'cmake -E env CXXFLAGS="-fno-var-tracking-assignments" cmake -G"Ninja" .. -DCMAKE_BUILD_TYPE=DEBUG -DMEZZ_BuildDoxygen=OFF -DMEZZ_CodeCoverage=OFF'
                             bat 'ninja'
-                            bat 'Filesystem_Tester xml'
+                            bat 'Filesystem_Tester debugtests xml'
                         }
                     }
                     post {
@@ -145,7 +145,7 @@ pipeline {
                             bat 'hostname'
                             bat 'cmake -E env CXXFLAGS="-fno-var-tracking-assignments" cmake -G"Ninja" .. -DCMAKE_BUILD_TYPE=DEBUG -DMEZZ_BuildDoxygen=OFF -DMEZZ_CodeCoverage=OFF'
                             bat 'ninja'
-                            bat 'Filesystem_Tester xml'
+                            bat 'Filesystem_Tester debugtests xml'
                         }
                     }
                     post {
@@ -163,7 +163,7 @@ pipeline {
                             bat 'hostname'
                             bat '"C:\\Program Files (x86)\\Microsoft Visual Studio\\2017\\Community\\VC\\Auxiliary\\Build\\vcvarsall.bat" x86_amd64 && cmake -G"Visual Studio 15 2017 Win64" .. -DCMAKE_BUILD_TYPE=DEBUG -DMEZZ_BuildDoxygen=OFF -DMEZZ_CodeCoverage=OFF'
                             bat 'cmake --build .'
-                            bat 'Filesystem_Tester xml'
+                            bat 'Filesystem_Tester debugtests xml'
                         }
                     }
                     post {
@@ -294,7 +294,7 @@ pipeline {
                             bat 'hostname'
                             bat 'cmake -E env CXXFLAGS="-fno-var-tracking-assignments" cmake -G"Ninja" .. -DCMAKE_BUILD_TYPE=RELEASE -DMEZZ_BuildDoxygen=OFF -DMEZZ_CodeCoverage=OFF'
                             bat 'ninja'
-                            bat 'Filesystem_Tester xml'
+                            bat 'Filesystem_Tester debugtests xml'
                         }
                     }
                     post {
@@ -312,7 +312,7 @@ pipeline {
                             bat 'hostname'
                             bat 'cmake -E env CXXFLAGS="-fno-var-tracking-assignments" cmake -G"Ninja" .. -DCMAKE_BUILD_TYPE=RELEASE -DMEZZ_BuildDoxygen=OFF -DMEZZ_CodeCoverage=OFF'
                             bat 'ninja'
-                            bat 'Filesystem_Tester xml'
+                            bat 'Filesystem_Tester debugtests xml'
                         }
                     }
                     post {
@@ -330,7 +330,7 @@ pipeline {
                             bat 'hostname'
                             bat '"C:\\Program Files (x86)\\Microsoft Visual Studio\\2017\\Community\\VC\\Auxiliary\\Build\\vcvarsall.bat" x86_amd64 && cmake -G"Visual Studio 15 2017 Win64" .. -DCMAKE_BUILD_TYPE=RELEASE -DMEZZ_BuildDoxygen=OFF -DMEZZ_CodeCoverage=OFF'
                             bat 'cmake --build .'
-                            bat 'Filesystem_Tester xml'
+                            bat 'Filesystem_Tester debugtests xml'
                         }
                     }
                     post {

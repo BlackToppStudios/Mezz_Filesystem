@@ -87,8 +87,10 @@ AUTOMATIC_TEST_GROUP(SystemPathUtilitiesTests,SystemPathUtilities)
         RESTORE_WARNING_STATE
             std::ifstream ResultFile("CommandResults.txt");
             String Ret( std::istreambuf_iterator<char>(ResultFile), {} );
-            while( StringTools::IsNewline( Ret.back() ) || StringTools::IsSpace( Ret.back() ) ) {
-                Ret.pop_back();
+            if( !Ret.empty() ) {
+                while( StringTools::IsNewline( Ret.back() ) || StringTools::IsSpace( Ret.back() ) ) {
+                    Ret.pop_back();
+                }
             }
             return Ret;
         };
