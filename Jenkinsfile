@@ -38,7 +38,7 @@ pipeline {
                             export PATH='$PATH:/usr/local/bin/' &&
                             cmake -E env CXXFLAGS="-fno-var-tracking" cmake -G"Xcode" .. -DCMAKE_BUILD_TYPE=DEBUG -DMEZZ_BuildDoxygen=OFF -DMEZZ_CodeCoverage=OFF &&
                             cmake --build . &&
-                           ./Filesystem_Tester xml
+                           ./Filesystem_Tester debugtests xml
                         """ }
                     }
                     post {
@@ -57,7 +57,7 @@ pipeline {
                             export MEZZ_PACKAGE_DIR=/home/pi/Code/ &&
                             cmake -E env CXXFLAGS="-fno-var-tracking-assignments" cmake -G"Ninja" .. -DCMAKE_BUILD_TYPE=DEBUG -DMEZZ_BuildDoxygen=OFF -DMEZZ_CodeCoverage=OFF &&
                             ninja &&
-                            ./Filesystem_Tester xml
+                            ./Filesystem_Tester debugtests xml
                          """ }
                     }
                     post {
@@ -205,7 +205,7 @@ pipeline {
                             export PATH='$PATH:/usr/local/bin/' &&
                             cmake -E env CXXFLAGS="-fno-var-tracking" cmake -G"Xcode" .. -DCMAKE_BUILD_TYPE=RELEASE -DMEZZ_BuildDoxygen=OFF -DMEZZ_CodeCoverage=OFF &&
                             cmake --build . &&
-                           ./Filesystem_Tester xml
+                           ./Filesystem_Tester debugtests xml
                         """ }
                     }
                     post {
@@ -224,7 +224,7 @@ pipeline {
                             export MEZZ_PACKAGE_DIR=/home/pi/Code/ &&
                             cmake -E env CXXFLAGS="-fno-var-tracking-assignments" cmake -G"Ninja" .. -DCMAKE_BUILD_TYPE=RELEASE -DMEZZ_BuildDoxygen=OFF -DMEZZ_CodeCoverage=OFF &&
                             ninja &&
-                            ./Filesystem_Tester xml
+                            ./Filesystem_Tester debugtests xml
                          """ }
                     }
                     post {
