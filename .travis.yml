@@ -24,7 +24,7 @@ before_script:
 
 script:
   - cmake --build .
-  - ./Filesystem_Tester
+  - ./Filesystem_Tester debugtests
 
 after_success:
   - cmake --build . --target TestCoverage

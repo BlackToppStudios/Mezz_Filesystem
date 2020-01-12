@@ -186,7 +186,12 @@ AUTOMATIC_TEST_GROUP(SpecialDirectoryUtilitiesTests,SpecialDirectoryUtilities)
 
     {//Working Directory
         if( Filesystem::CreateDirectory("Change") == true ) {
-        #ifdef MEZZ_Windows
+        #if defined(MEZZ_CompilerIsEmscripten)
+            // Emscripten seems to build it's filesystem on the fly as you interact with it.
+            // So not even root exists when queried with the system call.
+            // Curiously, all the other tests for the working directory work as expected.
+            const String CmdOriginDir = "/";
+        #elif defined(MEZZ_Windows)
             const String CmdOriginDir = GetCommandResults("cd");
         #else
             const String CmdOriginDir = GetCommandResults("pwd");
