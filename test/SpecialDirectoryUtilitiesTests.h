@@ -51,6 +51,7 @@ AUTOMATIC_TEST_GROUP(SpecialDirectoryUtilitiesTests,SpecialDirectoryUtilities)
 {
     using namespace Mezzanine;
 
+#ifndef MEZZ_CompilerIsEmscripten
     auto GetCommandResults = [](String Cmd) -> String {
         Cmd.append(" > CommandResults.txt");
     SAVE_WARNING_STATE
@@ -66,6 +67,7 @@ AUTOMATIC_TEST_GROUP(SpecialDirectoryUtilitiesTests,SpecialDirectoryUtilities)
         }
         return Ret;
     };
+#endif
 
     {//Executable Directory
         char* ExeOnly = const_cast<char *>("game.exe");
