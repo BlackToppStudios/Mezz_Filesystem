@@ -196,7 +196,9 @@ AUTOMATIC_TEST_GROUP(SpecialDirectoryUtilitiesTests,SpecialDirectoryUtilities)
                        CmdOriginDir,OriginDir);
 
             String TargetDir = OriginDir;
-            TargetDir.push_back( Filesystem::GetDirectorySeparator_Host() );
+            if( !Filesystem::IsDirectorySeparator( TargetDir.back() ) ) {
+                TargetDir.push_back( Filesystem::GetDirectorySeparator_Host() );
+            }
             TargetDir.append("Change");
 
             Filesystem::ChangeWorkingDirectory("Change");
@@ -223,6 +225,11 @@ AUTOMATIC_TEST_GROUP(SpecialDirectoryUtilitiesTests,SpecialDirectoryUtilities)
         }
     }//Working Directory
 
+#ifdef MEZZ_CompilerIsEmscripten
+    {//AppData Directories
+        TEST_RESULT("AppDataDirectories",Testing::TestResult::Skipped);
+    }//AppData Directories
+#else
     {//AppData Directories
     #ifdef MEZZ_Windows
         const String LocalAppDataDir = GetCommandResults("echo %localappdata%");
@@ -245,6 +252,7 @@ AUTOMATIC_TEST_GROUP(SpecialDirectoryUtilitiesTests,SpecialDirectoryUtilities)
         TEST_EQUAL("GetCommonUserDataDir()",AppDataDir,Filesystem::GetCommonUserDataDir());
     #endif
     }//AppData Directories
+#endif
 }
 
 /*
