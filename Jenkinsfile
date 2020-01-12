@@ -243,7 +243,7 @@ pipeline {
                             cmake -E env CXXFLAGS="-fno-var-tracking" cmake -G"Ninja" .. -DCMAKE_BUILD_TYPE=RELEASE -DMEZZ_BuildDoxygen=OFF -DMEZZ_CodeCoverage=OFF &&
                             ninja  &&
                             ./Filesystem_Tester debugtests xml &&
-                            valgrind ./Filesystem_Tester
+                            valgrind ./Filesystem_Tester debugtests
                          """ }
                      }
                      post {
@@ -276,7 +276,7 @@ pipeline {
                             cmake -E env CXXFLAGS="-fno-var-tracking-assignments" cmake -G"Ninja" .. -DCMAKE_BUILD_TYPE=RELEASE -DMEZZ_BuildDoxygen=OFF -DMEZZ_CodeCoverage=OFF &&
                             ninja &&
                             ./Filesystem_Tester debugtests xml &&
-                            valgrind ./Filesystem_Tester
+                            valgrind ./Filesystem_Tester debugtests
                         """ }
                     }
                     post {
