@@ -294,6 +294,7 @@ pipeline {
                 stage('Windows10Mingw64-Release') {
                     agent { label "Windows10Mingw64" }
                     steps {
+                        bat 'hostname'
                         checkout scm
                         bat 'if not exist "build-release" mkdir build-release'
                         dir('build-release') {
@@ -303,7 +304,6 @@ pipeline {
                         }
                     }
                     post {
-                        bat 'hostname'
                         always {
                             junit "build-release/**/Mezz*.xml"
                         }
