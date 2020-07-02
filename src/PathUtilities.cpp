@@ -39,6 +39,7 @@
 */
 
 #include "PathUtilities.h"
+#include "MezzException.h"
 
 namespace
 {
@@ -319,10 +320,12 @@ namespace Filesystem {
         Boole CheckIsPosixAbsolute = IsPathAbsolute_Posix(CheckPath);
 
         if( BaseIsPosixAbsolute && !CheckIsPosixAbsolute ) {
-            throw std::runtime_error("Attempting to compare absolute base path with relative sub-path.");
+            MEZZ_EXCEPTION(AbsoluteRelativeComparisonCode,
+                           "Attempting to compare absolute base path with relative sub-path.");
         }
         if( !BaseIsPosixAbsolute && CheckIsPosixAbsolute ) {
-            throw std::runtime_error("Attempting to compare relative base path with absolute sub-path.");
+            MEZZ_EXCEPTION(AbsoluteRelativeComparisonCode,
+                           "Attempting to compare relative base path with absolute sub-path.");
         }
 
         String NormBasePath = RemoveDotSegments_Posix(BasePath);
@@ -352,10 +355,12 @@ namespace Filesystem {
         Boole CheckIsWindowsAbsolute = IsPathAbsolute_Windows(CheckPath);
 
         if( BaseIsWindowsAbsolute && !CheckIsWindowsAbsolute ) {
-            throw std::runtime_error("Attempting to compare absolute base path with relative sub-path.");
+            MEZZ_EXCEPTION(AbsoluteRelativeComparisonCode,
+                           "Attempting to compare absolute base path with relative sub-path.");
         }
         if( !BaseIsWindowsAbsolute && CheckIsWindowsAbsolute ) {
-            throw std::runtime_error("Attempting to compare relative base path with absolute sub-path.");
+            MEZZ_EXCEPTION(AbsoluteRelativeComparisonCode,
+                           "Attempting to compare relative base path with absolute sub-path.");
         }
 
         String NormBasePath = RemoveDotSegments_Windows(BasePath);

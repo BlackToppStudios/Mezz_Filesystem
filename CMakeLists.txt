@@ -52,10 +52,10 @@ if(NOT JAGATI_Download)
     option(JAGATI_Download "Should the Jagati be downloaded automatically" ON)
 endif(NOT JAGATI_Download)
 if(JAGATI_Download)
-    set(JAGATI_Checksum "15a46cbadeabe66314d91c2347283ed5d1a1d94c48dd67d6351\
-3767b52ec263813acbbb190d3b30aa843fd969f54231f3a23514eb6c1554af51bb696c26269ad"
+    set(JAGATI_Checksum "6aa2eb83eca66c9a06519a1138e4d72b7a6243da13026020eb0\
+644ffd4c89e566e9716cc16a9fcee15651b65a517fbc61d4002b2f9e0883143a54c6684aabcb4"
         CACHE STRING "Check that when the Jagati is downloaded the right one is used (for consistency and security).")
-    set(JAGATI_Url "https://raw.githubusercontent.com/BlackToppStudios/Jagati/0.28.1/Jagati.cmake"
+    set(JAGATI_Url "https://raw.githubusercontent.com/BlackToppStudios/Jagati/0.30.2/Jagati.cmake"
         CACHE STRING "Where to download the Jagati from.")
     file(DOWNLOAD "${JAGATI_Url}" "${JAGATI_File}" EXPECTED_HASH SHA512=${JAGATI_Checksum})
 endif(JAGATI_Download)
@@ -69,6 +69,12 @@ IncludeJagatiPackage("StaticFoundation")
 IncludeJagatiPackage("Test")
 IncludeJagatiPackage("Foundation")
 IncludeJagatiPackage("IOStreams")
+
+########################################################################################################################
+# Setup Exception
+
+AddJagatiException("AbsoluteRelativeComparison" "LogicError" "Absolute and Relative comparisons shouldn't be compared.")
+EmitExceptionSource()
 
 ########################################################################################################################
 # Source files

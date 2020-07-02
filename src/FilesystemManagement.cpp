@@ -440,6 +440,8 @@ namespace Filesystem {
 
         SAVE_WARNING_STATE
         SUPPRESS_VC_WARNING(4191) // Because apparently I need to tell the compiler to shut up twice.
+        SUPPRESS_GCC_WARNING("-Wcast-function-type") // MinGW doesn't like this cast, even though the WINAPI demands it.
+
         CreateLinkPtr CreateLink = reinterpret_cast<CreateLinkPtr>( GetProcAddress(GetModuleHandleW(L"kernel32.dll"),
                                                                                    "CreateSymbolicLinkW") );
         RESTORE_WARNING_STATE

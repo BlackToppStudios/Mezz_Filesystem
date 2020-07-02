@@ -299,7 +299,7 @@ namespace Filesystem {
     /// method if they are needed.
     /// @exception This function will only operate if both paths are absolute, or both are relative.  Mixing
     /// of absolute and relative is not supported by this function.  Attempting to compare an absolute and
-    /// relative path will result in an std::runtime_error being thrown.
+    /// relative path will result in an Mezzanine::Exception::AbsoluteRelativeComparison being thrown.
     /// @param BasePath The base Host path to check.
     /// @param CheckPath The Host path being checked against base Host path.
     /// @return Returns true if CheckPath is a subdirectory or file of BasePath, false otherwise.
@@ -311,7 +311,7 @@ namespace Filesystem {
     /// method if they are needed.
     /// @exception This function will only operate if both paths are absolute, or both are relative.  Mixing
     /// of absolute and relative is not supported by this function.  Attempting to compare an absolute and
-    /// relative path will result in an std::runtime_error being thrown.
+    /// relative path will result in an Mezzanine::Exception::AbsoluteRelativeComparison being thrown.
     /// @param BasePath The base Posix path to check.
     /// @param CheckPath The Posix path being checked against base Posix path.
     /// @return Returns true if CheckPath is a subdirectory or file of BasePath, false otherwise.
@@ -323,7 +323,7 @@ namespace Filesystem {
     /// method if they are needed.
     /// @exception This function will only operate if both paths are absolute, or both are relative.  Mixing
     /// of absolute and relative is not supported by this function.  Attempting to compare an absolute and
-    /// relative path will result in an std::runtime_error being thrown.
+    /// relative path will result in an Mezzanine::Exception::AbsoluteRelativeComparison being thrown.
     /// @param BasePath The base Windows path to check.
     /// @param CheckPath The Windows path being checked against base Windows path.
     /// @return Returns true if CheckPath is a subdirectory or file of BasePath, false otherwise.
