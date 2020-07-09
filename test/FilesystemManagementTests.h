@@ -140,7 +140,7 @@ AUTOMATIC_TEST_GROUP(FilesystemManagementTests,FilesystemManagement)
         // Symlinks don't make sense on emscripten. Attempts were made to make it work and
         // was far too buggy because weird normalizing and slash inserting behaviors.
         TEST_RESULT("SymlinkManagement-(NotSupported)",
-                    Testing::TestResult::Skipped);
+                    Testing::TestResult::Skipped)
     }// Symlinks
     #else
     {// Symlinks - File
