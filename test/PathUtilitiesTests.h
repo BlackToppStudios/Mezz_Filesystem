@@ -308,8 +308,8 @@ AUTOMATIC_TEST_GROUP(PathUtilitiesTests,PathUtilities)
 
     #ifdef MEZZ_Windows
         StringVector PathBuildFour = { "User", "Pictures", "Old" };
-        const String PathBuildFourAbsResult("C:\\User\\Pictures\\Old\\Me.jpg")
-        const String PathBuildFourRelResult("User\\Pictures\\Old\\Them.jpg")
+        const String PathBuildFourAbsResult("C:\\User\\Pictures\\Old\\Me.jpg");
+        const String PathBuildFourRelResult("User\\Pictures\\Old\\Them.jpg");
 
         TEST_EQUAL("BuildPath_Host(const_StringView,const_StringVector&,const_StringView)-Pass",
                    PathBuildFourAbsResult,Filesystem::BuildPath_Host("C:\\",PathBuildFour,"Me.jpg"))
