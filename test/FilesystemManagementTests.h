@@ -86,7 +86,7 @@ AUTOMATIC_TEST_GROUP(FilesystemManagementTests,FilesystemManagement)
             UtilityFileDetect.open(UtilityTestFile);
             if( UtilityFileDetect ) {
                 // Uh oh, we didn't clean up from the previous run.  Probably.
-                TEST_RESULT("FileManagement-VerifyPreviousRunCleanup",Testing::TestResult::Failed);
+                TEST_RESULT("FileManagement-VerifyPreviousRunCleanup",Testing::TestResult::Failed)
             }
             UtilityFileDetect.close();
         }// File Detection Test using ifstream
@@ -98,41 +98,41 @@ AUTOMATIC_TEST_GROUP(FilesystemManagementTests,FilesystemManagement)
         }// Test file creation
 
         TEST_EQUAL("FileExists(const_StringView)-PassCheck",
-                   true,Filesystem::FileExists(UtilityTestFile));
+                   true,Filesystem::FileExists(UtilityTestFile))
         TEST_EQUAL("CopyFile(const_StringView,const_StringView)-Fresh",
                    Filesystem::ModifyResult::Success,
-                   Filesystem::CopyFile(UtilityTestFile,UtilityTestCopy,Filesystem::FileOverwrite::Allow));
+                   Filesystem::CopyFile(UtilityTestFile,UtilityTestCopy,Filesystem::FileOverwrite::Allow))
         TEST_EQUAL("CopyFile(const_StringView,const_StringView)-Exists",
-                   true,Filesystem::FileExists(UtilityTestCopy));
+                   true,Filesystem::FileExists(UtilityTestCopy))
         TEST_EQUAL("CopyFile(const_StringView,const_StringView)-DuplicateFail",
                    Filesystem::ModifyResult::AlreadyExists,
-                   Filesystem::CopyFile(UtilityTestCopy,UtilityTestFile,Filesystem::FileOverwrite::Deny));
+                   Filesystem::CopyFile(UtilityTestCopy,UtilityTestFile,Filesystem::FileOverwrite::Deny))
         TEST_EQUAL("MoveFile(const_StringView,const_StringView)-CreateDest",
                    Filesystem::ModifyResult::Success,
-                   Filesystem::CreateDirectory(MoveTargetDir));
+                   Filesystem::CreateDirectory(MoveTargetDir))
         TEST_EQUAL("MoveFile(const_StringView,const_StringView)-ActualMove",
                    Filesystem::ModifyResult::Success,
-                   Filesystem::MoveFile(UtilityTestCopy,MovedTestCopy,Filesystem::FileOverwrite::Deny));
+                   Filesystem::MoveFile(UtilityTestCopy,MovedTestCopy,Filesystem::FileOverwrite::Deny))
         TEST_EQUAL("MoveFile(const_StringView,const_StringView)-SourceDoesntExist",
-                   false,Filesystem::FileExists(UtilityTestCopy));
+                   false,Filesystem::FileExists(UtilityTestCopy))
         TEST_EQUAL("MoveFile(const_StringView,const_StringView)-DestExists",
-                   true,Filesystem::FileExists(MovedTestCopy));
+                   true,Filesystem::FileExists(MovedTestCopy))
         TEST_EQUAL("MoveFile(const_StringView,const_StringView)-Rename",
                    Filesystem::ModifyResult::Success,
-                   Filesystem::MoveFile(MovedTestCopy,MovedRenamedTestCopy,Filesystem::FileOverwrite::Deny));
+                   Filesystem::MoveFile(MovedTestCopy,MovedRenamedTestCopy,Filesystem::FileOverwrite::Deny))
         TEST_EQUAL("RemoveFile(const_StringView)-DeleteMoved",
                    Filesystem::ModifyResult::Success,
-                   Filesystem::RemoveFile(MovedRenamedTestCopy));
+                   Filesystem::RemoveFile(MovedRenamedTestCopy))
         TEST_EQUAL("RemoveFile(const_StringView)-VerifyMoved",
-                   false,Filesystem::FileExists(MovedRenamedTestCopy));
+                   false,Filesystem::FileExists(MovedRenamedTestCopy))
         TEST_EQUAL("RemoveFile(const_StringView)-DeleteOriginal",
                    Filesystem::ModifyResult::Success,
-                   Filesystem::RemoveFile(UtilityTestFile));
+                   Filesystem::RemoveFile(UtilityTestFile))
         TEST_EQUAL("RemoveFile(const_StringView)-VerifyDeleted",
-                   false,Filesystem::FileExists(UtilityTestFile));
+                   false,Filesystem::FileExists(UtilityTestFile))
         TEST_EQUAL("FileManagement-Cleanup",
                    Filesystem::ModifyResult::Success,
-                   Filesystem::RemoveDirectory(MoveTargetDir));
+                   Filesystem::RemoveDirectory(MoveTargetDir))
     }// Basic File Management
 
     #ifdef MEZZ_CompilerIsEmscripten
@@ -156,52 +156,52 @@ AUTOMATIC_TEST_GROUP(FilesystemManagementTests,FilesystemManagement)
         if( CreateResult == Filesystem::ModifyResult::Success ) {
             TEST_EQUAL("CreateSymlink(const_StringView,const_StringView)-File",
                        Filesystem::ModifyResult::Success,
-                       CreateResult);
+                       CreateResult)
 
             TEST_EQUAL("SymlinkExists(const_StringView)-File-Link",
                        true,
-                       Filesystem::SymlinkExists(LinkName));
+                       Filesystem::SymlinkExists(LinkName))
             TEST_EQUAL("SymlinkExists(const_StringView)-File-Target",
                        false,
-                       Filesystem::SymlinkExists(TargetName));
+                       Filesystem::SymlinkExists(TargetName))
 
             Optional<String> LinkPathPass = Filesystem::GetSymlinkTargetPath(LinkName);
             TEST_EQUAL("GetSymlinkTargetPath(const_StringView)-File-Link-Validity",
                        true,
-                       LinkPathPass.has_value());
+                       LinkPathPass.has_value())
             // Without this if, we get an uncaught exception that prevents the viewing of other test results.
             if( LinkPathPass.has_value() ) {
                 TEST_EQUAL("GetSymlinkTargetPath(const_StringView)-File-Link-Value",
                            TargetName,
-                           LinkPathPass.value());
+                           LinkPathPass.value())
             }else{
                 TEST_RESULT("GetSymlinkTargetPath(const_StringView)-File-Link-Value",
-                            Testing::TestResult::Failed);
+                            Testing::TestResult::Failed)
             }
 
             Optional<String> LinkPathFail = Filesystem::GetSymlinkTargetPath(TargetName)
             TEST_EQUAL("GetSymlinkTargetPath(const_StringView)-File-Target-Validity",
                        false,
-                       LinkPathFail.has_value());
+                       LinkPathFail.has_value())
 
             TEST_EQUAL("RemoveSymlink(const_StringView)-File",
                        Filesystem::ModifyResult::Success,
-                       Filesystem::RemoveSymlink(LinkName));
+                       Filesystem::RemoveSymlink(LinkName))
             TEST_EQUAL("SymlinkManagement-File-CleanupTarget",
                        Filesystem::ModifyResult::Success,
-                       Filesystem::RemoveFile(TargetName));
+                       Filesystem::RemoveFile(TargetName))
         }else if( CreateResult == Filesystem::ModifyResult::PrivilegeNotHeld ) {
             this->TestLog << "User Privileges are insufficient for this operation.\n";
             TEST_RESULT("CreateSymlink(const_StringView,const_StringView)-File",
-                        Testing::TestResult::Skipped);
+                        Testing::TestResult::Skipped)
         }else if( CreateResult == Filesystem::ModifyResult::NotSupported ) {
             this->TestLog << "Creation of Symlinks are not supported on the host system.\n";
             TEST_RESULT("CreateSymlink(const_StringView,const_StringView)-File",
-                        Testing::TestResult::Skipped);
+                        Testing::TestResult::Skipped)
         }else{
             this->TestLog << "Unknown Symlink error.  :(\n";
             TEST_RESULT("CreateSymlink(const_StringView,const_StringView)-File",
-                        Testing::TestResult::Failed);
+                        Testing::TestResult::Failed)
         }
     }// Symlinks - File
 
@@ -213,58 +213,58 @@ AUTOMATIC_TEST_GROUP(FilesystemManagementTests,FilesystemManagement)
         if( MakeDirResult != Filesystem::ModifyResult::Success ) {
             this->TestLog << "Failed to create test directory.";
             TEST_RESULT("SymlinkManagement-Directory-Setup",
-                        Testing::TestResult::Failed);
+                        Testing::TestResult::Failed)
         }else{
             Filesystem::ModifyResult CreateResult = Filesystem::CreateDirectorySymlink(LinkName,TargetName);
             if( CreateResult == Filesystem::ModifyResult::Success ) {
                 TEST_EQUAL("CreateSymlink(const_StringView,const_StringView)-Directory",
                            Filesystem::ModifyResult::Success,
-                           CreateResult);
+                           CreateResult)
 
                 TEST_EQUAL("SymlinkExists(const_StringView)-Directory-Link",
                            true,
-                           Filesystem::SymlinkExists(LinkName));
+                           Filesystem::SymlinkExists(LinkName))
                 TEST_EQUAL("SymlinkExists(const_StringView)-Directory-Target",
                            false,
-                           Filesystem::SymlinkExists(TargetName));
+                           Filesystem::SymlinkExists(TargetName))
 
                 Optional<String> LinkPathPass = Filesystem::GetSymlinkTargetPath(LinkName);
                 TEST_EQUAL("GetSymlinkTargetPath(const_StringView)-Directory-Link-Validity",
                            true,
-                           LinkPathPass.has_value());
+                           LinkPathPass.has_value())
                 // Without this if, we get an uncaught exception that prevents the viewing of other test results.
                 if( LinkPathPass.has_value() ) {
                     TEST_EQUAL("GetSymlinkTargetPath(const_StringView)-Directory-Link-Value",
                                TargetName,
-                               LinkPathPass.value());
+                               LinkPathPass.value())
                 }else{
                     TEST_RESULT("GetSymlinkTargetPath(const_StringView)-Directory-Link-Value",
-                                Testing::TestResult::Failed);
+                                Testing::TestResult::Failed)
                 }
 
                 Optional<String> LinkPathFail = Filesystem::GetSymlinkTargetPath(TargetName)
                 TEST_EQUAL("GetSymlinkTargetPath(const_StringView)-Directory-Target-Validity",
                            false,
-                           LinkPathFail.has_value());
+                           LinkPathFail.has_value())
 
                 TEST_EQUAL("RemoveSymlink(const_StringView)-Directory",
                            Filesystem::ModifyResult::Success,
-                           Filesystem::RemoveSymlink(LinkName));
+                           Filesystem::RemoveSymlink(LinkName))
                 TEST_EQUAL("SymlinkManagement-Directory-CleanupTarget",
                            Filesystem::ModifyResult::Success,
-                           Filesystem::RemoveDirectory(TargetName));
+                           Filesystem::RemoveDirectory(TargetName))
             }else if( CreateResult == Filesystem::ModifyResult::PrivilegeNotHeld ) {
                 this->TestLog << "User Privileges are insufficient for this operation.\n";
                 TEST_RESULT("CreateDirectorySymlink(const_StringView,const_StringView)-Directory",
-                            Testing::TestResult::Skipped);
+                            Testing::TestResult::Skipped)
             }else if( CreateResult == Filesystem::ModifyResult::NotSupported ) {
                 this->TestLog << "Creation of Symlinks are not supported on the host system.\n";
                 TEST_RESULT("CreateDirectorySymlink(const_StringView,const_StringView)-Directory",
-                            Testing::TestResult::Skipped);
+                            Testing::TestResult::Skipped)
             }else{
                 this->TestLog << "Unknown Symlink error.  :(\n";
                 TEST_RESULT("CreateDirectorySymlink(const_StringView,const_StringView)-Directory",
-                            Testing::TestResult::Failed);
+                            Testing::TestResult::Failed)
             }
         }
     }// Symlinks - Directory
@@ -286,35 +286,35 @@ AUTOMATIC_TEST_GROUP(FilesystemManagementTests,FilesystemManagement)
         // Perform cleanup from any unclean runs of the tests
         Boole Exists = Filesystem::DirectoryExists(BasePathTestDir);
         if( Exists ) {
-            TEST_RESULT("DirectoryManagement-VerifyPreviousRunCleanup",Testing::TestResult::Failed);
+            TEST_RESULT("DirectoryManagement-VerifyPreviousRunCleanup",Testing::TestResult::Failed)
         }else{
-            TEST_RESULT("DirectoryManagement-VerifyPreviousRunCleanup",Testing::TestResult::Success);
+            TEST_RESULT("DirectoryManagement-VerifyPreviousRunCleanup",Testing::TestResult::Success)
         }
 
         TEST_EQUAL("CreateDirectory(const_StringView)",
                    Filesystem::ModifyResult::Success,
-                   Filesystem::CreateDirectory(BasePathTestDir));
+                   Filesystem::CreateDirectory(BasePathTestDir))
         TEST_EQUAL("DirectoryExists(const_StringView)",
-                   true,Filesystem::DirectoryExists(BasePathTestDir));
+                   true,Filesystem::DirectoryExists(BasePathTestDir))
 
         TEST_EQUAL("CreateDirectoryPath(const_StringView)",
                    Filesystem::ModifyResult::Success,
-                   Filesystem::CreateDirectoryPath(DepthThreeDir));
+                   Filesystem::CreateDirectoryPath(DepthThreeDir))
         TEST_EQUAL("CreateDirectoryPath(const_StringView)-Verify",
-                   true,Filesystem::DirectoryExists(DepthThreeDir));
+                   true,Filesystem::DirectoryExists(DepthThreeDir))
         TEST_EQUAL("RemoveDirectory(const_StringView)-PathDepth3",
                    Filesystem::ModifyResult::Success,
-                   Filesystem::RemoveDirectory(DepthThreeDir));
+                   Filesystem::RemoveDirectory(DepthThreeDir))
         TEST_EQUAL("RemoveDirectory(const_StringView)-PathDepth2",
                    Filesystem::ModifyResult::Success,
-                   Filesystem::RemoveDirectory(DepthTwoDir));
+                   Filesystem::RemoveDirectory(DepthTwoDir))
         TEST_EQUAL("RemoveDirectory(const_StringView)-PathDepth1",
                    Filesystem::ModifyResult::Success,
-                   Filesystem::RemoveDirectory(DepthOneDir));
+                   Filesystem::RemoveDirectory(DepthOneDir))
 
         TEST_EQUAL("RemoveDirectory(const_StringView)-BaseDir",
                    Filesystem::ModifyResult::Success,
-                   Filesystem::RemoveDirectory(BasePathTestDir));
+                   Filesystem::RemoveDirectory(BasePathTestDir))
     }// Basic Directory Management
 
     {// ModifyResult Operators
@@ -323,40 +323,40 @@ AUTOMATIC_TEST_GROUP(FilesystemManagementTests,FilesystemManagement)
         Filesystem::ModifyResult BadTwo = Filesystem::ModifyResult::InvalidPath;
 
         TEST_EQUAL("operator==(const_ModifyResult,const_Boole)-True-Pass",
-                   true,operator==(Good,true));
+                   true,operator==(Good,true))
         TEST_EQUAL("operator==(const_ModifyResult,const_Boole)-True-Fail",
-                   false,operator==(BadOne,true));
+                   false,operator==(BadOne,true))
         TEST_EQUAL("operator==(const_ModifyResult,const_Boole)-False-Pass",
-                   true,operator==(BadTwo,false));
+                   true,operator==(BadTwo,false))
         TEST_EQUAL("operator==(const_ModifyResult,const_Boole)-False-Fail",
-                   false,operator==(Good,false));
+                   false,operator==(Good,false))
 
         TEST_EQUAL("operator==(const_Boole,const_ModifyResult)-True-Pass",
-                   true,operator==(true,Good));
+                   true,operator==(true,Good))
         TEST_EQUAL("operator==(const_Boole,const_ModifyResult)-True-Fail",
-                   false,operator==(true,BadTwo));
+                   false,operator==(true,BadTwo))
         TEST_EQUAL("operator==(const_Boole,const_ModifyResult)-False-Pass",
-                   true,operator==(false,BadOne));
+                   true,operator==(false,BadOne))
         TEST_EQUAL("operator==(const_Boole,const_ModifyResult)-False-Fail",
-                   false,operator==(false,Good));
+                   false,operator==(false,Good))
 
         TEST_EQUAL("operator!=(const_ModifyResult,const_Boole)-True-Pass",
-                   true,operator!=(BadOne,true));
+                   true,operator!=(BadOne,true))
         TEST_EQUAL("operator!=(const_ModifyResult,const_Boole)-True-Fail",
-                   false,operator!=(Good,true));
+                   false,operator!=(Good,true))
         TEST_EQUAL("operator!=(const_ModifyResult,const_Boole)-False-Pass",
-                   true,operator!=(Good,false));
+                   true,operator!=(Good,false))
         TEST_EQUAL("operator!=(const_ModifyResult,const_Boole)-False-Fail",
-                   false,operator!=(BadTwo,false));
+                   false,operator!=(BadTwo,false))
 
         TEST_EQUAL("operator!=(const_Boole,const_ModifyResult)-True-Pass",
-                   true,operator!=(true,BadTwo));
+                   true,operator!=(true,BadTwo))
         TEST_EQUAL("operator!=(const_Boole,const_ModifyResult)-True-Fail",
-                   false,operator!=(true,Good));
+                   false,operator!=(true,Good))
         TEST_EQUAL("operator!=(const_Boole,const_ModifyResult)-False-Pass",
-                   true,operator!=(false,Good));
+                   true,operator!=(false,Good))
         TEST_EQUAL("operator!=(const_Boole,const_ModifyResult)-False-Fail",
-                   false,operator!=(false,BadOne));
+                   false,operator!=(false,BadOne))
     }// ModifyResult Operators
 }
 

@@ -62,7 +62,7 @@ AUTOMATIC_TEST_GROUP(DirectoryContentsTests,DirectoryContents)
                        "that they should declare the causes which impel them to the separation.";
 
     if( Filesystem::CreateDirectory("Content/") == false ) {
-        TEST_RESULT("CreateContentDir",Testing::TestResult::Failed);
+        TEST_RESULT("CreateContentDir",Testing::TestResult::Failed)
         return;
     }
 
@@ -85,38 +85,38 @@ AUTOMATIC_TEST_GROUP(DirectoryContentsTests,DirectoryContents)
         NameTestFile4.close();
 
         if( Filesystem::CreateDirectory("Content/NameTestDir/") == false ) {
-            TEST_RESULT("CreateNameTestDir",Testing::TestResult::Failed);
+            TEST_RESULT("CreateNameTestDir",Testing::TestResult::Failed)
             return;
         }
 
         StringVector ContentNames = Filesystem::GetDirectoryContentNames("Content/");
         TEST_EQUAL("GetDirectoryContentNames-Count",
-                   size_t(5),ContentNames.size());
+                   size_t(5),ContentNames.size())
         TEST_EQUAL("GetDirectoryContentNames-DirFound",
-                   true,std::find(ContentNames.begin(),ContentNames.end(),"NameTestDir") != ContentNames.end());
+                   true,std::find(ContentNames.begin(),ContentNames.end(),"NameTestDir") != ContentNames.end())
         TEST_EQUAL("GetDirectoryContentNames-FirstFound",
-                   true,std::find(ContentNames.begin(),ContentNames.end(),"NameTestFile1.txt") != ContentNames.end());
+                   true,std::find(ContentNames.begin(),ContentNames.end(),"NameTestFile1.txt") != ContentNames.end())
         TEST_EQUAL("GetDirectoryContentNames-SecondFound",
-                   true,std::find(ContentNames.begin(),ContentNames.end(),"NameTestFile2.txt") != ContentNames.end());
+                   true,std::find(ContentNames.begin(),ContentNames.end(),"NameTestFile2.txt") != ContentNames.end())
         TEST_EQUAL("GetDirectoryContentNames-ThirdFound",
-                   true,std::find(ContentNames.begin(),ContentNames.end(),"NameTestFile3.txt") != ContentNames.end());
+                   true,std::find(ContentNames.begin(),ContentNames.end(),"NameTestFile3.txt") != ContentNames.end())
         TEST_EQUAL("GetDirectoryContentNames-FourthFound",
-                   true,std::find(ContentNames.begin(),ContentNames.end(),"NameTestFile4.txt") != ContentNames.end());
+                   true,std::find(ContentNames.begin(),ContentNames.end(),"NameTestFile4.txt") != ContentNames.end())
 
         if( Filesystem::RemoveFile("Content/NameTestFile1.txt") == false ) {
-            TEST_RESULT("NameTestFile1-CleanupFailed",Testing::TestResult::Warning);
+            TEST_RESULT("NameTestFile1-CleanupFailed",Testing::TestResult::Warning)
         }
         if( Filesystem::RemoveFile("Content/NameTestFile2.txt") == false ) {
-            TEST_RESULT("NameTestFile2-CleanupFailed",Testing::TestResult::Warning);
+            TEST_RESULT("NameTestFile2-CleanupFailed",Testing::TestResult::Warning)
         }
         if( Filesystem::RemoveFile("Content/NameTestFile3.txt") == false ) {
-            TEST_RESULT("NameTestFile3-CleanupFailed",Testing::TestResult::Warning);
+            TEST_RESULT("NameTestFile3-CleanupFailed",Testing::TestResult::Warning)
         }
         if( Filesystem::RemoveFile("Content/NameTestFile4.txt") == false ) {
-            TEST_RESULT("NameTestFile4-CleanupFailed",Testing::TestResult::Warning);
+            TEST_RESULT("NameTestFile4-CleanupFailed",Testing::TestResult::Warning)
         }
         if( Filesystem::RemoveDirectory("Content/NameTestDir/") == false ) {
-            TEST_RESULT("NameTestDir-CleanupFailed",Testing::TestResult::Warning);
+            TEST_RESULT("NameTestDir-CleanupFailed",Testing::TestResult::Warning)
         }
     }// GetDirectoryContentNames
 
@@ -137,110 +137,110 @@ AUTOMATIC_TEST_GROUP(DirectoryContentsTests,DirectoryContents)
         ContentTestFile4.close();
 
         if( Filesystem::CreateDirectory("Content/TestDir/") == false ) {
-            TEST_RESULT("CreateContentTestDir",Testing::TestResult::Failed);
+            TEST_RESULT("CreateContentTestDir",Testing::TestResult::Failed)
             return;
         }
 
         ArchiveEntryVector ContentEntries = Filesystem::GetDirectoryContents("Content/");
         TEST_EQUAL("GetDirectoryContents-Count",
-                   size_t(4),ContentEntries.size());
+                   size_t(4),ContentEntries.size())
         ArchiveEntryIterator EntryIt = ContentEntries.end();
 
         EntryIt = std::find_if(ContentEntries.begin(),ContentEntries.end(),[](const ArchiveEntry& Entry){
             return ( Entry.Name == "TestDir" );
         });
-        TEST_EQUAL("GetDirectoryContents-DirFound",true,EntryIt != ContentEntries.end());
+        TEST_EQUAL("GetDirectoryContents-DirFound",true,EntryIt != ContentEntries.end())
         if( EntryIt != ContentEntries.end() ) {
             TEST_EQUAL("GetDirectoryContents-DirArchiveType",
-                       static_cast<int>(ArchiveType::FileSystem),static_cast<int>((*EntryIt).Archive));
+                       static_cast<int>(ArchiveType::FileSystem),static_cast<int>((*EntryIt).Archive))
             TEST_EQUAL("GetDirectoryContents-DirEntryType",
-                       static_cast<int>(EntryType::Directory),static_cast<int>((*EntryIt).Entry));
+                       static_cast<int>(EntryType::Directory),static_cast<int>((*EntryIt).Entry))
             TEST_EQUAL("GetDirectoryContents-DirName",
-                       String("TestDir"),(*EntryIt).Name);
+                       String("TestDir"),(*EntryIt).Name)
             TEST_EQUAL("GetDirectoryContents-DirSize",
-                       size_t(0),(*EntryIt).Size);
+                       size_t(0),(*EntryIt).Size)
         }else{
-            TEST_RESULT("GetDirectoryContents-DirArchiveType",Testing::TestResult::Failed);
-            TEST_RESULT("GetDirectoryContents-DirEntryType",Testing::TestResult::Failed);
-            TEST_RESULT("GetDirectoryContents-DirName",Testing::TestResult::Failed);
-            TEST_RESULT("GetDirectoryContents-DirSize",Testing::TestResult::Failed);
+            TEST_RESULT("GetDirectoryContents-DirArchiveType",Testing::TestResult::Failed)
+            TEST_RESULT("GetDirectoryContents-DirEntryType",Testing::TestResult::Failed)
+            TEST_RESULT("GetDirectoryContents-DirName",Testing::TestResult::Failed)
+            TEST_RESULT("GetDirectoryContents-DirSize",Testing::TestResult::Failed)
         }
 
         EntryIt = std::find_if(ContentEntries.begin(),ContentEntries.end(),[](const ArchiveEntry& Entry){
             return ( Entry.Name == "ContentTestFile2.txt" );
         });
-        TEST_EQUAL("GetDirectoryContents-SecondFound",true,EntryIt != ContentEntries.end());
+        TEST_EQUAL("GetDirectoryContents-SecondFound",true,EntryIt != ContentEntries.end())
         if( EntryIt != ContentEntries.end() ) {
             TEST_EQUAL("GetDirectoryContents-SecondArchiveType",
-                       static_cast<int>(ArchiveType::FileSystem),static_cast<int>((*EntryIt).Archive));
+                       static_cast<int>(ArchiveType::FileSystem),static_cast<int>((*EntryIt).Archive))
             TEST_EQUAL("GetDirectoryContents-SecondEntryType",
-                       static_cast<int>(EntryType::File),static_cast<int>((*EntryIt).Entry));
+                       static_cast<int>(EntryType::File),static_cast<int>((*EntryIt).Entry))
             TEST_EQUAL("GetDirectoryContents-SecondName",
-                       String("ContentTestFile2.txt"),(*EntryIt).Name);
+                       String("ContentTestFile2.txt"),(*EntryIt).Name)
             TEST_EQUAL("GetDirectoryContents-SecondSize",
-                       FileData2.size(),(*EntryIt).Size);
+                       FileData2.size(),(*EntryIt).Size)
         }else{
-            TEST_RESULT("GetDirectoryContents-SecondArchiveType",Testing::TestResult::Failed);
-            TEST_RESULT("GetDirectoryContents-SecondEntryType",Testing::TestResult::Failed);
-            TEST_RESULT("GetDirectoryContents-SecondName",Testing::TestResult::Failed);
-            TEST_RESULT("GetDirectoryContents-SecondSize",Testing::TestResult::Failed);
+            TEST_RESULT("GetDirectoryContents-SecondArchiveType",Testing::TestResult::Failed)
+            TEST_RESULT("GetDirectoryContents-SecondEntryType",Testing::TestResult::Failed)
+            TEST_RESULT("GetDirectoryContents-SecondName",Testing::TestResult::Failed)
+            TEST_RESULT("GetDirectoryContents-SecondSize",Testing::TestResult::Failed)
         }
 
         EntryIt = std::find_if(ContentEntries.begin(),ContentEntries.end(),[](const ArchiveEntry& Entry){
             return ( Entry.Name == "ContentTestFile3.txt" );
         });
-        TEST_EQUAL("GetDirectoryContents-ThirdFound",true,EntryIt != ContentEntries.end());
+        TEST_EQUAL("GetDirectoryContents-ThirdFound",true,EntryIt != ContentEntries.end())
         if( EntryIt != ContentEntries.end() ) {
             TEST_EQUAL("GetDirectoryContents-ThirdArchiveType",
-                       static_cast<int>(ArchiveType::FileSystem),static_cast<int>((*EntryIt).Archive));
+                       static_cast<int>(ArchiveType::FileSystem),static_cast<int>((*EntryIt).Archive))
             TEST_EQUAL("GetDirectoryContents-ThirdEntryType",
-                       static_cast<int>(EntryType::File),static_cast<int>((*EntryIt).Entry));
+                       static_cast<int>(EntryType::File),static_cast<int>((*EntryIt).Entry))
             TEST_EQUAL("GetDirectoryContents-ThirdName",
-                       String("ContentTestFile3.txt"),(*EntryIt).Name);
+                       String("ContentTestFile3.txt"),(*EntryIt).Name)
             TEST_EQUAL("GetDirectoryContents-ThirdSize",
-                       FileData3.size(),(*EntryIt).Size);
+                       FileData3.size(),(*EntryIt).Size)
         }else{
-            TEST_RESULT("GetDirectoryContents-ThirdArchiveType",Testing::TestResult::Failed);
-            TEST_RESULT("GetDirectoryContents-ThirdEntryType",Testing::TestResult::Failed);
-            TEST_RESULT("GetDirectoryContents-ThirdName",Testing::TestResult::Failed);
-            TEST_RESULT("GetDirectoryContents-ThirdSize",Testing::TestResult::Failed);
+            TEST_RESULT("GetDirectoryContents-ThirdArchiveType",Testing::TestResult::Failed)
+            TEST_RESULT("GetDirectoryContents-ThirdEntryType",Testing::TestResult::Failed)
+            TEST_RESULT("GetDirectoryContents-ThirdName",Testing::TestResult::Failed)
+            TEST_RESULT("GetDirectoryContents-ThirdSize",Testing::TestResult::Failed)
         }
 
         EntryIt = std::find_if(ContentEntries.begin(),ContentEntries.end(),[](const ArchiveEntry& Entry){
             return ( Entry.Name == "ContentTestFile4.txt" );
         });
-        TEST_EQUAL("GetDirectoryContents-FourthFound",true,EntryIt != ContentEntries.end());
+        TEST_EQUAL("GetDirectoryContents-FourthFound",true,EntryIt != ContentEntries.end())
         if( EntryIt != ContentEntries.end() ) {
             TEST_EQUAL("GetDirectoryContents-FourthArchiveType",
-                       static_cast<int>(ArchiveType::FileSystem),static_cast<int>((*EntryIt).Archive));
+                       static_cast<int>(ArchiveType::FileSystem),static_cast<int>((*EntryIt).Archive))
             TEST_EQUAL("GetDirectoryContents-FourthEntryType",
-                       static_cast<int>(EntryType::File),static_cast<int>((*EntryIt).Entry));
+                       static_cast<int>(EntryType::File),static_cast<int>((*EntryIt).Entry))
             TEST_EQUAL("GetDirectoryContents-FourthName",
-                       String("ContentTestFile4.txt"),(*EntryIt).Name);
+                       String("ContentTestFile4.txt"),(*EntryIt).Name)
             TEST_EQUAL("GetDirectoryContents-FourthSize",
-                       FileData4.size(),(*EntryIt).Size);
+                       FileData4.size(),(*EntryIt).Size)
         }else{
-            TEST_RESULT("GetDirectoryContents-FourthArchiveType",Testing::TestResult::Failed);
-            TEST_RESULT("GetDirectoryContents-FourthEntryType",Testing::TestResult::Failed);
-            TEST_RESULT("GetDirectoryContents-FourthName",Testing::TestResult::Failed);
-            TEST_RESULT("GetDirectoryContents-FourthSize",Testing::TestResult::Failed);
+            TEST_RESULT("GetDirectoryContents-FourthArchiveType",Testing::TestResult::Failed)
+            TEST_RESULT("GetDirectoryContents-FourthEntryType",Testing::TestResult::Failed)
+            TEST_RESULT("GetDirectoryContents-FourthName",Testing::TestResult::Failed)
+            TEST_RESULT("GetDirectoryContents-FourthSize",Testing::TestResult::Failed)
         }
 
         if( Filesystem::RemoveFile("Content/ContentTestFile2.txt") == false ) {
-            TEST_RESULT("ContentTestFile1-CleanupFailed",Testing::TestResult::Warning);
+            TEST_RESULT("ContentTestFile1-CleanupFailed",Testing::TestResult::Warning)
         }
         if( Filesystem::RemoveFile("Content/ContentTestFile3.txt") == false ) {
-            TEST_RESULT("ContentTestFile2-CleanupFailed",Testing::TestResult::Warning);
+            TEST_RESULT("ContentTestFile2-CleanupFailed",Testing::TestResult::Warning)
         }
         if( Filesystem::RemoveFile("Content/ContentTestFile4.txt") == false ) {
-            TEST_RESULT("ContentTestFile3-CleanupFailed",Testing::TestResult::Warning);
+            TEST_RESULT("ContentTestFile3-CleanupFailed",Testing::TestResult::Warning)
         }
         if( Filesystem::RemoveDirectory("Content/TestDir/") == false ) {
-            TEST_RESULT("ContentTestDir-CleanupFailed",Testing::TestResult::Warning);
+            TEST_RESULT("ContentTestDir-CleanupFailed",Testing::TestResult::Warning)
         }
     }// GetDirectoryContents
     if( Filesystem::RemoveDirectory("Content/") == false ) {
-        TEST_RESULT("ContentDir-CleanupFailed",Testing::TestResult::Warning);
+        TEST_RESULT("ContentDir-CleanupFailed",Testing::TestResult::Warning)
     }
 }
 
