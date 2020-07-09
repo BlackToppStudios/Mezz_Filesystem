@@ -10,6 +10,7 @@ pipeline {
 
         stage('BuildTest') {
             parallel {
+
                 stage('FedoraGcc-Debug') {
                     agent { label "FedoraGcc" }
                     steps {
@@ -17,7 +18,7 @@ pipeline {
                         sh 'mkdir -p build-debug'
                         dir('build-debug') { sh """#!/bin/bash
                             hostname &&
-                            cmake -E env CXXFLAGS="-fno-var-tracking-assignments" cmake -G"Ninja" .. -DCMAKE_BUILD_TYPE=DEBUG -DMEZZ_BuildDoxygen=OFF -DMEZZ_CodeCoverage=ON &&
+                            cmake -G"Ninja" .. -DCMAKE_BUILD_TYPE=DEBUG -DMEZZ_BuildDoxygen=OFF -DMEZZ_CodeCoverage=ON &&
                             ninja &&
                             ./Filesystem_Tester xml &&
                             bash <(curl -s https://codecov.io/bash) -t ${env.CODECOV_TOKEN}
@@ -36,7 +37,7 @@ pipeline {
                         sh 'mkdir -p build-release'
                         dir('build-release') { sh """#!/bin/bash
                             hostname &&
-                            cmake -E env CXXFLAGS="-fno-var-tracking-assignments" cmake -G"Ninja" .. -DCMAKE_BUILD_TYPE=RELEASE -DMEZZ_BuildDoxygen=OFF -DMEZZ_CodeCoverage=OFF &&
+                            cmake -G"Ninja" .. -DCMAKE_BUILD_TYPE=RELEASE -DMEZZ_BuildDoxygen=OFF -DMEZZ_CodeCoverage=OFF &&
                             ninja &&
                             ./Filesystem_Tester xml
                         """ }
@@ -95,7 +96,7 @@ pipeline {
                         sh 'mkdir -p build-debug'
                         dir('build-debug') { sh """#!/bin/bash
                             hostname &&
-                            cmake -E env CXXFLAGS="-fno-var-tracking-assignments" cmake -G"Ninja" .. -DCMAKE_BUILD_TYPE=DEBUG -DMEZZ_BuildDoxygen=OFF -DMEZZ_CodeCoverage=ON &&
+                            cmake -G"Ninja" .. -DCMAKE_BUILD_TYPE=DEBUG -DMEZZ_BuildDoxygen=OFF -DMEZZ_CodeCoverage=ON &&
                             ninja &&
                             ./Filesystem_Tester xml &&
                             bash <(curl -s https://codecov.io/bash) -t ${env.CODECOV_TOKEN}
@@ -114,7 +115,7 @@ pipeline {
                         sh 'mkdir -p build-release'
                         dir('build-release') { sh """#!/bin/bash
                             hostname &&
-                            cmake -E env CXXFLAGS="-fno-var-tracking-assignments" cmake -G"Ninja" .. -DCMAKE_BUILD_TYPE=RELEASE -DMEZZ_BuildDoxygen=OFF -DMEZZ_CodeCoverage=OFF &&
+                            cmake -G"Ninja" .. -DCMAKE_BUILD_TYPE=RELEASE -DMEZZ_BuildDoxygen=OFF -DMEZZ_CodeCoverage=OFF &&
                             ninja &&
                             ./Filesystem_Tester xml
                          """ }
@@ -133,10 +134,9 @@ pipeline {
                         sh 'mkdir -p build-debug'
                         dir('build-debug') { sh """#!/bin/bash
                             hostname &&
-                            cmake -E env CXXFLAGS="-fno-var-tracking" cmake -G"Ninja" .. -DCMAKE_BUILD_TYPE=DEBUG -DMEZZ_BuildDoxygen=OFF -DMEZZ_CodeCoverage=ON &&
+                            cmake -G"Ninja" .. -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ -DCMAKE_BUILD_TYPE=DEBUG -DMEZZ_BuildDoxygen=OFF -DMEZZ_CodeCoverage=ON &&
                             ninja &&
                             ./Filesystem_Tester xml &&
-                            valgrind ./Filesystem_Tester &&
                             bash <(curl -s https://codecov.io/bash) -t ${env.CODECOV_TOKEN}
                          """ }
                      }
@@ -153,8 +153,8 @@ pipeline {
                         sh 'mkdir -p build-release'
                         dir('build-release') { sh """#!/bin/bash
                             hostname &&
-                            cmake -E env CXXFLAGS="-fno-var-tracking" cmake -G"Ninja" .. -DCMAKE_BUILD_TYPE=RELEASE -DMEZZ_BuildDoxygen=OFF -DMEZZ_CodeCoverage=OFF &&
-                            ninja  &&
+                            cmake -G"Ninja" .. -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ -DCMAKE_BUILD_TYPE=RELEASE -DMEZZ_BuildDoxygen=OFF -DMEZZ_CodeCoverage=OFF &&
+                            ninja &&
                             ./Filesystem_Tester xml &&
                             valgrind ./Filesystem_Tester
                          """ }
@@ -173,7 +173,8 @@ pipeline {
                         sh 'mkdir -p build-debug'
                         dir('build-debug') { sh """#!/bin/bash
                             hostname &&
-                            cmake -E env EMCC_DEBUG=2 CXXFLAGS="-fno-var-tracking -s WASM=1" cmake -G"Ninja" .. -DCMAKE_BUILD_TYPE=DEBUG -DMEZZ_BuildDoxygen=OFF -DMEZZ_CodeCoverage=ON &&
+                            source ~/emsdk/emsdk_env.sh &&
+                            cmake -G"Ninja" .. -DCMAKE_TOOLCHAIN_FILE=~/emsdk/upstream/emscripten/cmake/Modules/Platform/Emscripten.cmake -DCMAKE_C_COMPILER=emcc -DCMAKE_CXX_COMPILER=em++ -DCMAKE_BUILD_TYPE=DEBUG -DMEZZ_BuildDoxygen=OFF -DMEZZ_CodeCoverage=OFF &&
                             ninja &&
                             node Filesystem_Tester.js NoThreads &&
                             bash <(curl -s https://codecov.io/bash) -t ${env.CODECOV_TOKEN}
@@ -188,7 +189,8 @@ pipeline {
                         sh 'mkdir -p build-release'
                         dir('build-release') { sh """#!/bin/bash
                             hostname &&
-                            cmake -E env EMCC_DEBUG=2 CXXFLAGS="-fno-var-tracking -s WASM=1" cmake -G"Ninja" .. -DCMAKE_BUILD_TYPE=RELEASE -DMEZZ_BuildDoxygen=OFF -DMEZZ_CodeCoverage=OFF &&
+                            source ~/emsdk/emsdk_env.sh &&
+                            cmake -G"Ninja" .. -DCMAKE_TOOLCHAIN_FILE=~/emsdk/upstream/emscripten/cmake/Modules/Platform/Emscripten.cmake -DCMAKE_C_COMPILER=emcc -DCMAKE_CXX_COMPILER=em++ -DCMAKE_BUILD_TYPE=RELEASE -DMEZZ_BuildDoxygen=OFF -DMEZZ_CodeCoverage=OFF &&
                             ninja &&
                             node Filesystem_Tester.js NoThreads
                         """ }
@@ -203,10 +205,9 @@ pipeline {
                         sh 'mkdir -p build-debug'
                         dir('build-debug') { sh """#!/bin/bash
                             hostname &&
-                            cmake -E env CXXFLAGS="-fno-var-tracking-assignments" cmake -G"Ninja" .. -DCMAKE_BUILD_TYPE=DEBUG -DMEZZ_BuildDoxygen=OFF -DMEZZ_CodeCoverage=ON &&
+                            cmake -G"Ninja" .. -DCMAKE_C_COMPILER=gcc -DCMAKE_CXX_COMPILER=g++ -DCMAKE_BUILD_TYPE=DEBUG -DMEZZ_BuildDoxygen=OFF -DMEZZ_CodeCoverage=ON &&
                             ninja &&
                             ./Filesystem_Tester xml &&
-                            valgrind ./Filesystem_Tester &&
                             bash <(curl -s https://codecov.io/bash) -t ${env.CODECOV_TOKEN}
                         """ }
                     }
@@ -223,7 +224,7 @@ pipeline {
                         sh 'mkdir -p build-release'
                         dir('build-release') { sh """#!/bin/bash
                             hostname &&
-                            cmake -E env CXXFLAGS="-fno-var-tracking-assignments" cmake -G"Ninja" .. -DCMAKE_BUILD_TYPE=RELEASE -DMEZZ_BuildDoxygen=OFF -DMEZZ_CodeCoverage=OFF &&
+                            cmake -G"Ninja" .. -DCMAKE_C_COMPILER=gcc -DCMAKE_CXX_COMPILER=g++ -DCMAKE_BUILD_TYPE=RELEASE -DMEZZ_BuildDoxygen=OFF -DMEZZ_CodeCoverage=OFF &&
                             ninja &&
                             ./Filesystem_Tester xml &&
                             valgrind ./Filesystem_Tester
@@ -243,7 +244,7 @@ pipeline {
                         checkout scm
                         bat 'if not exist "build-debug" mkdir build-debug'
                         dir('build-debug') {
-                            bat 'cmake -E env CXXFLAGS="-fno-var-tracking-assignments" cmake -G"Ninja" .. -DCMAKE_BUILD_TYPE=DEBUG -DMEZZ_BuildDoxygen=OFF -DMEZZ_CodeCoverage=ON'
+                            bat 'cmake -E env CXXFLAGS="-fno-var-tracking-assignments" cmake -G"Ninja" .. -DCMAKE_BUILD_TYPE=DEBUG -DMEZZ_BuildDoxygen=OFF -DMEZZ_CodeCoverage=OFF -DMEZZ_ForceGcc32Bit=ON'
                             bat 'ninja'
                             bat 'Filesystem_Tester xml'
                         }
@@ -261,7 +262,7 @@ pipeline {
                         checkout scm
                         bat 'if not exist "build-release" mkdir build-release'
                         dir('build-release') {
-                            bat 'cmake -E env CXXFLAGS="-fno-var-tracking-assignments" cmake -G"Ninja" .. -DCMAKE_BUILD_TYPE=RELEASE -DMEZZ_BuildDoxygen=OFF -DMEZZ_CodeCoverage=OFF'
+                            bat 'cmake -E env CXXFLAGS="-fno-var-tracking-assignments" cmake -G"Ninja" .. -DCMAKE_BUILD_TYPE=RELEASE -DMEZZ_BuildDoxygen=OFF -DMEZZ_CodeCoverage=OFF -DMEZZ_ForceGcc32Bit=ON'
                             bat 'ninja'
                             bat 'Filesystem_Tester xml'
                         }
@@ -280,7 +281,7 @@ pipeline {
                         checkout scm
                         bat 'if not exist "build-debug" mkdir build-debug'
                         dir('build-debug') {
-                            bat 'cmake -E env CXXFLAGS="-fno-var-tracking-assignments" cmake -G"Ninja" .. -DCMAKE_BUILD_TYPE=DEBUG -DMEZZ_BuildDoxygen=OFF -DMEZZ_CodeCoverage=ON'
+                            bat 'cmake -E env CXXFLAGS="-fno-var-tracking-assignments" cmake -G"Ninja" .. -DCMAKE_BUILD_TYPE=DEBUG -DMEZZ_BuildDoxygen=OFF -DMEZZ_CodeCoverage=OFF'
                             bat 'ninja'
                             bat 'Filesystem_Tester xml'
                         }
@@ -346,7 +347,7 @@ pipeline {
                 }
 
             }
-        } // BuildTest
+        } // Build and Test
     } // Stages
 
 }

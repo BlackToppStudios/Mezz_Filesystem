@@ -1,4 +1,4 @@
-// � Copyright 2010 - 2019 BlackTopp Studios Inc.
+// © Copyright 2010 - 2019 BlackTopp Studios Inc.
 /* This file is part of The Mezzanine Engine.
 
     The Mezzanine Engine is free software: you can redistribute it and/or modify
@@ -321,11 +321,11 @@ namespace Filesystem {
 
         if( BaseIsPosixAbsolute && !CheckIsPosixAbsolute ) {
             MEZZ_EXCEPTION(AbsoluteRelativeComparisonCode,
-                           "Attempting to compare absolute base path with relative sub-path.");
+                           "Attempting to compare absolute base path with relative sub-path.")
         }
         if( !BaseIsPosixAbsolute && CheckIsPosixAbsolute ) {
             MEZZ_EXCEPTION(AbsoluteRelativeComparisonCode,
-                           "Attempting to compare relative base path with absolute sub-path.");
+                           "Attempting to compare relative base path with absolute sub-path.")
         }
 
         String NormBasePath = RemoveDotSegments_Posix(BasePath);
@@ -356,11 +356,11 @@ namespace Filesystem {
 
         if( BaseIsWindowsAbsolute && !CheckIsWindowsAbsolute ) {
             MEZZ_EXCEPTION(AbsoluteRelativeComparisonCode,
-                           "Attempting to compare absolute base path with relative sub-path.");
+                           "Attempting to compare absolute base path with relative sub-path.")
         }
         if( !BaseIsWindowsAbsolute && CheckIsWindowsAbsolute ) {
             MEZZ_EXCEPTION(AbsoluteRelativeComparisonCode,
-                           "Attempting to compare relative base path with absolute sub-path.");
+                           "Attempting to compare relative base path with absolute sub-path.")
         }
 
         String NormBasePath = RemoveDotSegments_Windows(BasePath);
@@ -432,7 +432,7 @@ namespace Filesystem {
 
         StringVector SplitPath = RemoveDotSegments_Common(ToRemove.substr(SplitStart,SplitEnd),"/",AbsolutePath);
         const StringView PathRoot = ToRemove.substr(0,SplitStart);
-        const StringView FileName = ( FileStart != StringView::npos ? ToRemove.substr(FileStart) : String() );
+        const StringView FileName = ( FileStart != StringView::npos ? ToRemove.substr(FileStart) : StringView() );
         return BuildPath_Posix(PathRoot,SplitPath,FileName);
     }
 
@@ -446,7 +446,7 @@ namespace Filesystem {
 
         StringVector SplitPath = RemoveDotSegments_Common(ToRemove.substr(SplitStart,SplitEnd),Separators,AbsPath);
         const StringView PathRoot = ToRemove.substr(0,SplitStart);
-        const StringView FileName = ( FileStart != StringView::npos ? ToRemove.substr(FileStart) : String() );
+        const StringView FileName = ( FileStart != StringView::npos ? ToRemove.substr(FileStart) : StringView() );
         return BuildPath_Windows(PathRoot,SplitPath,FileName);
     }
 
