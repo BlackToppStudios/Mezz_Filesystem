@@ -44,30 +44,13 @@
 /// @brief This file tests of some utilities that work with the special platform directories.
 
 #include "MezzTest.h"
+#include "ProcessTools.h"
 
 #include "SpecialDirectoryUtilities.h"
 
 AUTOMATIC_TEST_GROUP(SpecialDirectoryUtilitiesTests,SpecialDirectoryUtilities)
 {
     using namespace Mezzanine;
-
-#ifndef MEZZ_CompilerIsEmscripten
-    auto GetCommandResults = [](String Cmd) -> String {
-        Cmd.append(" > CommandResults.txt");
-    SAVE_WARNING_STATE
-    SUPPRESS_GCC_WARNING("-Wunused-result")
-        system( Cmd.data() );
-    RESTORE_WARNING_STATE
-        std::ifstream ResultFile("CommandResults.txt");
-        String Ret( std::istreambuf_iterator<char>(ResultFile), {} );
-        if( !Ret.empty() ) {
-            while( StringTools::IsNewline( Ret.back() ) || StringTools::IsSpace( Ret.back() ) ) {
-                Ret.pop_back();
-            }
-        }
-        return Ret;
-    };
-#endif
 
     {//Executable Directory
         char* ExeOnly = const_cast<char *>("game.exe");
@@ -194,9 +177,9 @@ AUTOMATIC_TEST_GROUP(SpecialDirectoryUtilitiesTests,SpecialDirectoryUtilities)
             // Curiously, all the other tests for the working directory work as expected.
             const String CmdOriginDir = "/";
         #elif defined(MEZZ_Windows)
-            const String CmdOriginDir = GetCommandResults("cd");
+            const String CmdOriginDir = Testing::RunCommand("cd").ConsoleOutput;
         #else
-            const String CmdOriginDir = GetCommandResults("pwd");
+            const String CmdOriginDir = Testing::RunCommand("pwd").ConsoleOutput;
         #endif
             const String OriginDir = Filesystem::GetWorkingDirectory();
             TEST_EQUAL("GetWorkingDirectory()-OriginDir",
@@ -239,19 +222,19 @@ AUTOMATIC_TEST_GROUP(SpecialDirectoryUtilitiesTests,SpecialDirectoryUtilities)
 #else
     {//AppData Directories
     #ifdef MEZZ_Windows
-        const String LocalAppDataDir = GetCommandResults("echo %localappdata%");
+        const String LocalAppDataDir = Testing::RunCommand("echo %localappdata%").ConsoleOutput;
         TEST_EQUAL("GetLocalAppDataDir()",LocalAppDataDir,Filesystem::GetLocalAppDataDir());
 
-        const String ShareAppDataDir = GetCommandResults("echo %appdata%");
+        const String ShareAppDataDir = Testing::RunCommand("echo %appdata%").ConsoleOutput;
         TEST_EQUAL("GetShareableAppDataDir()",ShareAppDataDir,Filesystem::GetShareableAppDataDir());
 
-        const String CurrentUserAppDataDir = GetCommandResults("echo %userprofile%");
+        const String CurrentUserAppDataDir = Testing::RunCommand("echo %userprofile%").ConsoleOutput;
         TEST_EQUAL("GetCurrentUserDataDir()",CurrentUserAppDataDir,Filesystem::GetCurrentUserDataDir());
 
-        const String CommonUserAppDataDir = GetCommandResults("echo %public%");
+        const String CommonUserAppDataDir = Testing::RunCommand("echo %public%").ConsoleOutput;
         TEST_EQUAL("GetCommonUserDataDir()",CommonUserAppDataDir,Filesystem::GetCommonUserDataDir());
     #else
-        String AppDataDir = GetCommandResults("echo ~");
+        String AppDataDir = Testing::RunCommand("echo ~").ConsoleOutput;
 
         TEST_EQUAL("GetLocalAppDataDir()",AppDataDir,Filesystem::GetLocalAppDataDir());
         TEST_EQUAL("GetShareableAppDataDir()",AppDataDir,Filesystem::GetShareableAppDataDir());
