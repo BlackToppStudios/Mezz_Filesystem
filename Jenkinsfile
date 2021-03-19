@@ -19,7 +19,7 @@ pipeline {
                             hostname &&
                             cmake -E env CXXFLAGS="-fno-var-tracking-assignments" cmake -G"Ninja" .. -DCMAKE_BUILD_TYPE=DEBUG -DMEZZ_BuildDoxygen=OFF -DMEZZ_CodeCoverage=OFF &&
                             ninja &&
-                            ./Filesystem_Tester debugtests xml
+                            ./Filesystem_Tester xml
                         """ }
                     }
                     post {
@@ -38,7 +38,7 @@ pipeline {
                             export PATH='$PATH:/usr/local/bin/' &&
                             cmake -E env CXXFLAGS="-fno-var-tracking" cmake -G"Xcode" .. -DCMAKE_BUILD_TYPE=DEBUG -DMEZZ_BuildDoxygen=OFF -DMEZZ_CodeCoverage=OFF &&
                             cmake --build . &&
-                           ./Filesystem_Tester debugtests xml
+                           ./Filesystem_Tester xml
                         """ }
                     }
                     post {
@@ -57,7 +57,7 @@ pipeline {
                             export MEZZ_PACKAGE_DIR=/home/pi/Code/ &&
                             cmake -E env CXXFLAGS="-fno-var-tracking-assignments" cmake -G"Ninja" .. -DCMAKE_BUILD_TYPE=DEBUG -DMEZZ_BuildDoxygen=OFF -DMEZZ_CodeCoverage=OFF &&
                             ninja &&
-                            ./Filesystem_Tester debugtests xml
+                            ./Filesystem_Tester xml
                          """ }
                     }
                     post {
@@ -75,8 +75,8 @@ pipeline {
                             hostname &&
                             cmake -E env CXXFLAGS="-fno-var-tracking" cmake -G"Ninja" .. -DCMAKE_BUILD_TYPE=DEBUG -DMEZZ_BuildDoxygen=OFF -DMEZZ_CodeCoverage=OFF &&
                             ninja &&
-                            ./Filesystem_Tester debugtests xml &&
-                            valgrind ./Filesystem_Tester debugtests
+                            ./Filesystem_Tester xml &&
+                            valgrind ./Filesystem_Tester
                          """ }
                      }
                      post {
@@ -108,8 +108,8 @@ pipeline {
                             hostname &&
                             cmake -E env CXXFLAGS="-fno-var-tracking-assignments" cmake -G"Ninja" .. -DCMAKE_BUILD_TYPE=DEBUG -DMEZZ_BuildDoxygen=OFF -DMEZZ_CodeCoverage=OFF &&
                             ninja &&
-                            ./Filesystem_Tester debugtests xml &&
-                            valgrind ./Filesystem_Tester debugtests
+                            ./Filesystem_Tester xml &&
+                            valgrind ./Filesystem_Tester
                         """ }
                     }
                     post {
@@ -118,8 +118,8 @@ pipeline {
                         }
                     }
                 }
-                stage('windows7Mingw32') {
-                    agent { label "windows7Mingw32" }
+                stage('Windows10MinGW32') {
+                    agent { label "Windows10MinGW32" }
                     steps {
                         checkout scm
                         bat 'if not exist "build-debug" mkdir build-debug'
@@ -127,7 +127,7 @@ pipeline {
                             bat 'hostname'
                             bat 'cmake -E env CXXFLAGS="-fno-var-tracking-assignments" cmake -G"Ninja" .. -DCMAKE_BUILD_TYPE=DEBUG -DMEZZ_BuildDoxygen=OFF -DMEZZ_CodeCoverage=OFF'
                             bat 'ninja'
-                            bat 'Filesystem_Tester debugtests xml'
+                            bat 'Filesystem_Tester xml'
                         }
                     }
                     post {
@@ -136,8 +136,8 @@ pipeline {
                         }
                     }
                 }
-                stage('windows7Mingw64') {
-                    agent { label "windows7Mingw64" }
+                stage('Windows10MinGW64') {
+                    agent { label "Windows10MinGW64" }
                     steps {
                         checkout scm
                         bat 'if not exist "build-debug" mkdir build-debug'
@@ -145,7 +145,7 @@ pipeline {
                             bat 'hostname'
                             bat 'cmake -E env CXXFLAGS="-fno-var-tracking-assignments" cmake -G"Ninja" .. -DCMAKE_BUILD_TYPE=DEBUG -DMEZZ_BuildDoxygen=OFF -DMEZZ_CodeCoverage=OFF'
                             bat 'ninja'
-                            bat 'Filesystem_Tester debugtests xml'
+                            bat 'Filesystem_Tester xml'
                         }
                     }
                     post {
@@ -154,8 +154,8 @@ pipeline {
                         }
                     }
                 }
-                stage('windows7msvc') {
-                    agent { label "windows7msvc" }
+                stage('Windows10MSVC') {
+                    agent { label "Windows10MSVC" }
                     steps {
                         checkout scm
                         bat 'if not exist "build-debug" mkdir build-debug'
@@ -163,7 +163,7 @@ pipeline {
                             bat 'hostname'
                             bat '"C:\\Program Files (x86)\\Microsoft Visual Studio\\2017\\Community\\VC\\Auxiliary\\Build\\vcvarsall.bat" x86_amd64 && cmake -G"Visual Studio 15 2017 Win64" .. -DCMAKE_BUILD_TYPE=DEBUG -DMEZZ_BuildDoxygen=OFF -DMEZZ_CodeCoverage=OFF'
                             bat 'cmake --build .'
-                            bat 'Filesystem_Tester debugtests xml'
+                            bat 'Filesystem_Tester xml'
                         }
                     }
                     post {
@@ -186,7 +186,7 @@ pipeline {
                             hostname &&
                             cmake -E env CXXFLAGS="-fno-var-tracking-assignments" cmake -G"Ninja" .. -DCMAKE_BUILD_TYPE=RELEASE -DMEZZ_BuildDoxygen=OFF -DMEZZ_CodeCoverage=OFF &&
                             ninja &&
-                            ./Filesystem_Tester debugtests xml
+                            ./Filesystem_Tester xml
                         """ }
                     }
                     post {
@@ -205,7 +205,7 @@ pipeline {
                             export PATH='$PATH:/usr/local/bin/' &&
                             cmake -E env CXXFLAGS="-fno-var-tracking" cmake -G"Xcode" .. -DCMAKE_BUILD_TYPE=RELEASE -DMEZZ_BuildDoxygen=OFF -DMEZZ_CodeCoverage=OFF &&
                             cmake --build . &&
-                           ./Filesystem_Tester debugtests xml
+                           ./Filesystem_Tester xml
                         """ }
                     }
                     post {
@@ -224,7 +224,7 @@ pipeline {
                             export MEZZ_PACKAGE_DIR=/home/pi/Code/ &&
                             cmake -E env CXXFLAGS="-fno-var-tracking-assignments" cmake -G"Ninja" .. -DCMAKE_BUILD_TYPE=RELEASE -DMEZZ_BuildDoxygen=OFF -DMEZZ_CodeCoverage=OFF &&
                             ninja &&
-                            ./Filesystem_Tester debugtests xml
+                            ./Filesystem_Tester xml
                          """ }
                     }
                     post {
@@ -242,8 +242,8 @@ pipeline {
                             hostname &&
                             cmake -E env CXXFLAGS="-fno-var-tracking" cmake -G"Ninja" .. -DCMAKE_BUILD_TYPE=RELEASE -DMEZZ_BuildDoxygen=OFF -DMEZZ_CodeCoverage=OFF &&
                             ninja  &&
-                            ./Filesystem_Tester debugtests xml &&
-                            valgrind ./Filesystem_Tester debugtests
+                            ./Filesystem_Tester xml &&
+                            valgrind ./Filesystem_Tester
                          """ }
                      }
                      post {
@@ -275,8 +275,8 @@ pipeline {
                             hostname &&
                             cmake -E env CXXFLAGS="-fno-var-tracking-assignments" cmake -G"Ninja" .. -DCMAKE_BUILD_TYPE=RELEASE -DMEZZ_BuildDoxygen=OFF -DMEZZ_CodeCoverage=OFF &&
                             ninja &&
-                            ./Filesystem_Tester debugtests xml &&
-                            valgrind ./Filesystem_Tester debugtests
+                            ./Filesystem_Tester xml &&
+                            valgrind ./Filesystem_Tester
                         """ }
                     }
                     post {
@@ -285,8 +285,8 @@ pipeline {
                         }
                     }
                 }
-                stage('windows7Mingw32') {
-                    agent { label "windows7Mingw32" }
+                stage('Windows10MinGW32') {
+                    agent { label "Windows10MinGW32" }
                     steps {
                         checkout scm
                         bat 'if not exist "build-release" mkdir build-release'
@@ -294,7 +294,7 @@ pipeline {
                             bat 'hostname'
                             bat 'cmake -E env CXXFLAGS="-fno-var-tracking-assignments" cmake -G"Ninja" .. -DCMAKE_BUILD_TYPE=RELEASE -DMEZZ_BuildDoxygen=OFF -DMEZZ_CodeCoverage=OFF'
                             bat 'ninja'
-                            bat 'Filesystem_Tester debugtests xml'
+                            bat 'Filesystem_Tester xml'
                         }
                     }
                     post {
@@ -303,8 +303,8 @@ pipeline {
                         }
                     }
                 }
-                stage('windows7Mingw64') {
-                    agent { label "windows7Mingw64" }
+                stage('Windows10MinGW64') {
+                    agent { label "Windows10MinGW64" }
                     steps {
                         checkout scm
                         bat 'if not exist "build-release" mkdir build-release'
@@ -312,7 +312,7 @@ pipeline {
                             bat 'hostname'
                             bat 'cmake -E env CXXFLAGS="-fno-var-tracking-assignments" cmake -G"Ninja" .. -DCMAKE_BUILD_TYPE=RELEASE -DMEZZ_BuildDoxygen=OFF -DMEZZ_CodeCoverage=OFF'
                             bat 'ninja'
-                            bat 'Filesystem_Tester debugtests xml'
+                            bat 'Filesystem_Tester xml'
                         }
                     }
                     post {
@@ -321,8 +321,8 @@ pipeline {
                         }
                     }
                 }
-                stage('windows7msvc') {
-                    agent { label "windows7msvc" }
+                stage('Windows10MSVC') {
+                    agent { label "Windows10MSVC" }
                     steps {
                         checkout scm
                         bat 'if not exist "build-release" mkdir build-release'
@@ -330,7 +330,7 @@ pipeline {
                             bat 'hostname'
                             bat '"C:\\Program Files (x86)\\Microsoft Visual Studio\\2017\\Community\\VC\\Auxiliary\\Build\\vcvarsall.bat" x86_amd64 && cmake -G"Visual Studio 15 2017 Win64" .. -DCMAKE_BUILD_TYPE=RELEASE -DMEZZ_BuildDoxygen=OFF -DMEZZ_CodeCoverage=OFF'
                             bat 'cmake --build .'
-                            bat 'Filesystem_Tester debugtests xml'
+                            bat 'Filesystem_Tester xml'
                         }
                     }
                     post {

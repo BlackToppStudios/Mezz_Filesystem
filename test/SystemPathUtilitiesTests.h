@@ -44,6 +44,7 @@
 /// @brief This file tests of some utilities that work with the system path.
 
 #include "MezzTest.h"
+#include "ProcessTools.h"
 
 #include "SystemPathUtilities.h"
 #include "PathUtilities.h"
@@ -79,23 +80,8 @@ AUTOMATIC_TEST_GROUP(SystemPathUtilitiesTests,SystemPathUtilities)
     }//Which
 #else
     {//Which
-        auto GetCommandResults = [](String Cmd) -> String {
-            Cmd.append(" > CommandResults.txt");
-        SAVE_WARNING_STATE
-        SUPPRESS_GCC_WARNING("-Wunused-result")
-            system( Cmd.data() );
-        RESTORE_WARNING_STATE
-            std::ifstream ResultFile("CommandResults.txt");
-            String Ret( std::istreambuf_iterator<char>(ResultFile), {} );
-            if( !Ret.empty() ) {
-                while( StringTools::IsNewline( Ret.back() ) || StringTools::IsSpace( Ret.back() ) ) {
-                    Ret.pop_back();
-                }
-            }
-            return Ret;
-        };
     #ifdef MEZZ_Windows
-        String SysWhichcmd = GetCommandResults("where cmd");
+        String SysWhichcmd = Testing::RunCommand("where cmd").ConsoleOutput;
         String MezzWhichcmd = Filesystem::Which("cmd");
         // Windows/NTFS isn't a case sensitive filesystem and one of the test machines kept
         // returning "C:/Windows/system32" instead of "C:/Windows/System32".
@@ -103,7 +89,7 @@ AUTOMATIC_TEST_GROUP(SystemPathUtilitiesTests,SystemPathUtilities)
         StringTools::ToLowerCase(MezzWhichcmd.begin(),MezzWhichcmd.end());
         TEST_EQUAL("Which(const_StringView)-cmd",SysWhichcmd,MezzWhichcmd);
     #else
-        String SysWhichls = GetCommandResults("which ls");
+        String SysWhichls = Testing::RunCommand("which ls").ConsoleOutput;
         String MezzWhichls = Filesystem::Which("ls");
         TEST_EQUAL("Which(const_StringView)-ls",SysWhichls,MezzWhichls);
     #endif
