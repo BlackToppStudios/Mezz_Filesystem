@@ -71,6 +71,12 @@ IncludeJagatiPackage("Foundation")
 IncludeJagatiPackage("IOStreams")
 
 ########################################################################################################################
+# Setup Exception
+
+AddJagatiException("AbsoluteRelativeComparison" "LogicError" "Absolute and Relative comparisons shouldn't be compared.")
+EmitExceptionSource()
+
+########################################################################################################################
 # Source files
 message(STATUS "Determining Source Files.")
 

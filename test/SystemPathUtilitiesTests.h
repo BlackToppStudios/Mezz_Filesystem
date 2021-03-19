@@ -68,10 +68,10 @@ AUTOMATIC_TEST_GROUP(SystemPathUtilitiesTests,SystemPathUtilities)
         PosixPath.append("/a/b/c").append(1,HostSep).append("/bin").append(1,HostSep).append(1,HostSep);
 
         StringVector SplitPosixPath = Filesystem::GetSystemPATH( PosixPath );
-        TEST_EQUAL("GetSystemPATH(const_StringView)-Count",size_t(3),SplitPosixPath.size());
-        TEST_EQUAL("GetSystemPATH(const_StringView)-Element1",String("/a/b/c"),SplitPosixPath[0]);
-        TEST_EQUAL("GetSystemPATH(const_StringView)-Element2",String("/bin"),SplitPosixPath[1]);
-        TEST_EQUAL("GetSystemPATH(const_StringView)-Element3",String(""),SplitPosixPath[2]);
+        TEST_EQUAL("GetSystemPATH(const_StringView)-Count",size_t(3),SplitPosixPath.size())
+        TEST_EQUAL("GetSystemPATH(const_StringView)-Element1",String("/a/b/c"),SplitPosixPath[0])
+        TEST_EQUAL("GetSystemPATH(const_StringView)-Element2",String("/bin"),SplitPosixPath[1])
+        TEST_EQUAL("GetSystemPATH(const_StringView)-Element3",String(""),SplitPosixPath[2])
     }//GetSystemPATH
 
 #ifdef MEZZ_CompilerIsEmscripten
@@ -87,15 +87,15 @@ AUTOMATIC_TEST_GROUP(SystemPathUtilitiesTests,SystemPathUtilities)
         // returning "C:/Windows/system32" instead of "C:/Windows/System32".
         StringTools::ToLowerCase(SysWhichcmd.begin(),SysWhichcmd.end());
         StringTools::ToLowerCase(MezzWhichcmd.begin(),MezzWhichcmd.end());
-        TEST_EQUAL("Which(const_StringView)-cmd",SysWhichcmd,MezzWhichcmd);
+        TEST_EQUAL("Which(const_StringView)-cmd",SysWhichcmd,MezzWhichcmd)
     #else
         String SysWhichls = Testing::RunCommand("which ls").ConsoleOutput;
         String MezzWhichls = Filesystem::Which("ls");
-        TEST_EQUAL("Which(const_StringView)-ls",SysWhichls,MezzWhichls);
+        TEST_EQUAL("Which(const_StringView)-ls",SysWhichls,MezzWhichls)
     #endif
 
         if( Filesystem::RemoveFile("CommandResults.txt") == false ) {
-            TEST_RESULT("CommandResults-CleanupFailed",Testing::TestResult::Warning);
+            TEST_RESULT("CommandResults-CleanupFailed",Testing::TestResult::Warning)
         }
     }//Which
 #endif
