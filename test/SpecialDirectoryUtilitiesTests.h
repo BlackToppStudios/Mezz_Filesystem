@@ -177,9 +177,9 @@ AUTOMATIC_TEST_GROUP(SpecialDirectoryUtilitiesTests,SpecialDirectoryUtilities)
             // Curiously, all the other tests for the working directory work as expected.
             const String CmdOriginDir = "/";
         #elif defined(MEZZ_Windows)
-            const String CmdOriginDir = Testing::RunCommand("cd").ConsoleOutput;
+            const String CmdOriginDir = Testing::RunCommandInShell("cd").ConsoleOutput;
         #else
-            const String CmdOriginDir = Testing::RunCommand("pwd").ConsoleOutput;
+            const String CmdOriginDir = Testing::RunCommandInShell("pwd").ConsoleOutput;
         #endif
             const String OriginDir = Filesystem::GetWorkingDirectory();
             TEST_EQUAL("GetWorkingDirectory()-OriginDir",
@@ -222,19 +222,19 @@ AUTOMATIC_TEST_GROUP(SpecialDirectoryUtilitiesTests,SpecialDirectoryUtilities)
 #else
     {//AppData Directories
     #ifdef MEZZ_Windows
-        const String LocalAppDataDir = Testing::RunCommand("echo %localappdata%").ConsoleOutput;
+        const String LocalAppDataDir = Testing::RunCommandInShell("echo %localappdata%").ConsoleOutput;
         TEST_EQUAL("GetLocalAppDataDir()",LocalAppDataDir,Filesystem::GetLocalAppDataDir());
 
-        const String ShareAppDataDir = Testing::RunCommand("echo %appdata%").ConsoleOutput;
+        const String ShareAppDataDir = Testing::RunCommandInShell("echo %appdata%").ConsoleOutput;
         TEST_EQUAL("GetShareableAppDataDir()",ShareAppDataDir,Filesystem::GetShareableAppDataDir());
 
-        const String CurrentUserAppDataDir = Testing::RunCommand("echo %userprofile%").ConsoleOutput;
+        const String CurrentUserAppDataDir = Testing::RunCommandInShell("echo %userprofile%").ConsoleOutput;
         TEST_EQUAL("GetCurrentUserDataDir()",CurrentUserAppDataDir,Filesystem::GetCurrentUserDataDir());
 
-        const String CommonUserAppDataDir = Testing::RunCommand("echo %public%").ConsoleOutput;
+        const String CommonUserAppDataDir = Testing::RunCommandInShell("echo %public%").ConsoleOutput;
         TEST_EQUAL("GetCommonUserDataDir()",CommonUserAppDataDir,Filesystem::GetCommonUserDataDir());
     #else
-        String AppDataDir = Testing::RunCommand("echo ~").ConsoleOutput;
+        String AppDataDir = Testing::RunCommandInShell("echo ~").ConsoleOutput;
 
         TEST_EQUAL("GetLocalAppDataDir()",AppDataDir,Filesystem::GetLocalAppDataDir());
         TEST_EQUAL("GetShareableAppDataDir()",AppDataDir,Filesystem::GetShareableAppDataDir());

@@ -63,7 +63,11 @@ std::ostream& operator<<(std::ostream& Stream, Mezzanine::Filesystem::ModifyResu
 }//Filesystem
 }//Mezzanine
 
+#ifdef MEZZ_Windows
+ISOLATED_TEST_GROUP(FilesystemManagementTests,FilesystemManagement)
+#else
 AUTOMATIC_TEST_GROUP(FilesystemManagementTests,FilesystemManagement)
+#endif // MEZZ_Windows
 {
     using namespace Mezzanine;
 
@@ -187,9 +191,6 @@ AUTOMATIC_TEST_GROUP(FilesystemManagementTests,FilesystemManagement)
             TEST_EQUAL("RemoveSymlink(const_StringView)-File",
                        Filesystem::ModifyResult::Success,
                        Filesystem::RemoveSymlink(LinkName))
-            TEST_EQUAL("SymlinkManagement-File-CleanupTarget",
-                       Filesystem::ModifyResult::Success,
-                       Filesystem::RemoveFile(TargetName))
         }else if( CreateResult == Filesystem::ModifyResult::PrivilegeNotHeld ) {
             this->TestLog << "User Privileges are insufficient for this operation.\n";
             TEST_RESULT("CreateSymlink(const_StringView,const_StringView)-File",
@@ -198,20 +199,30 @@ AUTOMATIC_TEST_GROUP(FilesystemManagementTests,FilesystemManagement)
             this->TestLog << "Creation of Symlinks are not supported on the host system.\n";
             TEST_RESULT("CreateSymlink(const_StringView,const_StringView)-File",
                         Testing::TestResult::Skipped)
+        }else if( CreateResult == Filesystem::ModifyResult::InvalidParameter ) {
+            this->TestLog << "A parameter provided was invalid.  If this is on Windows, enable Developer Mode.\n";
+            TEST_RESULT("CreateSymlink(const_StringView,const_StringView)-File",
+                        Testing::TestResult::Skipped)
         }else{
-            this->TestLog << "Unknown Symlink error.  :(\n";
+            this->TestLog << "Unknown Symlink error. :(\n" << "Error No.: " << CreateResult << "\n";
             TEST_RESULT("CreateSymlink(const_StringView,const_StringView)-File",
                         Testing::TestResult::Failed)
         }
+
+        // Cleanup
+
+        TEST_EQUAL("SymlinkManagement-File-CleanupTarget",
+                   Filesystem::ModifyResult::Success,
+                   Filesystem::RemoveFile(TargetName))
     }// Symlinks - File
 
     {// Symlinks - Directory
-        const String TargetName("./LinkTargetDir");
-        const String LinkName("./TotallyNotALink");
+        const String TargetName("./LinkTargetDir/");
+        const String LinkName("./TotallyNotALink/");
 
         Filesystem::ModifyResult MakeDirResult = Filesystem::CreateDirectory(TargetName);
-        if( MakeDirResult != Filesystem::ModifyResult::Success ) {
-            this->TestLog << "Failed to create test directory.";
+        if( MakeDirResult != Filesystem::ModifyResult::Success && MakeDirResult != Filesystem::ModifyResult::AlreadyExists ) {
+            this->TestLog << "Failed to create test directory.  Error: " << MakeDirResult << "\n";
             TEST_RESULT("SymlinkManagement-Directory-Setup",
                         Testing::TestResult::Failed)
         }else{
@@ -248,11 +259,8 @@ AUTOMATIC_TEST_GROUP(FilesystemManagementTests,FilesystemManagement)
                            LinkPathFail.has_value())
 
                 TEST_EQUAL("RemoveSymlink(const_StringView)-Directory",
-                           Filesystem::ModifyResult::Success,
-                           Filesystem::RemoveSymlink(LinkName))
-                TEST_EQUAL("SymlinkManagement-Directory-CleanupTarget",
-                           Filesystem::ModifyResult::Success,
-                           Filesystem::RemoveDirectory(TargetName))
+                               Filesystem::ModifyResult::Success,
+                               Filesystem::RemoveSymlink(LinkName))
             }else if( CreateResult == Filesystem::ModifyResult::PrivilegeNotHeld ) {
                 this->TestLog << "User Privileges are insufficient for this operation.\n";
                 TEST_RESULT("CreateDirectorySymlink(const_StringView,const_StringView)-Directory",
@@ -261,12 +269,22 @@ AUTOMATIC_TEST_GROUP(FilesystemManagementTests,FilesystemManagement)
                 this->TestLog << "Creation of Symlinks are not supported on the host system.\n";
                 TEST_RESULT("CreateDirectorySymlink(const_StringView,const_StringView)-Directory",
                             Testing::TestResult::Skipped)
+            }else if( CreateResult == Filesystem::ModifyResult::InvalidParameter ) {
+                this->TestLog << "A parameter provided was invalid.  If this is on Windows, enable Developer Mode.\n";
+                TEST_RESULT("CreateSymlink(const_StringView,const_StringView)-Directory",
+                            Testing::TestResult::Skipped)
             }else{
-                this->TestLog << "Unknown Symlink error.  :(\n";
+                this->TestLog << "Unknown Symlink error. :(\n" << "Error No.: " << CreateResult << "\n";
                 TEST_RESULT("CreateDirectorySymlink(const_StringView,const_StringView)-Directory",
                             Testing::TestResult::Failed)
             }
         }
+
+        // Cleanup
+
+        TEST_EQUAL("SymlinkManagement-Directory-CleanupTarget",
+                   Filesystem::ModifyResult::Success,
+                   Filesystem::RemoveDirectory(TargetName))
     }// Symlinks - Directory
     #endif
 

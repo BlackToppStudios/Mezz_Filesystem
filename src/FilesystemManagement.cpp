@@ -241,6 +241,7 @@ namespace
             case ERROR_PRIVILEGE_NOT_HELD: return Filesystem::ModifyResult::PrivilegeNotHeld;
             case ERROR_PATH_BUSY:          return Filesystem::ModifyResult::CurrentlyBusy;
             case ERROR_REQUEST_ABORTED:    return Filesystem::ModifyResult::OperationCanceled;
+            case ERROR_INVALID_PARAMETER:  return Filesystem::ModifyResult::InvalidParameter;
             default:
             {
             #ifdef MEZZ_Debug
@@ -447,7 +448,7 @@ namespace Filesystem {
         RESTORE_WARNING_STATE
 
         if( CreateLink ) {
-            DWORD LinkFlags = 0;
+            DWORD LinkFlags = SYMBOLIC_LINK_FLAG_ALLOW_UNPRIVILEGED_CREATE;
             std::wstring WideSymPath = ConvertToWideString(SymPath);
             std::wstring WideTargetPath = ConvertToWideString(TargetPath);
             return ( CreateLink(WideSymPath.data(),WideTargetPath.data(),LinkFlags) != 0 ?
@@ -466,12 +467,26 @@ namespace Filesystem {
     ModifyResult CreateDirectorySymlink(const StringView SymPath, const StringView TargetPath)
     {
     #ifdef MEZZ_Windows
-        DWORD LinkFlags = SYMBOLIC_LINK_FLAG_DIRECTORY;
-        std::wstring WideSymPath = ConvertToWideString(SymPath);
-        std::wstring WideTargetPath = ConvertToWideString(TargetPath);
-        return ( ::CreateSymbolicLinkW(WideSymPath.data(),WideTargetPath.data(),LinkFlags) != 0 ?
-                 ModifyResult::Success :
-                 ConvertErrNo( ::GetLastError() ) );
+        using CreateLinkPtr = BOOLEAN(WINAPI*)(LPCWSTR,LPCWSTR,DWORD);
+
+        SAVE_WARNING_STATE
+        SUPPRESS_VC_WARNING(4191) // Because apparently I need to tell the compiler to shut up twice.
+        SUPPRESS_GCC_WARNING("-Wcast-function-type") // MinGW doesn't like this cast, even though the WINAPI demands it.
+
+        CreateLinkPtr CreateLink = reinterpret_cast<CreateLinkPtr>( GetProcAddress(GetModuleHandleW(L"kernel32.dll"),
+                                                                                   "CreateSymbolicLinkW") );
+        RESTORE_WARNING_STATE
+
+        if( CreateLink ) {
+            DWORD LinkFlags = SYMBOLIC_LINK_FLAG_ALLOW_UNPRIVILEGED_CREATE | SYMBOLIC_LINK_FLAG_DIRECTORY;
+            std::wstring WideSymPath = ConvertToWideString(SymPath);
+            std::wstring WideTargetPath = ConvertToWideString(TargetPath);
+            return ( CreateLink(WideSymPath.data(),WideTargetPath.data(),LinkFlags) != 0 ?
+                     ModifyResult::Success :
+                     ConvertErrNo( ::GetLastError() ) );
+        }else{
+            return ModifyResult::NotSupported;
+        }
     #else // MEZZ_Windows
         return ( ::symlink(TargetPath.data(),SymPath.data()) == 0 ?
                  ModifyResult::Success :

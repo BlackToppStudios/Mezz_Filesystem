@@ -48,7 +48,11 @@
 #include "DirectoryContents.h"
 #include "FilesystemManagement.h"
 
+#ifdef MEZZ_Windows
+ISOLATED_TEST_GROUP(DirectoryContentsTests,DirectoryContents)
+#else
 AUTOMATIC_TEST_GROUP(DirectoryContentsTests,DirectoryContents)
+#endif // MEZZ_Windows
 {
     using namespace Mezzanine;
 

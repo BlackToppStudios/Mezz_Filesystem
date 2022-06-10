@@ -93,10 +93,6 @@ AUTOMATIC_TEST_GROUP(SystemPathUtilitiesTests,SystemPathUtilities)
         String MezzWhichls = Filesystem::Which("ls");
         TEST_EQUAL("Which(const_StringView)-ls",SysWhichls,MezzWhichls)
     #endif
-
-        if( Filesystem::RemoveFile("CommandResults.txt") == false ) {
-            TEST_RESULT("CommandResults-CleanupFailed",Testing::TestResult::Warning)
-        }
     }//Which
 #endif
 }
