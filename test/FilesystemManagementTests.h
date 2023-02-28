@@ -63,11 +63,7 @@ std::ostream& operator<<(std::ostream& Stream, Mezzanine::Filesystem::ModifyResu
 }//Filesystem
 }//Mezzanine
 
-#ifdef MEZZ_Windows
-ISOLATED_TEST_GROUP(FilesystemManagementTests,FilesystemManagement)
-#else
 AUTOMATIC_TEST_GROUP(FilesystemManagementTests,FilesystemManagement)
-#endif // MEZZ_Windows
 {
     using namespace Mezzanine;
 
@@ -315,7 +311,7 @@ AUTOMATIC_TEST_GROUP(FilesystemManagementTests,FilesystemManagement)
         TEST_EQUAL("DirectoryExists(const_StringView)",
                    true,Filesystem::DirectoryExists(BasePathTestDir))
 
-        TEST_EQUAL("CreateDirectoryPath(const_StringView)",
+        TEST_EQUAL("CreateDirectoryPath(const_StringView)-Create",
                    Filesystem::ModifyResult::Success,
                    Filesystem::CreateDirectoryPath(DepthThreeDir))
         TEST_EQUAL("CreateDirectoryPath(const_StringView)-Verify",

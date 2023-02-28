@@ -48,110 +48,172 @@
 #include "DirectoryContents.h"
 #include "FilesystemManagement.h"
 
-#ifdef MEZZ_Windows
-ISOLATED_TEST_GROUP(DirectoryContentsTests,DirectoryContents)
-#else
 AUTOMATIC_TEST_GROUP(DirectoryContentsTests,DirectoryContents)
-#endif // MEZZ_Windows
 {
     using namespace Mezzanine;
 
-    String FileData1 = "This is a simple test file, with some length.";
-    String FileData2 = "This is a larger test file text for testing larger files.";
-    String FileData3 = "How much wood would a woodchuck chuck if a woodchuck could chuck wood?";
-    String FileData4 = "When in the Course of human events, it becomes necessary for one people to dissolve "
-                       "the political bands which have connected them with another, and to assume among the "
-                       "powers of the earth, the separate and equal station to which the Laws of Nature and "
-                       "of Nature's God entitle them, a decent respect to the opinions of mankind requires "
-                       "that they should declare the causes which impel them to the separation.";
-
-    if( Filesystem::CreateDirectory("Content/") == false ) {
-        TEST_RESULT("CreateContentDir",Testing::TestResult::Failed)
-        return;
-    }
+    const StringView FileData1 = "This is a simple test file, with some length.";
+    const StringView FileData2 = "This is a larger test file text for testing larger files.";
+    const StringView FileData3 = "How much wood would a woodchuck chuck if a woodchuck could chuck wood?";
+    const StringView FileData4 = "When in the course of human events, it becomes necessary for one people to dissolve "
+                                 "the political bands which have connected them with another, and to assume among the "
+                                 "powers of the earth, the separate and equal station to which the Laws of Nature and "
+                                 "of Nature's God entitle them, a decent respect to the opinions of mankind requires "
+                                 "that they should declare the causes which impel them to the separation.";
 
     {// GetDirectoryContentNames
-        std::ofstream NameTestFile1;
-        NameTestFile1.open("Content/NameTestFile1.txt");
-        NameTestFile1 << FileData1;
-        NameTestFile1.close();
-        std::ofstream NameTestFile2;
-        NameTestFile2.open("Content/NameTestFile2.txt");
-        NameTestFile2 << FileData2;
-        NameTestFile2.close();
-        std::ofstream NameTestFile3;
-        NameTestFile3.open("Content/NameTestFile3.txt");
-        NameTestFile3 << FileData3;
-        NameTestFile3.close();
-        std::ofstream NameTestFile4;
-        NameTestFile4.open("Content/NameTestFile4.txt");
-        NameTestFile4 << FileData4;
-        NameTestFile4.close();
+        const String ContentNamesDir{"ContentNames/"};
+        const String ContentNamesSubDir{"NameTestDir"};
 
-        if( Filesystem::CreateDirectory("Content/NameTestDir/") == false ) {
-            TEST_RESULT("CreateNameTestDir",Testing::TestResult::Failed)
+        const String TestFile1Name{"NameTestFile1.txt"};
+        const String TestFile2Name{"NameTestFile2.txt"};
+        const String TestFile3Name{"NameTestFile3.txt"};
+        const String TestFile4Name{"NameTestFile4.txt"};
+
+        const String ContentNamesSubDirPath{ContentNamesDir + ContentNamesSubDir + "/"};
+
+        const String TestFile1Path{ContentNamesDir + TestFile1Name};
+        const String TestFile2Path{ContentNamesDir + TestFile2Name};
+        const String TestFile3Path{ContentNamesDir + TestFile3Name};
+        const String TestFile4Path{ContentNamesDir + TestFile4Name};
+
+        auto CleanContentNames = [&]() {
+            TestLog << "Removing file \"" << TestFile1Path << "\": ";
+            TestLog << ( Filesystem::RemoveFile(TestFile1Path) == true ? "Succeeded" : "Failed" ) << "\n";
+
+            TestLog << "Removing file \"" << TestFile2Path << "\": ";
+            TestLog << ( Filesystem::RemoveFile(TestFile2Path) == true ? "Succeeded" : "Failed" ) << "\n";
+
+            TestLog << "Removing file \"" << TestFile3Path << "\": ";
+            TestLog << ( Filesystem::RemoveFile(TestFile3Path) == true ? "Succeeded" : "Failed" ) << "\n";
+
+            TestLog << "Removing file \"" << TestFile4Path << "\": ";
+            TestLog << ( Filesystem::RemoveFile(TestFile4Path) == true ? "Succeeded" : "Failed" ) << "\n";
+
+            TestLog << "Removing directory \"" << ContentNamesSubDirPath << "\": ";
+            TestLog << ( Filesystem::RemoveDirectory(ContentNamesSubDirPath) == true ? "Succeeded" : "Failed" ) << "\n";
+
+            TestLog << "Removing directory \"" << ContentNamesDir << "\": ";
+            TestLog << ( Filesystem::RemoveDirectory(ContentNamesDir) == true ? "Succeeded" : "Failed" ) << "\n";
+        };//*/
+
+        TestLog << "Pre-ContentNames cleanup starting.  These should fail.\n";
+        CleanContentNames();
+        TestLog << "Pre-ContentNames cleanup complete.\n";
+
+        if( Filesystem::CreateDirectory(ContentNamesDir) == false ) {
+            TEST_RESULT("CreateContentNamesDir",Testing::TestResult::Failed)
             return;
         }
 
-        StringVector ContentNames = Filesystem::GetDirectoryContentNames("Content/");
+        std::ofstream NameTestFile1;
+        NameTestFile1.open(TestFile1Path);
+        NameTestFile1 << FileData1;
+        NameTestFile1.close();
+        std::ofstream NameTestFile2;
+        NameTestFile2.open(TestFile2Path);
+        NameTestFile2 << FileData2;
+        NameTestFile2.close();
+        std::ofstream NameTestFile3;
+        NameTestFile3.open(TestFile3Path);
+        NameTestFile3 << FileData3;
+        NameTestFile3.close();
+        std::ofstream NameTestFile4;
+        NameTestFile4.open(TestFile4Path);
+        NameTestFile4 << FileData4;
+        NameTestFile4.close();
+
+        if( Filesystem::CreateDirectory(ContentNamesSubDirPath) == false ) {
+            TEST_RESULT("CreateNameTestSubDir",Testing::TestResult::Failed)
+            return;
+        }
+
+        StringVector ContentNames = Filesystem::GetDirectoryContentNames(ContentNamesDir);
         TEST_EQUAL("GetDirectoryContentNames-Count",
                    size_t(5),ContentNames.size())
         TEST_EQUAL("GetDirectoryContentNames-DirFound",
-                   true,std::find(ContentNames.begin(),ContentNames.end(),"NameTestDir") != ContentNames.end())
+                   true,std::find(ContentNames.begin(),ContentNames.end(),ContentNamesSubDir) != ContentNames.end())
         TEST_EQUAL("GetDirectoryContentNames-FirstFound",
-                   true,std::find(ContentNames.begin(),ContentNames.end(),"NameTestFile1.txt") != ContentNames.end())
+                   true,std::find(ContentNames.begin(),ContentNames.end(),TestFile1Name) != ContentNames.end())
         TEST_EQUAL("GetDirectoryContentNames-SecondFound",
-                   true,std::find(ContentNames.begin(),ContentNames.end(),"NameTestFile2.txt") != ContentNames.end())
+                   true,std::find(ContentNames.begin(),ContentNames.end(),TestFile2Name) != ContentNames.end())
         TEST_EQUAL("GetDirectoryContentNames-ThirdFound",
-                   true,std::find(ContentNames.begin(),ContentNames.end(),"NameTestFile3.txt") != ContentNames.end())
+                   true,std::find(ContentNames.begin(),ContentNames.end(),TestFile3Name) != ContentNames.end())
         TEST_EQUAL("GetDirectoryContentNames-FourthFound",
-                   true,std::find(ContentNames.begin(),ContentNames.end(),"NameTestFile4.txt") != ContentNames.end())
+                   true,std::find(ContentNames.begin(),ContentNames.end(),TestFile4Name) != ContentNames.end())
 
-        if( Filesystem::RemoveFile("Content/NameTestFile1.txt") == false ) {
-            TEST_RESULT("NameTestFile1-CleanupFailed",Testing::TestResult::Warning)
-        }
-        if( Filesystem::RemoveFile("Content/NameTestFile2.txt") == false ) {
-            TEST_RESULT("NameTestFile2-CleanupFailed",Testing::TestResult::Warning)
-        }
-        if( Filesystem::RemoveFile("Content/NameTestFile3.txt") == false ) {
-            TEST_RESULT("NameTestFile3-CleanupFailed",Testing::TestResult::Warning)
-        }
-        if( Filesystem::RemoveFile("Content/NameTestFile4.txt") == false ) {
-            TEST_RESULT("NameTestFile4-CleanupFailed",Testing::TestResult::Warning)
-        }
-        if( Filesystem::RemoveDirectory("Content/NameTestDir/") == false ) {
-            TEST_RESULT("NameTestDir-CleanupFailed",Testing::TestResult::Warning)
-        }
+        TestLog << "Post-ContentNames cleanup.  These should succeed.\n";
+        CleanContentNames();
+        TestLog << "Post-ContentNames cleanup complete.\n";
     }// GetDirectoryContentNames
 
     {// GetDirectoryContents
         using ArchiveEntryIterator = ArchiveEntryVector::iterator;
 
-        std::ofstream ContentTestFile2;
-        ContentTestFile2.open("Content/ContentTestFile2.txt");
-        ContentTestFile2 << FileData2;
-        ContentTestFile2.close();
-        std::ofstream ContentTestFile3;
-        ContentTestFile3.open("Content/ContentTestFile3.txt");
-        ContentTestFile3 << FileData3;
-        ContentTestFile3.close();
-        std::ofstream ContentTestFile4;
-        ContentTestFile4.open("Content/ContentTestFile4.txt");
-        ContentTestFile4 << FileData4;
-        ContentTestFile4.close();
+        const String DirectoryContentsDir{"DirContents/"};
+        const String DirectoryContentsSubDir{"TestDir"};
 
-        if( Filesystem::CreateDirectory("Content/TestDir/") == false ) {
-            TEST_RESULT("CreateContentTestDir",Testing::TestResult::Failed)
+        const String TestFile2Name{"ContentTestFile2.txt"};
+        const String TestFile3Name{"ContentTestFile3.txt"};
+        const String TestFile4Name{"ContentTestFile4.txt"};
+
+        const String DirectoryContentsSubDirPath{DirectoryContentsDir + DirectoryContentsSubDir + "/"};
+
+        const String TestFile2Path{DirectoryContentsDir + TestFile2Name};
+        const String TestFile3Path{DirectoryContentsDir + TestFile3Name};
+        const String TestFile4Path{DirectoryContentsDir + TestFile4Name};
+
+        auto CleanDirectoryContents = [&]() {
+            TestLog << "Removing file \"" << TestFile2Path << "\": ";
+            TestLog << ( Filesystem::RemoveFile(TestFile2Path) == true ? "Succeeded" : "Failed" ) << "\n";
+
+            TestLog << "Removing file \"" << TestFile3Path << "\": ";
+            TestLog << ( Filesystem::RemoveFile(TestFile3Path) == true ? "Succeeded" : "Failed" ) << "\n";
+
+            TestLog << "Removing file \"" << TestFile4Path << "\": ";
+            TestLog << ( Filesystem::RemoveFile(TestFile4Path) == true ? "Succeeded" : "Failed" ) << "\n";
+
+            TestLog << "Removing directory \"" << DirectoryContentsSubDirPath << "\": ";
+            TestLog << ( Filesystem::RemoveDirectory(DirectoryContentsSubDirPath) == true ? "Succeeded" : "Failed" ) << "\n";
+
+            TestLog << "Removing directory \"" << DirectoryContentsDir << "\": ";
+            TestLog << ( Filesystem::RemoveDirectory(DirectoryContentsDir) == true ? "Succeeded" : "Failed" ) << "\n";
+        };
+
+        TestLog << "Pre-DirectoryContents cleanup.  These should fail.\n";
+        CleanDirectoryContents();
+        TestLog << "Pre-DirectoryContents cleanup complete.\n";
+
+        if( Filesystem::CreateDirectory(DirectoryContentsDir) == false ) {
+            TEST_RESULT("CreateDirContentsDir",Testing::TestResult::Failed)
             return;
         }
 
-        ArchiveEntryVector ContentEntries = Filesystem::GetDirectoryContents("Content/");
+        std::ofstream ContentTestFile2;
+        ContentTestFile2.open(TestFile2Path);
+        ContentTestFile2 << FileData2;
+        ContentTestFile2.close();
+        std::ofstream ContentTestFile3;
+        ContentTestFile3.open(TestFile3Path);
+        ContentTestFile3 << FileData3;
+        ContentTestFile3.close();
+        std::ofstream ContentTestFile4;
+        ContentTestFile4.open(TestFile4Path);
+        ContentTestFile4 << FileData4;
+        ContentTestFile4.close();
+
+        if( Filesystem::CreateDirectory(DirectoryContentsSubDirPath) == false ) {
+            TEST_RESULT("CreateDirContentsSubDir",Testing::TestResult::Failed)
+            return;
+        }
+
+        ArchiveEntryVector ContentEntries = Filesystem::GetDirectoryContents(DirectoryContentsDir);
         TEST_EQUAL("GetDirectoryContents-Count",
                    size_t(4),ContentEntries.size())
         ArchiveEntryIterator EntryIt = ContentEntries.end();
 
-        EntryIt = std::find_if(ContentEntries.begin(),ContentEntries.end(),[](const ArchiveEntry& Entry){
-            return ( Entry.Name == "TestDir" );
+        EntryIt = std::find_if(ContentEntries.begin(),ContentEntries.end(),[&](const ArchiveEntry& Entry){
+            return ( Entry.Name == DirectoryContentsSubDir );
         });
         TEST_EQUAL("GetDirectoryContents-DirFound",true,EntryIt != ContentEntries.end())
         if( EntryIt != ContentEntries.end() ) {
@@ -160,7 +222,7 @@ AUTOMATIC_TEST_GROUP(DirectoryContentsTests,DirectoryContents)
             TEST_EQUAL("GetDirectoryContents-DirEntryType",
                        static_cast<int>(EntryType::Directory),static_cast<int>((*EntryIt).Entry))
             TEST_EQUAL("GetDirectoryContents-DirName",
-                       String("TestDir"),(*EntryIt).Name)
+                       DirectoryContentsSubDir,(*EntryIt).Name)
             TEST_EQUAL("GetDirectoryContents-DirSize",
                        size_t(0),(*EntryIt).Size)
         }else{
@@ -170,8 +232,8 @@ AUTOMATIC_TEST_GROUP(DirectoryContentsTests,DirectoryContents)
             TEST_RESULT("GetDirectoryContents-DirSize",Testing::TestResult::Failed)
         }
 
-        EntryIt = std::find_if(ContentEntries.begin(),ContentEntries.end(),[](const ArchiveEntry& Entry){
-            return ( Entry.Name == "ContentTestFile2.txt" );
+        EntryIt = std::find_if(ContentEntries.begin(),ContentEntries.end(),[&](const ArchiveEntry& Entry){
+            return ( Entry.Name == TestFile2Name );
         });
         TEST_EQUAL("GetDirectoryContents-SecondFound",true,EntryIt != ContentEntries.end())
         if( EntryIt != ContentEntries.end() ) {
@@ -180,7 +242,7 @@ AUTOMATIC_TEST_GROUP(DirectoryContentsTests,DirectoryContents)
             TEST_EQUAL("GetDirectoryContents-SecondEntryType",
                        static_cast<int>(EntryType::File),static_cast<int>((*EntryIt).Entry))
             TEST_EQUAL("GetDirectoryContents-SecondName",
-                       String("ContentTestFile2.txt"),(*EntryIt).Name)
+                       TestFile2Name,(*EntryIt).Name)
             TEST_EQUAL("GetDirectoryContents-SecondSize",
                        FileData2.size(),(*EntryIt).Size)
         }else{
@@ -190,8 +252,8 @@ AUTOMATIC_TEST_GROUP(DirectoryContentsTests,DirectoryContents)
             TEST_RESULT("GetDirectoryContents-SecondSize",Testing::TestResult::Failed)
         }
 
-        EntryIt = std::find_if(ContentEntries.begin(),ContentEntries.end(),[](const ArchiveEntry& Entry){
-            return ( Entry.Name == "ContentTestFile3.txt" );
+        EntryIt = std::find_if(ContentEntries.begin(),ContentEntries.end(),[&](const ArchiveEntry& Entry){
+            return ( Entry.Name == TestFile3Name );
         });
         TEST_EQUAL("GetDirectoryContents-ThirdFound",true,EntryIt != ContentEntries.end())
         if( EntryIt != ContentEntries.end() ) {
@@ -200,7 +262,7 @@ AUTOMATIC_TEST_GROUP(DirectoryContentsTests,DirectoryContents)
             TEST_EQUAL("GetDirectoryContents-ThirdEntryType",
                        static_cast<int>(EntryType::File),static_cast<int>((*EntryIt).Entry))
             TEST_EQUAL("GetDirectoryContents-ThirdName",
-                       String("ContentTestFile3.txt"),(*EntryIt).Name)
+                       TestFile3Name,(*EntryIt).Name)
             TEST_EQUAL("GetDirectoryContents-ThirdSize",
                        FileData3.size(),(*EntryIt).Size)
         }else{
@@ -210,8 +272,8 @@ AUTOMATIC_TEST_GROUP(DirectoryContentsTests,DirectoryContents)
             TEST_RESULT("GetDirectoryContents-ThirdSize",Testing::TestResult::Failed)
         }
 
-        EntryIt = std::find_if(ContentEntries.begin(),ContentEntries.end(),[](const ArchiveEntry& Entry){
-            return ( Entry.Name == "ContentTestFile4.txt" );
+        EntryIt = std::find_if(ContentEntries.begin(),ContentEntries.end(),[&](const ArchiveEntry& Entry){
+            return ( Entry.Name == TestFile4Name );
         });
         TEST_EQUAL("GetDirectoryContents-FourthFound",true,EntryIt != ContentEntries.end())
         if( EntryIt != ContentEntries.end() ) {
@@ -220,7 +282,7 @@ AUTOMATIC_TEST_GROUP(DirectoryContentsTests,DirectoryContents)
             TEST_EQUAL("GetDirectoryContents-FourthEntryType",
                        static_cast<int>(EntryType::File),static_cast<int>((*EntryIt).Entry))
             TEST_EQUAL("GetDirectoryContents-FourthName",
-                       String("ContentTestFile4.txt"),(*EntryIt).Name)
+                       TestFile4Name,(*EntryIt).Name)
             TEST_EQUAL("GetDirectoryContents-FourthSize",
                        FileData4.size(),(*EntryIt).Size)
         }else{
@@ -230,22 +292,10 @@ AUTOMATIC_TEST_GROUP(DirectoryContentsTests,DirectoryContents)
             TEST_RESULT("GetDirectoryContents-FourthSize",Testing::TestResult::Failed)
         }
 
-        if( Filesystem::RemoveFile("Content/ContentTestFile2.txt") == false ) {
-            TEST_RESULT("ContentTestFile1-CleanupFailed",Testing::TestResult::Warning)
-        }
-        if( Filesystem::RemoveFile("Content/ContentTestFile3.txt") == false ) {
-            TEST_RESULT("ContentTestFile2-CleanupFailed",Testing::TestResult::Warning)
-        }
-        if( Filesystem::RemoveFile("Content/ContentTestFile4.txt") == false ) {
-            TEST_RESULT("ContentTestFile3-CleanupFailed",Testing::TestResult::Warning)
-        }
-        if( Filesystem::RemoveDirectory("Content/TestDir/") == false ) {
-            TEST_RESULT("ContentTestDir-CleanupFailed",Testing::TestResult::Warning)
-        }
+        TestLog << "Post-DirectoryContents cleanup.  These should succeed.\n";
+        CleanDirectoryContents();
+        TestLog << "Post-DirectoryContents cleanup complete.\n";
     }// GetDirectoryContents
-    if( Filesystem::RemoveDirectory("Content/") == false ) {
-        TEST_RESULT("ContentDir-CleanupFailed",Testing::TestResult::Warning)
-    }
 }
 
 #endif

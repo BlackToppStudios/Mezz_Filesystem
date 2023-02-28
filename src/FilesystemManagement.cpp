@@ -224,6 +224,19 @@ namespace
     [[nodiscard]]
     Filesystem::ModifyResult ConvertErrNo(DWORD err) noexcept
     {
+    #ifdef MEZZ_Debug
+        char MsgBuffer[256];
+        FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
+                       nullptr,
+                       err,
+                       MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
+                       MsgBuffer,
+                       sizeof(MsgBuffer) / sizeof(char),
+                       nullptr);
+        std::stringstream ErrorStream;
+        ErrorStream << "Filesystem operation failed: " << err << " - " << MsgBuffer << "\n";
+        std::cerr << ErrorStream.str();
+    #endif
         switch( err )
         {
             case ERROR_SUCCESS:            return Filesystem::ModifyResult::Success;
@@ -242,23 +255,7 @@ namespace
             case ERROR_PATH_BUSY:          return Filesystem::ModifyResult::CurrentlyBusy;
             case ERROR_REQUEST_ABORTED:    return Filesystem::ModifyResult::OperationCanceled;
             case ERROR_INVALID_PARAMETER:  return Filesystem::ModifyResult::InvalidParameter;
-            default:
-            {
-            #ifdef MEZZ_Debug
-                wchar_t WideBuffer[256];
-                FormatMessageW(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
-                               nullptr,
-                               err,
-                               MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
-                               WideBuffer,
-                               sizeof(WideBuffer) / sizeof(wchar_t),
-                               nullptr);
-                std::wstringstream ErrorStream;
-                ErrorStream << "Filesystem Modification failed: " << err << "\n" << WideBuffer << "\n";
-                std::wcerr << ErrorStream.str();
-            #endif
-                return Filesystem::ModifyResult::Unknown;
-            }
+            default:                       return Filesystem::ModifyResult::Unknown;
         }
     }
 #else // MEZZ_Windows
