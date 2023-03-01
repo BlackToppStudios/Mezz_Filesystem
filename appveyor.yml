@@ -6,7 +6,7 @@ image:
 
 environment:
   matrix:
-  - GENERATOR: Visual Studio 17 2022 Win64
+  - GENERATOR: Visual Studio 17 2022
 
 configuration:
   - Debug
@@ -19,7 +19,7 @@ before_build:
   - mkdir JagatiPackages
   - set JAGATI_DIR=C:\projects\Mezz_Filesystem\build\JagatiPackages
   - echo "Current Configuration is '%CONFIGURATION%'"
-  - cmake -G "%GENERATOR%" -DCMAKE_BUILD_TYPE=%CONFIGURATION% .. -DMEZZ_BuildDoxygen=OFF
+  - cmake -G "%GENERATOR%" -A x64 -DCMAKE_BUILD_TYPE=%CONFIGURATION% .. -DMEZZ_BuildDoxygen=OFF
 
 build_script:
   - cmake --build . --config %CONFIGURATION%
