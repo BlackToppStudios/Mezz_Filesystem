@@ -13,8 +13,6 @@ configuration:
   - Release
 
 before_build:
-  # Stop useless Xamarin Build targets from making messages
-  - del "C:\Program Files (x86)\MSBuild\14.0\Microsoft.Common.targets\ImportAfter\Xamarin.Common.targets"
   # Finalize build prep
   - mkdir build
   - cd build
@@ -28,9 +26,7 @@ build_script:
 
 test_script:
   - cmd: cd C:\projects\Mezz_Filesystem\build
-  # 'debugtests' is required to prevent appveyor build failures related to
-  # the number of file handles being tested at the same time.
-  - cmd: Filesystem_Tester debugtests xml
+  - cmd: Filesystem_Tester xml
 
 notifications:
 - provider: Email
