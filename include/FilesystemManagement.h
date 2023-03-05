@@ -73,6 +73,7 @@ namespace Filesystem {
         PrivilegeNotHeld,  ///< (Mostly Windows) A privilege needed for the operation is not held by the executing user.
         CurrentlyBusy,     ///< The file or directory specified is in use by the system and operation can't complete.
         OperationCanceled, ///< The operation was canceled or aborted.
+        InvalidParameter,  ///< One of the parameters provided is incorrect or invalid.
         NotSupported,      ///< The operation is not supported on the host system.
         // Unknown
         Unknown            ///< Error is unknown.
@@ -168,7 +169,11 @@ namespace Filesystem {
     Boole MEZZ_LIB SymlinkExists(const StringView SymPath) noexcept;
     /// @brief Creates a symbolic link to a file on disk.
     /// @warning Symlinks on emscripten is entirely unsupported and no guarantees are made for their behavior.
-    /// Additionally, they don't make much sense in a web browser.
+    /// Additionally, they don't make much sense in a web browser. @n@n
+    /// Symlinks require heightened permissions or a UAC prompt on Windows to be created. The only work around
+    /// (which we use) requires the Windows Host to be running in Developer Mode.  If you get a InvalidParameter
+    /// return value from this function, it is likely that turning on Developer mode will allow the symlink to
+    /// be created.
     /// @param SymPath A path (including the name of the symbolic link) to where the link should be placed.
     /// @param TargetPath A path to where the symbolic link will point to.
     /// @return Returns a ModifyResult value describing the result of the link creation.
@@ -176,7 +181,11 @@ namespace Filesystem {
     ModifyResult MEZZ_LIB CreateSymlink(const StringView SymPath, const StringView TargetPath);
     /// @brief Creates a symbolic link to a directory on disk.
     /// @warning Symlinks on emscripten is entirely unsupported and no guarantees are made for their behavior.
-    /// Additionally, they don't make much sense in a web browser.
+    /// Additionally, they don't make much sense in a web browser. @n@n
+    /// Symlinks require heightened permissions or a UAC prompt on Windows to be created. The only work around
+    /// (which we use) requires the Windows Host to be running in Developer Mode.  If you get a InvalidParameter
+    /// return value from this function, it is likely that turning on Developer mode will allow the symlink to
+    /// be created.
     /// @param SymPath A path (including the name of the symbolic link) to where the link should be placed.
     /// @param TargetPath A path to where the symbolic link will point to.
     /// @return Returns a ModifyResult value describing the result of the link creation.

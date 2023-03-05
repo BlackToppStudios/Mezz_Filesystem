@@ -224,6 +224,19 @@ namespace
     [[nodiscard]]
     Filesystem::ModifyResult ConvertErrNo(DWORD err) noexcept
     {
+    #ifdef MEZZ_Debug
+        char MsgBuffer[256];
+        FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
+                       nullptr,
+                       err,
+                       MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
+                       MsgBuffer,
+                       sizeof(MsgBuffer) / sizeof(char),
+                       nullptr);
+        std::stringstream ErrorStream;
+        ErrorStream << "Filesystem operation failed: " << err << " - " << MsgBuffer << "\n";
+        std::cerr << ErrorStream.str();
+    #endif
         switch( err )
         {
             case ERROR_SUCCESS:            return Filesystem::ModifyResult::Success;
@@ -241,23 +254,8 @@ namespace
             case ERROR_PRIVILEGE_NOT_HELD: return Filesystem::ModifyResult::PrivilegeNotHeld;
             case ERROR_PATH_BUSY:          return Filesystem::ModifyResult::CurrentlyBusy;
             case ERROR_REQUEST_ABORTED:    return Filesystem::ModifyResult::OperationCanceled;
-            default:
-            {
-            #ifdef MEZZ_Debug
-                wchar_t WideBuffer[256];
-                FormatMessageW(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
-                               nullptr,
-                               err,
-                               MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
-                               WideBuffer,
-                               sizeof(WideBuffer) / sizeof(wchar_t),
-                               nullptr);
-                std::wstringstream ErrorStream;
-                ErrorStream << "Filesystem Modification failed: " << err << "\n" << WideBuffer << "\n";
-                std::wcerr << ErrorStream.str();
-            #endif
-                return Filesystem::ModifyResult::Unknown;
-            }
+            case ERROR_INVALID_PARAMETER:  return Filesystem::ModifyResult::InvalidParameter;
+            default:                       return Filesystem::ModifyResult::Unknown;
         }
     }
 #else // MEZZ_Windows
@@ -447,7 +445,7 @@ namespace Filesystem {
         RESTORE_WARNING_STATE
 
         if( CreateLink ) {
-            DWORD LinkFlags = 0;
+            DWORD LinkFlags = SYMBOLIC_LINK_FLAG_ALLOW_UNPRIVILEGED_CREATE;
             std::wstring WideSymPath = ConvertToWideString(SymPath);
             std::wstring WideTargetPath = ConvertToWideString(TargetPath);
             return ( CreateLink(WideSymPath.data(),WideTargetPath.data(),LinkFlags) != 0 ?
@@ -466,12 +464,26 @@ namespace Filesystem {
     ModifyResult CreateDirectorySymlink(const StringView SymPath, const StringView TargetPath)
     {
     #ifdef MEZZ_Windows
-        DWORD LinkFlags = SYMBOLIC_LINK_FLAG_DIRECTORY;
-        std::wstring WideSymPath = ConvertToWideString(SymPath);
-        std::wstring WideTargetPath = ConvertToWideString(TargetPath);
-        return ( ::CreateSymbolicLinkW(WideSymPath.data(),WideTargetPath.data(),LinkFlags) != 0 ?
-                 ModifyResult::Success :
-                 ConvertErrNo( ::GetLastError() ) );
+        using CreateLinkPtr = BOOLEAN(WINAPI*)(LPCWSTR,LPCWSTR,DWORD);
+
+        SAVE_WARNING_STATE
+        SUPPRESS_VC_WARNING(4191) // Because apparently I need to tell the compiler to shut up twice.
+        SUPPRESS_GCC_WARNING("-Wcast-function-type") // MinGW doesn't like this cast, even though the WINAPI demands it.
+
+        CreateLinkPtr CreateLink = reinterpret_cast<CreateLinkPtr>( GetProcAddress(GetModuleHandleW(L"kernel32.dll"),
+                                                                                   "CreateSymbolicLinkW") );
+        RESTORE_WARNING_STATE
+
+        if( CreateLink ) {
+            DWORD LinkFlags = SYMBOLIC_LINK_FLAG_ALLOW_UNPRIVILEGED_CREATE | SYMBOLIC_LINK_FLAG_DIRECTORY;
+            std::wstring WideSymPath = ConvertToWideString(SymPath);
+            std::wstring WideTargetPath = ConvertToWideString(TargetPath);
+            return ( CreateLink(WideSymPath.data(),WideTargetPath.data(),LinkFlags) != 0 ?
+                     ModifyResult::Success :
+                     ConvertErrNo( ::GetLastError() ) );
+        }else{
+            return ModifyResult::NotSupported;
+        }
     #else // MEZZ_Windows
         return ( ::symlink(TargetPath.data(),SymPath.data()) == 0 ?
                  ModifyResult::Success :

@@ -80,29 +80,6 @@ namespace
         assert( ToDemote <= static_cast<size_t>( std::numeric_limits<int>::max() ) );
         return static_cast<int>(ToDemote);
     }
-    /// @brief Converts a system time type to a standard time type.
-    /// @param TimeVal the system time type to convert.
-    /// @return Returns a converted standard time value.
-    [[nodiscard]]
-    UInt64 ConvertTime(const FILETIME TimeVal) noexcept
-    {
-        LARGE_INTEGER Converter;
-        Converter.HighPart = TimeVal.dwHighDateTime;
-        Converter.LowPart = TimeVal.dwLowDateTime;
-        return static_cast<UInt64>(Converter.QuadPart);
-    }
-    /*/// @brief Converts a standard time type to a system time type.
-    /// @param TimeVal The standard time type to convert.
-    /// @return Returns a converted system time value.
-    FILETIME ConvertTime(const UInt64 TimeVal)
-    {
-        FILETIME Ret;
-        LARGE_INTEGER Converter;
-        Converter.QuadPart = TimeVal;
-        Ret.dwHighDateTime = Converter.HighPart;
-        Ret.dwLowDateTime = Converter.LowPart;
-        return Ret;
-    }//*/
     /// @brief Converts a narrow (8-bit) string to a wide (16-bit) string.
     /// @param Thin The string to be converted.
     /// @return Returns a wide string with the converted contents.
@@ -133,6 +110,29 @@ namespace
         }
         return Ret;
     }
+    /// @brief Converts a system time type to a standard time type.
+    /// @param TimeVal the system time type to convert.
+    /// @return Returns a converted standard time value.
+    [[nodiscard]]
+    UInt64 ConvertTime(const FILETIME TimeVal) noexcept
+    {
+        LARGE_INTEGER Converter;
+        Converter.HighPart = TimeVal.dwHighDateTime;
+        Converter.LowPart = TimeVal.dwLowDateTime;
+        return static_cast<UInt64>(Converter.QuadPart);
+    }
+    /*/// @brief Converts a standard time type to a system time type.
+    /// @param TimeVal The standard time type to convert.
+    /// @return Returns a converted system time value.
+    FILETIME ConvertTime(const UInt64 TimeVal)
+    {
+        FILETIME Ret;
+        LARGE_INTEGER Converter;
+        Converter.QuadPart = TimeVal;
+        Ret.dwHighDateTime = Converter.HighPart;
+        Ret.dwLowDateTime = Converter.LowPart;
+        return Ret;
+    }//*/
     /// @brief Performs all the necessary operations to prepare a String to be provided to Windows.
     /// @param ToPrepare The String to be prepared.
     /// @return Returns a WideString that can be passed into Windows OS File APIs.

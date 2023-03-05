@@ -2,35 +2,31 @@ version: 0.0.{build}
 clone_folder: C:\projects\Mezz_Filesystem
 
 image:
-  - Visual Studio 2017
+  - Visual Studio 2022
 
 environment:
   matrix:
-  - GENERATOR: Visual Studio 15 2017 Win64
+  - GENERATOR: Visual Studio 17 2022
 
 configuration:
   - Debug
   - Release
 
 before_build:
-  # Stop useless Xamarin Build targets from making messages
-  - del "C:\Program Files (x86)\MSBuild\14.0\Microsoft.Common.targets\ImportAfter\Xamarin.Common.targets"
   # Finalize build prep
   - mkdir build
   - cd build
   - mkdir JagatiPackages
   - set JAGATI_DIR=C:\projects\Mezz_Filesystem\build\JagatiPackages
   - echo "Current Configuration is '%CONFIGURATION%'"
-  - cmake -G "%GENERATOR%" -DCMAKE_BUILD_TYPE=%CONFIGURATION% .. -DMEZZ_BuildDoxygen=OFF
+  - cmake -G "%GENERATOR%" -A x64 -DCMAKE_BUILD_TYPE=%CONFIGURATION% .. -DMEZZ_BuildDoxygen=OFF
 
 build_script:
   - cmake --build . --config %CONFIGURATION%
 
 test_script:
   - cmd: cd C:\projects\Mezz_Filesystem\build
-  # 'debugtests' is required to prevent appveyor build failures related to
-  # the number of file handles being tested at the same time.
-  - cmd: Filesystem_Tester debugtests xml
+  - cmd: Filesystem_Tester xml
 
 notifications:
 - provider: Email
